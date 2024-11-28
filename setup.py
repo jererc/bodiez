@@ -20,7 +20,7 @@ class CustomInstallCommand(install):
 
 setup(
     name='bodiez',
-    version='2024.11.27.182846',
+    version='2024.11.28.143530',
     author='jererc',
     author_email='jererc@gmail.com',
     url='https://github.com/jererc/bodiez',
@@ -31,9 +31,9 @@ setup(
         # 'svcutils @ git+https://github.com/jererc/svcutils.git@main#egg=svcutils',
         'svcutils @ https://github.com/jererc/svcutils/archive/refs/heads/main.zip',
     ],
-    cmdclass={
-        'install': CustomInstallCommand,
-    },
+    # cmdclass={
+    #     'install': CustomInstallCommand,
+    # },
     extras_require={
         'dev': ['flake8', 'pytest'],
     },
