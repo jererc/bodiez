@@ -2,6 +2,7 @@ from urllib.parse import urlparse
 
 from playwright.sync_api import TimeoutError
 
+from bodiez import logger
 from bodiez.parsers.base import BaseParser
 
 
@@ -28,6 +29,7 @@ class RutrackerParser(BaseParser):
             try:
                 page.wait_for_selector(selector, timeout=timeout)
             except TimeoutError:
+                logger.error(f'failed to parse {url}')
                 return
             elements = page.locator(selector).element_handles()
             for element in elements:
