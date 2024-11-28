@@ -27,9 +27,14 @@ class BaseParser:
         with sync_playwright() as p:
             try:
                 context = p.chromium.launch_persistent_context(
-                   user_data_dir=self.work_path,
-                   headless=self.config.HEADLESS,
-                   args=['--no-sandbox'],
+                    user_data_dir=self.work_path,
+                    headless=self.config.HEADLESS,
+                    args=[
+                        '--disable-gpu',
+                        '--disable-software-rasterizer',
+                        '--no-sandbox',
+                        '--disable-dev-shm-usage',
+                    ],
                 )
                 yield context
             finally:
