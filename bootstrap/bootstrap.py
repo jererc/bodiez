@@ -12,6 +12,6 @@ Bootstrapper(
     ],
     extra_cmds=[
         ['-m', 'playwright', 'install'],
-    ]
+    ],
     force_reinstall=True,
 ).setup_task()
