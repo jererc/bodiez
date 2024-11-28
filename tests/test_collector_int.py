@@ -39,9 +39,9 @@ class BaseTestCase(unittest.TestCase):
     def _collect(self, urls, headless=True):
         return module.collect(Config(
             __file__,
-            URLS=urls,
-            HEADLESS=headless,
             STORAGE_PATH=os.path.join(WORK_PATH, 'bodiez'),
+            HEADLESS=headless,
+            URLS=urls,
             ),
         )
 

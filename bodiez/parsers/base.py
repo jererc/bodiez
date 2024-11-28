@@ -21,20 +21,6 @@ class BaseParser:
     def can_parse_url(url):
         raise NotImplementedError()
 
-    # @contextmanager
-    # def playwright_context(self):
-    #     if not os.path.exists(self.work_path):
-    #         os.makedirs(self.work_path)
-    #     with sync_playwright() as p:
-    #         try:
-    #             context = p.chromium.launch_persistent_context(
-    #                 user_data_dir=self.work_path,
-    #                 headless=self.config.HEADLESS,
-    #             )
-    #             yield context
-    #         finally:
-    #             context.close()
-
     @contextmanager
     def playwright_context(self):
         if not os.path.exists(self.work_path):
@@ -48,8 +34,8 @@ class BaseParser:
                     cookies = json.load(open(state_path))['cookies']
                     context.add_cookies(cookies)
                 yield context
-            finally:
                 context.storage_state(path=state_path)
+            finally:
                 context.close()
 
     def parse(self, url):

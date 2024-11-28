@@ -29,7 +29,6 @@ def main():
     config = Config(
         os.path.join(path, 'user_settings.py'),
         STORAGE_PATH=os.path.join(path, 'bodies'),
-        BROWSER_ID='chrome',
         HEADLESS=not args.interactive,
     )
     if args.cmd == 'collect':
