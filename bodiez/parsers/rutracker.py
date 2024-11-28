@@ -1,5 +1,3 @@
-import json
-import os
 from urllib.parse import urlparse
 
 from bodiez.parsers.base import BaseParser
@@ -19,13 +17,12 @@ class RutrackerParser(BaseParser):
             route.continue_()
 
     def parse(self, url):
-        storage_path = os.path.join(self.work_path, 'storage_state.json')
+        # storage_path = os.path.join(self.work_path, 'storage_state.json')
         with self.playwright_context() as context:
-            if os.path.exists(storage_path):
-                cookies = json.load(open(storage_path))['cookies']
-                print(json.dumps(cookies, sort_keys=True, indent=4))
-                context.add_cookies(cookies)
-
+            # if os.path.exists(storage_path):
+            #     cookies = json.load(open(storage_path))['cookies']
+            #     print(json.dumps(cookies, sort_keys=True, indent=4))
+            #     context.add_cookies(cookies)
             context.route('**/*', self._request_handler)
             page = context.new_page()
             page.goto(url)
@@ -36,4 +33,4 @@ class RutrackerParser(BaseParser):
             for element in elements:
                 a = element.query_selector('xpath=.//a')
                 yield a.text_content().strip()
-            context.storage_state(path=storage_path)
+            # context.storage_state(path=storage_path)

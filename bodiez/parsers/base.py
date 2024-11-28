@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 import importlib
 import inspect
+import json
 import os
 
 from playwright.sync_api import sync_playwright
@@ -20,18 +21,35 @@ class BaseParser:
     def can_parse_url(url):
         raise NotImplementedError()
 
+    # @contextmanager
+    # def playwright_context(self):
+    #     if not os.path.exists(self.work_path):
+    #         os.makedirs(self.work_path)
+    #     with sync_playwright() as p:
+    #         try:
+    #             context = p.chromium.launch_persistent_context(
+    #                 user_data_dir=self.work_path,
+    #                 headless=self.config.HEADLESS,
+    #             )
+    #             yield context
+    #         finally:
+    #             context.close()
+
     @contextmanager
     def playwright_context(self):
         if not os.path.exists(self.work_path):
             os.makedirs(self.work_path)
+        state_path = os.path.join(self.work_path, 'state.json')
         with sync_playwright() as p:
             try:
-                context = p.chromium.launch_persistent_context(
-                    user_data_dir=self.work_path,
-                    headless=self.config.HEADLESS,
-                )
+                browser = p.chromium.launch(headless=self.config.HEADLESS)
+                context = browser.new_context()
+                if os.path.exists(state_path):
+                    cookies = json.load(open(state_path))['cookies']
+                    context.add_cookies(cookies)
                 yield context
             finally:
+                context.storage_state(path=state_path)
                 context.close()
 
     def parse(self, url):
