@@ -29,6 +29,7 @@ class BaseParser:
                 context = p.chromium.launch_persistent_context(
                    user_data_dir=self.work_path,
                    headless=self.config.HEADLESS,
+                   args=['--no-sandbox'],
                 )
                 yield context
             finally:
