@@ -30,10 +30,11 @@ class BaseParser:
                     user_data_dir=self.work_path,
                     headless=self.config.HEADLESS,
                     args=[
-                        '--disable-gpu',
-                        '--disable-software-rasterizer',
-                        '--no-sandbox',
-                        '--disable-dev-shm-usage',
+                        # '--disable-gpu',
+                        # '--disable-software-rasterizer',
+                        # '--no-sandbox',
+                        # '--disable-dev-shm-usage',
+                        '--headless=new',
                     ],
                 )
                 yield context
