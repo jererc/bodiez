@@ -30,6 +30,7 @@ def main():
         os.path.join(path, 'user_settings.py'),
         STORAGE_PATH=os.path.join(path, 'bodies'),
         BROWSER_ID='chrome',
+        HEADLESS=not args.interactive,
     )
     if args.cmd == 'collect':
         service = Service(
@@ -47,7 +48,7 @@ def main():
         elif args.task:
             service.run_once()
         else:
-            collect(config, headless=not args.interactive)
+            collect(config)
 
 
 if __name__ == '__main__':

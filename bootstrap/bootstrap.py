@@ -8,7 +8,7 @@ Bootstrapper(
     cmd_args=['bodiez.main', '-p', os.getcwd(), 'collect', '--task'],
     install_requires=[
         # 'git+https://github.com/jererc/bodiez.git',
-        'bodiez @ https://github.com/jererc/bodiez/archive/refs/heads/main.zip',
+        'bodiez @ https://github.com/jererc/bodiez/archive/refs/heads/playwright.zip',
     ],
     force_reinstall=True,
 ).setup_task()

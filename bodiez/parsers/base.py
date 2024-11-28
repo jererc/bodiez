@@ -1,19 +1,38 @@
+from contextlib import contextmanager
 import importlib
 import inspect
 import os
 
-from bodiez import logger
+from playwright.sync_api import sync_playwright
+
+from bodiez import WORK_PATH, logger
 
 
 class BaseParser:
     id = None
 
-    def __init__(self, driver):
-        self.driver = driver
+    def __init__(self, config):
+        self.config = config
+        self.work_path = os.path.join(WORK_PATH,
+            'parsers', f'.{self.id}')
 
     @staticmethod
     def can_parse_url(url):
         raise NotImplementedError()
+
+    @contextmanager
+    def playwright_context(self):
+        if not os.path.exists(self.work_path):
+            os.makedirs(self.work_path)
+        with sync_playwright() as p:
+            try:
+                context = p.chromium.launch_persistent_context(
+                   user_data_dir=self.work_path,
+                   headless=self.config.HEADLESS,
+                )
+                yield context
+            finally:
+                context.close()
 
     def parse(self, url):
         raise NotImplementedError()

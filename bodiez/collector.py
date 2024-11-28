@@ -10,7 +10,6 @@ from urllib.parse import urlparse, unquote_plus
 from uuid import uuid4
 
 from svcutils.service import Notifier
-from webutils.browser import get_driver
 
 from bodiez import NAME, logger
 from bodiez.parsers.base import iterate_parsers
@@ -22,11 +21,6 @@ STORAGE_RETENTION_DELTA = 7 * 24 * 3600
 
 logging.getLogger('selenium').setLevel(logging.INFO)
 logging.getLogger('urllib3').setLevel(logging.INFO)
-
-
-def makedirs(x):
-    if not os.path.exists(x):
-        os.makedirs(x)
 
 
 def get_file_mtime(x):
@@ -81,7 +75,8 @@ class TitleStorage:
                 logger.debug(f'removed old file {file}')
 
         dst_path = self._get_dst_path(url)
-        makedirs(dst_path)
+        if not os.path.exists(dst_path):
+            os.makedirs(dst_path)
         file = os.path.join(dst_path, self._generate_dst_filename())
         with open(file, 'w', encoding='utf-8') as fd:
             json.dump(new_titles, fd, sort_keys=True, indent=4)
@@ -122,11 +117,6 @@ class URLItem:
 class TitleCollector:
     def __init__(self, config, headless=True):
         self.config = config
-        self.driver = get_driver(
-            browser_id=self.config.BROWSER_ID,
-            headless=headless,
-            page_load_strategy='eager',
-        )
         self.parsers = list(iterate_parsers())
         self.title_storage = TitleStorage(self.config.STORAGE_PATH)
 
@@ -148,7 +138,7 @@ class TitleCollector:
     def _iterate_parsers(self, url_item):
         for parser_cls in self.parsers:
             if parser_cls.can_parse_url(url_item.url):
-                yield parser_cls(self.driver)
+                yield parser_cls(self.config)
 
     def _collect_titles(self, url_item):
         parsers = list(self._iterate_parsers(url_item))
@@ -163,7 +153,7 @@ class TitleCollector:
             if not titles:
                 logger.error(f'no result from {url_item.url}')
                 Notifier().send(title=f'{NAME} error',
-                    body=f'no result from {parser.id}')
+                    body=f'no result for {url_item.id}')
                 continue
             res.update({r: now - i for i, r in enumerate(titles)})
         return res
@@ -181,21 +171,18 @@ class TitleCollector:
     def run(self):
         start_ts = time.time()
         urls = set()
-        try:
-            for url in self.config.URLS:
-                url_item = URLItem(url)
-                urls.add(url_item.url)
-                try:
-                    self._process_url_item(url_item)
-                except Exception as exc:
-                    logger.exception(f'failed to process {url_item}')
-                    Notifier().send(title=f'{NAME} error',
-                        body=f'failed to process {url_item.id}: {exc}')
-        finally:
-            self.driver.quit()
+        for url in self.config.URLS:
+            url_item = URLItem(url)
+            urls.add(url_item.url)
+            try:
+                self._process_url_item(url_item)
+            except Exception as exc:
+                logger.exception(f'failed to process {url_item}')
+                Notifier().send(title=f'{NAME} error',
+                    body=f'failed to process {url_item.id}: {exc}')
         self.title_storage.cleanup(urls)
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')
 
 
-def collect(config, headless=True):
-    TitleCollector(config, headless=headless).run()
+def collect(config):
+    TitleCollector(config).run()

@@ -1,11 +1,5 @@
-import time
 from urllib.parse import urlparse
 
-from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-
-from bodiez import logger
 from bodiez.parsers.base import BaseParser
 
 
@@ -18,28 +12,22 @@ class NvidiaGeforceParser(BaseParser):
         return 'nvidia' in res.netloc.split('.') \
             and res.path.strip('/').endswith('/geforce/news')
 
-    def _wait_for_elements(self, url, poll_frequency=.5, timeout=10):
-        self.driver.get(url)
-        end_ts = time.time() + timeout
-        while time.time() < end_ts:
-            try:
-                els = self.driver.find_elements(By.XPATH,
-                    '//div[contains(@class, "article-title-text")]')
-                if not els:
-                    raise NoSuchElementException()
-                return els
-            except NoSuchElementException:
-                time.sleep(poll_frequency)
-        raise Exception('timeout')
-
-    def _wait_for_title(self, root_el):
-        return root_el.find_element(By.XPATH, './/a').text.strip()
+    def _request_handler(self, route, request):
+        if request.resource_type == 'image':
+            route.abort()
+        else:
+            route.continue_()
 
     def parse(self, url):
-        for el in self._wait_for_elements(url):
-            title = WebDriverWait(el, 5).until(self._wait_for_title)
-            if not title:
-                logger.error(f'failed to get {self.id} title from:\n'
-                    f'{el.get_attribute("outerHTML")}')
-                continue
-            yield title
+        with self.playwright_context() as context:
+            context.route('**/*', self._request_handler)
+            page = context.new_page()
+            page.goto(url)
+            divs = page.locator(
+                '//div[contains(@class, "article-title-text")]').all()
+            for div in divs:
+                a = div.locator('xpath=.//a').nth(0)
+                text = None
+                while not text or not text.strip():
+                    text = a.text_content()
+                yield text.strip()
