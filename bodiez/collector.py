@@ -148,12 +148,10 @@ class TitleCollector:
         now = time.time()
         for parser in sorted(parsers, key=lambda x: x.id):
             titles = [r for r in parser.parse(url_item.url) if r]
-            logger.debug(f'{parser.id} results ({url_item.url}):\n'
+            logger.debug(f'{parser.id} results for {url_item}:\n'
                 f'{json.dumps(titles, indent=4)}')
             if not titles:
-                logger.error(f'no result from {url_item.url}')
-                Notifier().send(title=f'{NAME} error',
-                    body=f'no result for {url_item.id}')
+                logger.error(f'no result for {url_item}')
                 continue
             res.update({r: now - i for i, r in enumerate(titles)})
         return res

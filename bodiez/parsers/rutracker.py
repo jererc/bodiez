@@ -1,5 +1,7 @@
 from urllib.parse import urlparse
 
+from playwright.sync_api import TimeoutError
+
 from bodiez.parsers.base import BaseParser
 
 
@@ -23,7 +25,10 @@ class RutrackerParser(BaseParser):
             page.goto(url)
             selector = "xpath=//div[contains(@class, 't-title')]"
             timeout = 10000 if self.config.HEADLESS else 120000
-            page.wait_for_selector(selector, timeout=timeout)
+            try:
+                page.wait_for_selector(selector, timeout=timeout)
+            except TimeoutError:
+                return
             elements = page.locator(selector).element_handles()
             for element in elements:
                 a = element.query_selector('xpath=.//a')
