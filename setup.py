@@ -1,26 +1,26 @@
 from setuptools import setup, find_packages
-from setuptools.command.install import install
-import subprocess
-import sys
+# from setuptools.command.install import install
+# import subprocess
+# import sys
 
 
-class CustomInstallCommand(install):
-    """Customized setuptools install command to run `playwright install`."""
-    def run(self):
-        # Run the standard install process
-        install.run(self)
+# class CustomInstallCommand(install):
+#     """Customized setuptools install command to run `playwright install`."""
+#     def run(self):
+#         # Run the standard install process
+#         install.run(self)
 
-        # Run `playwright install` using the Python executable
-        try:
-            subprocess.check_call([sys.executable, '-m', 'playwright', 'install'])
-        except subprocess.CalledProcessError as e:
-            print(f"Failed to run `playwright install`: {e}")
-            sys.exit(1)
+#         # Run `playwright install` using the Python executable
+#         try:
+#             subprocess.check_call([sys.executable, '-m', 'playwright', 'install'])
+#         except subprocess.CalledProcessError as e:
+#             print(f"Failed to run `playwright install`: {e}")
+#             sys.exit(1)
 
 
 setup(
     name='bodiez',
-    version='2024.11.28.143530',
+    version='2024.11.28.143718',
     author='jererc',
     author_email='jererc@gmail.com',
     url='https://github.com/jererc/bodiez',
