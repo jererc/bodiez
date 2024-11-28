@@ -18,6 +18,21 @@ class CustomInstallCommand(install):
             sys.exit(1)
 
 
+class CustomInstallCommand(install):
+    """Customized setuptools install command to run `playwright install`."""
+    def run(self):
+        # Run the standard install process first
+        install.run(self)
+
+        # Ensure playwright is installed before running `playwright install`
+        try:
+            subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'playwright'])
+            subprocess.check_call([sys.executable, '-m', 'playwright', 'install'])
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to run `playwright install`: {e}")
+            sys.exit(1)
+
+
 setup(
     name='bodiez',
     version='2024.11.28.143718',
