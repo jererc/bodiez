@@ -22,7 +22,8 @@ class RutrackerParser(BaseParser):
             page = context.new_page()
             page.goto(url)
             selector = "xpath=//div[contains(@class, 't-title')]"
-            page.wait_for_selector(selector, timeout=120000)
+            timeout = 0 if self.config.HEADLESS else 120000
+            page.wait_for_selector(selector, timeout=timeout)
             elements = page.locator(selector).element_handles()
             for element in elements:
                 a = element.query_selector('xpath=.//a')
