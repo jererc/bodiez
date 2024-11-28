@@ -26,13 +26,9 @@ class BaseParser:
             os.makedirs(self.work_path)
         with sync_playwright() as p:
             try:
-                args = []
-                if self.config.HEADLESS:
-                    args.append('--headless=new')
                 context = p.chromium.launch_persistent_context(
                     user_data_dir=self.work_path,
                     headless=self.config.HEADLESS,
-                    args=args,
                 )
                 yield context
             finally:
