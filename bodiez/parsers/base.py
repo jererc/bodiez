@@ -1,7 +1,6 @@
 from contextlib import contextmanager
 import importlib
 import inspect
-import json
 import os
 
 from playwright.sync_api import sync_playwright
@@ -28,11 +27,14 @@ class BaseParser:
         state_path = os.path.join(self.work_path, 'state.json')
         with sync_playwright() as p:
             try:
-                browser = p.chromium.launch(headless=self.config.HEADLESS)
-                context = browser.new_context()
-                if os.path.exists(state_path):
-                    cookies = json.load(open(state_path))['cookies']
-                    context.add_cookies(cookies)
+                browser = p.chromium.launch(
+                    headless=self.config.HEADLESS,
+                    args=[
+                        # '--disable-blink-features=AutomationControlled',
+                    ],
+                )
+                context = browser.new_context(storage_state=state_path
+                    if os.path.exists(state_path) else None)
                 yield context
                 context.storage_state(path=state_path)
             finally:
