@@ -11,7 +11,7 @@ Bootstrapper(
         'bodiez @ https://github.com/jererc/bodiez/archive/refs/heads/main.zip',
     ],
     extra_cmds=[
-        ['-m', 'playwright', 'install'],
+        ['playwright', 'install'],
     ],
     force_reinstall=True,
 ).setup_task()
