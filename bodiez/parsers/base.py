@@ -36,8 +36,8 @@ class BaseParser:
                 context = browser.new_context(storage_state=state_path
                     if os.path.exists(state_path) else None)
                 yield context
-                context.storage_state(path=state_path)
             finally:
+                context.storage_state(path=state_path)
                 context.close()
 
     def parse(self, url):
