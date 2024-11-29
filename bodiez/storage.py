@@ -1,3 +1,4 @@
+from dataclasses import dataclass, asdict
 from glob import glob
 import hashlib
 import json
@@ -16,6 +17,16 @@ def get_file_mtime(x):
     return os.stat(x).st_mtime
 
 
+@dataclass
+class URLTitle:
+    url: str
+    title: str
+    ts: int
+
+    def asdict(self):
+        return asdict(self)
+
+
 class SharedLocalStorage:
     def __init__(self, base_path):
         self.base_path = os.path.realpath(base_path)
@@ -29,39 +40,41 @@ class SharedLocalStorage:
     def _generate_dst_filename(self):
         return f'{uuid4().hex}.json'
 
-    def _iterate_file_and_titles(self, url):
+    def _iterate_file_and_url_titles(self, url):
         for file in glob(os.path.join(self._get_dst_path(url), '*.json')):
             try:
                 with open(file, 'r', encoding='utf-8') as fd:
-                    titles = json.load(fd)
+                    data = json.load(fd)
+                url_titles = [URLTitle(**r) for r in data]
             except Exception:
                 logger.exception(f'failed to load file {file}')
                 continue
-            yield file, titles
+            yield file, url_titles
 
-    def _load_titles(self, url):
-        res = {}
-        for file, titles in self._iterate_file_and_titles(url):
-            res.update(titles)
+    def _load_url_titles(self, url):
+        res = []
+        for file, url_titles in self._iterate_file_and_url_titles(url):
+            res.extend(url_titles)
         return res
 
-    def get_new_titles(self, url, titles):
-        stored_titles = self._load_titles(url)
-        return {k: v for k, v in titles.items() if k not in stored_titles}
+    def get_new_titles(self, url, url_titles):
+        titles = {r.title for r in self._load_url_titles(url)}
+        return [r for r in url_titles if r.title not in titles]
 
-    def save(self, url, all_titles, new_titles):
-        all_title_keys = set(all_titles.keys())
-        for file, titles in self._iterate_file_and_titles(url):
-            if not set(titles.keys()) & all_title_keys:
-                os.remove(file)
-                logger.debug(f'removed old file {file}')
-
+    def save(self, url, new_url_titles, url_titles):
         dst_path = self._get_dst_path(url)
         if not os.path.exists(dst_path):
             os.makedirs(dst_path)
         file = os.path.join(dst_path, self._generate_dst_filename())
+        data = [r.asdict() for r in new_url_titles]
         with open(file, 'w', encoding='utf-8') as fd:
-            json.dump(new_titles, fd, sort_keys=True, indent=4)
+            json.dump(data, fd, sort_keys=True, indent=4)
+
+        titles = {r.title for r in url_titles}
+        for file, file_url_titles in self._iterate_file_and_url_titles(url):
+            if not {r.title for r in file_url_titles} & titles:
+                os.remove(file)
+                logger.debug(f'removed old file {file}')
 
     def cleanup(self, all_urls):
         dirnames = {self._get_dst_dirname(r) for r in all_urls}

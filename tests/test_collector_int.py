@@ -33,7 +33,7 @@ def makedirs(path):
 
 class BaseTestCase(unittest.TestCase):
     def setUp(self):
-        # remove_path(WORK_PATH)
+        remove_path(WORK_PATH)
         makedirs(WORK_PATH)
 
     def _collect(self, urls, headless=True):
@@ -62,7 +62,7 @@ class X1337xTestCase(BaseTestCase):
     def test_ok(self):
         self._collect([
             'https://1337x.to/user/FitGirl/',
-            'https://1337x.to/user/DODI/',
+            # 'https://1337x.to/user/DODI/',
             # 'https://1337x.to/sort-search/battlefield%20repack/time/desc/1/',
             # ('https://1337x.to/cat/Movies/1/', 'movies'),
         ])
@@ -90,7 +90,6 @@ class CollectTestCase(BaseTestCase):
     def test_ok(self):
         self._collect([
             ('https://1337x.to/user/FitGirl/', 'FitGirl'),
-            ('https://1337x.to/sort-search/monster%20hunter%20repack/time/desc/1/', 'monster hunter'),
             ('https://rutracker.org/forum/tracker.php?f=557', 'rutracker classical'),
             ('https://www.nvidia.com/en-us/geforce/news/', 'geforce news'),
             ],

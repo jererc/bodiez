@@ -8,7 +8,7 @@ from svcutils.service import Notifier
 
 from bodiez import NAME, logger
 from bodiez.parsers.base import iterate_parsers
-from bodiez.storage import SharedLocalStorage
+from bodiez.storage import URLTitle, SharedLocalStorage
 
 
 MAX_NOTIF_PER_URL = 4
@@ -51,10 +51,10 @@ class Collector:
         self.parsers = list(iterate_parsers())
         self.storage = SharedLocalStorage(self.config.STORAGE_PATH)
 
-    def _notify_new_titles(self, url_item, titles):
+    def _notify_new_titles(self, url_item, url_titles):
         notif_title = f'{NAME} {url_item.id}'
-        asc_titles = [clean_title(n) for n, _ in sorted(titles.items(),
-            key=lambda x: x[1])]
+        asc_titles = [clean_title(r.title) for r in
+            sorted(url_titles, key=lambda x: x.ts)]
         max_latest = MAX_NOTIF_PER_URL - 1
         latest_titles = asc_titles[-max_latest:]
         older_titles = asc_titles[:-max_latest]
@@ -71,11 +71,11 @@ class Collector:
             if parser_cls.can_parse_url(url_item.url):
                 yield parser_cls(self.config)
 
-    def _collect_titles(self, url_item):
+    def _collect_url_titles(self, url_item):
         parsers = list(self._iterate_parsers(url_item))
         if not parsers:
             raise Exception('no available parser')
-        res = {}
+        res = []
         now = time.time()
         for parser in sorted(parsers, key=lambda x: x.id):
             titles = [r for r in parser.parse(url_item.url) if r]
@@ -84,18 +84,23 @@ class Collector:
             if not titles:
                 logger.error(f'no result for {url_item}')
                 continue
-            res.update({r: now - i for i, r in enumerate(titles)})
+            res.extend([URLTitle(
+                url=url_item.url,
+                title=r,
+                ts=now - i,
+                )
+                for i, r in enumerate(titles)])
         return res
 
     def _process_url_item(self, url_item):
-        titles = self._collect_titles(url_item)
-        if not titles:
+        url_titles = self._collect_url_titles(url_item)
+        if not url_titles:
             raise Exception('no result')
-        logger.info(f'parsed {len(titles)} titles from {url_item.url}')
-        new_titles = self.storage.get_new_titles(url_item.url, titles)
-        if new_titles:
-            self._notify_new_titles(url_item, new_titles)
-            self.storage.save(url_item.url, titles, new_titles)
+        logger.info(f'parsed {len(url_titles)} titles from {url_item.url}')
+        new_url_titles = self.storage.get_new_titles(url_item.url, url_titles)
+        if new_url_titles:
+            self._notify_new_titles(url_item, new_url_titles)
+            self.storage.save(url_item.url, new_url_titles, url_titles)
 
     def run(self):
         start_ts = time.time()
