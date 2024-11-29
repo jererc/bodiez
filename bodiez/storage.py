@@ -7,11 +7,10 @@ import shutil
 import time
 from uuid import uuid4
 
-from bodiez import WORK_PATH, logger
+from bodiez import logger
 
 
 RETENTION_DELTA = 7 * 24 * 3600
-DEFAULT_GOOGLE_CREDS = os.path.join(WORK_PATH, 'google.json')
 
 
 def get_file_mtime(x):

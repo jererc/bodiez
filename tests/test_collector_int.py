@@ -42,8 +42,6 @@ class BaseTestCase(unittest.TestCase):
             HEADLESS=headless,
             URLS=urls,
             STORAGE_PATH=os.path.join(WORK_PATH, 'bodiez'),
-            # GOOGLE_CREDS=os.path.join(os.path.expanduser('~'),
-            #     'google-bodiez.json'),
             ),
         )
 
