@@ -8,7 +8,7 @@ from unittest.mock import patch
 from svcutils.service import Config
 
 import bodiez as module
-WORK_PATH = os.path.join(os.path.expanduser('~'), '_test_bodiez')
+WORK_PATH = os.path.join(os.path.expanduser('~'), '_tests', 'bodiez')
 module.WORK_PATH = WORK_PATH
 module.logger.setLevel(logging.DEBUG)
 module.logger.handlers.clear()
