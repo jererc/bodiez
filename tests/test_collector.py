@@ -40,7 +40,7 @@ class StorageTestCase(unittest.TestCase):
         url1 = 'https://1337x.to/user/1/'
         url2 = 'https://1337x.to/user/2/'
 
-        obj = storage.SharedLocalStorage(base_path=self.base_path)
+        obj = storage.SharedLocalStore(base_path=self.base_path)
         self.assertTrue(obj._get_dst_path(url1) != obj._get_dst_path(url2))
 
         all_titles = self._gen_titles(range(1, 6))
@@ -53,7 +53,7 @@ class StorageTestCase(unittest.TestCase):
         self.assertEqual(new_titles, self._gen_titles(range(6, 8)))
         obj.save(url1, all_titles, new_titles)
 
-        obj = storage.SharedLocalStorage(base_path=self.base_path)
+        obj = storage.SharedLocalStore(base_path=self.base_path)
         all_titles = self._gen_titles(range(7, 11))
         new_titles = obj.get_new_titles(url1, all_titles)
         self.assertEqual(new_titles, self._gen_titles(range(8, 11)))

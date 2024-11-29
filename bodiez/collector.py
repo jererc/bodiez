@@ -8,7 +8,7 @@ from svcutils.service import Notifier
 
 from bodiez import NAME, logger
 from bodiez.parsers.base import iterate_parsers
-from bodiez.storage import URLTitle, SharedLocalStorage
+from bodiez.storage import URLTitle, SharedLocalStore
 
 
 MAX_NOTIF_PER_URL = 4
@@ -49,7 +49,7 @@ class Collector:
     def __init__(self, config, headless=True):
         self.config = config
         self.parsers = list(iterate_parsers())
-        self.storage = SharedLocalStorage(self.config.STORAGE_PATH)
+        self.storage = SharedLocalStore(self.config)
 
     def _notify_new_titles(self, url_item, url_titles):
         notif_title = f'{NAME} {url_item.id}'

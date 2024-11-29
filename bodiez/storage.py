@@ -7,10 +7,11 @@ import shutil
 import time
 from uuid import uuid4
 
-from bodiez import logger
+from bodiez import WORK_PATH, logger
 
 
-STORAGE_RETENTION_DELTA = 7 * 24 * 3600
+RETENTION_DELTA = 7 * 24 * 3600
+DEFAULT_GOOGLE_CREDS = os.path.join(WORK_PATH, 'google.json')
 
 
 def get_file_mtime(x):
@@ -23,13 +24,14 @@ class URLTitle:
     title: str
     ts: int
 
-    def asdict(self):
+    def to_dict(self):
         return asdict(self)
 
 
-class SharedLocalStorage:
-    def __init__(self, base_path):
-        self.base_path = os.path.realpath(base_path)
+class SharedLocalStore:
+    def __init__(self, config):
+        self.config = config
+        self.base_path = os.path.realpath(self.config.STORAGE_PATH)
 
     def _get_dst_dirname(self, url):
         return hashlib.md5(url.encode('utf-8')).hexdigest()
@@ -66,7 +68,7 @@ class SharedLocalStorage:
         if not os.path.exists(dst_path):
             os.makedirs(dst_path)
         file = os.path.join(dst_path, self._generate_dst_filename())
-        data = [r.asdict() for r in new_url_titles]
+        data = [r.to_dict() for r in new_url_titles]
         with open(file, 'w', encoding='utf-8') as fd:
             json.dump(data, fd, sort_keys=True, indent=4)
 
@@ -76,14 +78,14 @@ class SharedLocalStorage:
                 os.remove(file)
                 logger.debug(f'removed old file {file}')
 
-    def cleanup(self, all_urls):
-        dirnames = {self._get_dst_dirname(r) for r in all_urls}
-        min_ts = time.time() - STORAGE_RETENTION_DELTA
+    def cleanup(self, urls):
+        dirnames = {self._get_dst_dirname(r) for r in urls}
+        cutoff_ts = time.time() - RETENTION_DELTA
         for path in glob(os.path.join(self.base_path, '*')):
             if os.path.basename(path) in dirnames:
                 continue
             mtimes = [get_file_mtime(r)
                 for r in glob(os.path.join(path, '*'))]
-            if not mtimes or max(mtimes) < min_ts:
+            if not mtimes or max(mtimes) < cutoff_ts:
                 shutil.rmtree(path)
                 logger.info(f'removed old storage path {path}')

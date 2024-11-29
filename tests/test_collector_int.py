@@ -39,9 +39,11 @@ class BaseTestCase(unittest.TestCase):
     def _collect(self, urls, headless=True):
         return module.collect(Config(
             __file__,
-            STORAGE_PATH=os.path.join(WORK_PATH, 'bodiez'),
             HEADLESS=headless,
             URLS=urls,
+            STORAGE_PATH=os.path.join(WORK_PATH, 'bodiez'),
+            # GOOGLE_CREDS=os.path.join(os.path.expanduser('~'),
+            #     'google-bodiez.json'),
             ),
         )
 
