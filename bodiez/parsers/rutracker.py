@@ -30,5 +30,5 @@ class RutrackerParser(BaseParser):
             except TimeoutError:
                 raise Exception('requires interactive login')
             for element in page.locator(selector).element_handles():
-                a = element.query_selector('xpath=.//a')
-                yield a.text_content().strip()
+                title = element.query_selector('xpath=.//a')
+                yield title.text_content().strip()

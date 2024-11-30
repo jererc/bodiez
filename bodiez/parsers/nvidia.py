@@ -27,5 +27,5 @@ class NvidiaGeforceParser(BaseParser):
             page.wait_for_selector(selector, timeout=10000)
             elements = page.locator(selector).element_handles()
             for element in elements:
-                a = element.query_selector('xpath=.//a')
-                yield a.text_content().strip()
+                title = element.query_selector('xpath=.//a')
+                yield title.text_content().strip()
