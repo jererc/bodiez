@@ -26,14 +26,10 @@ def clean_title(title):
 
 
 class URLItem:
-    def __init__(self, url_item):
-        if not isinstance(url_item, (list, tuple)):
-            url_item = [url_item]
-        self.url = url_item[0]
-        try:
-            self.id = url_item[1]
-        except IndexError:
-            self.id = self._get_default_id()
+    def __init__(self, url):
+        self.params = url if isinstance(url, dict) else {'url': url}
+        self.url = self.params['url']
+        self.id = self.params.get('id') or self._get_default_id()
 
     def __repr__(self):
         return f'id: {self.id}, url: {self.url}'
@@ -68,7 +64,7 @@ class Collector:
     def _iterate_parsers(self, url_item):
         for parser_cls in self.parsers:
             if parser_cls.can_parse_url(url_item.url):
-                yield parser_cls(self.config)
+                yield parser_cls(self.config, url_item.params)
 
     def _collect_titles(self, url_item):
         parsers = list(self._iterate_parsers(url_item))
@@ -88,6 +84,8 @@ class Collector:
 
     def _process_url_item(self, url_item):
         titles = self._collect_titles(url_item)
+        if not (titles or url_item.params.get('allow_no_results', False)):
+            raise Exception('no result')
         logger.info(f'collected {len(titles)} titles from {url_item.url}')
         stored_doc = self.storage.get(url_item.url)
         stored_titles = set(stored_doc['data']['titles'])
