@@ -42,8 +42,7 @@ class BaseTestCase(unittest.TestCase):
             HEADLESS=headless,
             URLS=urls,
             STORAGE_PATH=os.path.join(WORK_PATH, 'bodiez'),
-            ),
-        )
+        ))
 
 
 class X1337xTestCase(BaseTestCase):
@@ -108,13 +107,3 @@ class CollectTestCase(BaseTestCase):
             call_args_lists.append(mock_send.call_args_list)
         self.assertTrue(len(call_args_lists[0]), module.MAX_NOTIF_PER_URL)
         self.assertFalse(call_args_lists[1])
-
-
-class DriverTestCase(BaseTestCase):
-    def test_no_result(self):
-        self._collect([
-                # 'https://1337x.to/user/FitGirl/',
-                'https://rutracker.org/forum/tracker.php?f=557',
-            ],
-            headless=False,
-        )

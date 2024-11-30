@@ -53,14 +53,30 @@ class SharedLocalStore:
             yield file, url_titles
 
     def _load_url_titles(self, url):
-        res = []
-        for file, url_titles in self._iterate_file_and_url_titles(url):
-            res.extend(url_titles)
-        return res
+        url_titles = []
+        for file, file_url_titles in self._iterate_file_and_url_titles(url):
+            url_titles.extend(file_url_titles)
+        return url_titles
 
     def get_new_titles(self, url, url_titles):
         titles = {r.title for r in self._load_url_titles(url)}
         return [r for r in url_titles if r.title not in titles]
+
+    def _purge_other_url_titles(self, url, url_titles):
+        if not url_titles:
+            return
+        titles = {r.title for r in url_titles}
+        cutoff_ts = time.time() - RETENTION_DELTA
+
+        def must_be_removed(url_titles):
+            for ut in url_titles:
+                if ut.ts > cutoff_ts or ut.title in titles:
+                    return False
+            return True
+
+        for file, file_url_titles in self._iterate_file_and_url_titles(url):
+            if must_be_removed(file_url_titles):
+                os.remove(file)
 
     def save(self, url, new_url_titles, url_titles):
         dst_path = self._get_dst_path(url)
@@ -70,12 +86,7 @@ class SharedLocalStore:
         data = [r.to_dict() for r in new_url_titles]
         with open(file, 'w', encoding='utf-8') as fd:
             json.dump(data, fd, sort_keys=True, indent=4)
-
-        titles = {r.title for r in url_titles}
-        for file, file_url_titles in self._iterate_file_and_url_titles(url):
-            if not {r.title for r in file_url_titles} & titles:
-                os.remove(file)
-                logger.debug(f'removed old file {file}')
+        self._purge_other_url_titles(url, url_titles)
 
     def cleanup(self, urls):
         dirnames = {self._get_dst_dirname(r) for r in urls}
