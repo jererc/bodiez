@@ -77,7 +77,9 @@ class X1337xTestCase(BaseTestCase):
             # 'https://1337x.to/user/DODI/',
             # 'https://1337x.to/sort-search/battlefield%20repack/time/desc/1/',
             # ('https://1337x.to/cat/Movies/1/', 'movies'),
-        ])
+            ],
+            # headless=False,
+        )
 
 
 class RutrackerTestCase(BaseTestCase):
@@ -98,12 +100,22 @@ class NvidiaGeforceTestCase(BaseTestCase):
         )
 
 
+class LexpresspropertyTestCase(BaseTestCase):
+    def test_ok(self):
+        self._collect([
+            ('https://www.lexpressproperty.com/en/buy-mauritius/all/west/?price_max=5000000&currency=MUR&filters%5Binterior_unit%5D%5Beq%5D=m2&filters%5Bland_unit%5D%5Beq%5D=m2', 'lexpressproperty 1'),
+            ],
+            # headless=False,
+        )
+
+
 class CollectTestCase(BaseTestCase):
     def test_all(self):
         self._collect([
             ('https://1337x.to/user/FitGirl/', 'FitGirl'),
             ('https://rutracker.org/forum/tracker.php?f=557', 'rutracker classical'),
             ('https://www.nvidia.com/en-us/geforce/news/', 'geforce news'),
+            ('https://www.lexpressproperty.com/en/buy-mauritius/all/west/?price_max=5000000&currency=MUR&filters%5Binterior_unit%5D%5Beq%5D=m2&filters%5Bland_unit%5D%5Beq%5D=m2', 'lexpressproperty 1'),
             ],
             # headless=False,
         )

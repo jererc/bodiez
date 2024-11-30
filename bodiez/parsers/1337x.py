@@ -21,7 +21,6 @@ class X1337xParser(BaseParser):
             context.route('**/*', self._request_handler)
             page = context.new_page()
             page.goto(url)
-            trs = page.locator('xpath=//table/tbody/tr').all()
-            for tr in trs:
+            for tr in page.locator('xpath=//table/tbody/tr').all():
                 td = tr.locator('xpath=.//td').nth(0)
                 yield td.text_content().strip()
