@@ -2,13 +2,14 @@ from setuptools import setup, find_packages
 
 setup(
     name='bodiez',
-    version='2024.11.29.193403',
+    version='2024.11.30.105504',
     author='jererc',
     author_email='jererc@gmail.com',
     url='https://github.com/jererc/bodiez',
     packages=find_packages(exclude=['tests*']),
     python_requires='>=3.10',
     install_requires=[
+        'google-cloud-firestore',
         'playwright',
         # 'svcutils @ git+https://github.com/jererc/svcutils.git@main#egg=svcutils',
         'svcutils @ https://github.com/jererc/svcutils/archive/refs/heads/main.zip',

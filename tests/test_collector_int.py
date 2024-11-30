@@ -12,9 +12,11 @@ WORK_PATH = os.path.join(os.path.expanduser('~'), '_tests', 'bodiez')
 module.WORK_PATH = WORK_PATH
 module.logger.setLevel(logging.DEBUG)
 module.logger.handlers.clear()
-from bodiez import collector as module
-from bodiez import parsers
+from bodiez import collector as module, parsers
+from bodiez.firestore import FireStore
 
+
+GOOGLE_CREDS = os.path.join(os.path.expanduser('~'), 'gcs-bodiez.json')
 
 module.logger.setLevel(logging.DEBUG)
 
@@ -33,16 +35,27 @@ def makedirs(path):
 
 class BaseTestCase(unittest.TestCase):
     def setUp(self):
-        remove_path(WORK_PATH)
+        # remove_path(WORK_PATH)
         makedirs(WORK_PATH)
 
-    def _collect(self, urls, headless=True):
-        return module.collect(Config(
+    def _reset_storage(self, config):
+        fs = FireStore(config)
+        print(f'deleting all documents in firestore collection '
+            f'{fs.collection_name}...')
+        for doc in fs.col.list_documents():
+            doc.delete()
+
+    def _collect(self, urls, headless=True, reset_storage=True):
+        config = Config(
             __file__,
             HEADLESS=headless,
             URLS=urls,
-            STORAGE_PATH=os.path.join(WORK_PATH, 'bodiez'),
-        ))
+            GOOGLE_CREDS=GOOGLE_CREDS,
+            FIRESTORE_COLLECTION='test',
+        )
+        if reset_storage:
+            self._reset_storage(config)
+        return module.collect(config)
 
 
 class X1337xTestCase(BaseTestCase):
@@ -72,7 +85,7 @@ class RutrackerTestCase(BaseTestCase):
         self._collect([
             'https://rutracker.org/forum/tracker.php?f=557',
             ],
-            # headless=False,
+            headless=False,
         )
 
 
@@ -86,7 +99,7 @@ class NvidiaGeforceTestCase(BaseTestCase):
 
 
 class CollectTestCase(BaseTestCase):
-    def test_ok(self):
+    def test_all(self):
         self._collect([
             ('https://1337x.to/user/FitGirl/', 'FitGirl'),
             ('https://rutracker.org/forum/tracker.php?f=557', 'rutracker classical'),
@@ -102,7 +115,7 @@ class CollectTestCase(BaseTestCase):
         call_args_lists = []
         for i in range(2):
             with patch.object(module.Notifier, 'send') as mock_send:
-                self._collect(urls)
+                self._collect(urls, reset_storage=i == 0)
             pprint(mock_send.call_args_list)
             call_args_lists.append(mock_send.call_args_list)
         self.assertTrue(len(call_args_lists[0]), module.MAX_NOTIF_PER_URL)

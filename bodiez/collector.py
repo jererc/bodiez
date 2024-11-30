@@ -7,8 +7,8 @@ from urllib.parse import urlparse, unquote_plus
 from svcutils.service import Notifier
 
 from bodiez import NAME, logger
+from bodiez.firestore import FireStore
 from bodiez.parsers.base import iterate_parsers
-from bodiez.storage import URLTitle, SharedLocalStore
 
 
 MAX_NOTIF_PER_URL = 4
@@ -49,15 +49,14 @@ class Collector:
     def __init__(self, config, headless=True):
         self.config = config
         self.parsers = list(iterate_parsers())
-        self.storage = SharedLocalStore(self.config)
+        self.storage = FireStore(self.config)
 
-    def _notify_new_titles(self, url_item, url_titles):
+    def _notify_new_titles(self, url_item, titles):
         notif_title = f'{NAME} {url_item.id}'
-        asc_titles = [clean_title(r.title) for r in
-            sorted(url_titles, key=lambda x: x.ts)]
+        rev_titles = [clean_title(r) for r in reversed(titles)]
         max_latest = MAX_NOTIF_PER_URL - 1
-        latest_titles = asc_titles[-max_latest:]
-        older_titles = asc_titles[:-max_latest]
+        latest_titles = rev_titles[-max_latest:]
+        older_titles = rev_titles[:-max_latest]
         if older_titles:
             body = ', '.join(reversed(older_titles))
             if len(body) > MAX_NOTIF_BODY_SIZE:
@@ -71,12 +70,11 @@ class Collector:
             if parser_cls.can_parse_url(url_item.url):
                 yield parser_cls(self.config)
 
-    def _collect_url_titles(self, url_item):
+    def _collect_titles(self, url_item):
         parsers = list(self._iterate_parsers(url_item))
         if not parsers:
             raise Exception('no available parser')
         res = []
-        now = time.time()
         for parser in sorted(parsers, key=lambda x: x.id):
             titles = [r for r in parser.parse(url_item.url) if r]
             logger.debug(f'{parser.id} results for {url_item}:\n'
@@ -84,37 +82,31 @@ class Collector:
             if not titles:
                 logger.error(f'no result for {url_item}')
                 continue
-            res.extend([URLTitle(
-                url=url_item.url,
-                title=r,
-                ts=now - i,
-                )
-                for i, r in enumerate(titles)])
+            res.extend(titles)
         return res
 
     def _process_url_item(self, url_item):
-        url_titles = self._collect_url_titles(url_item)
-        if not url_titles:
+        titles = self._collect_titles(url_item)
+        if not titles:
             raise Exception('no result')
-        logger.info(f'parsed {len(url_titles)} titles from {url_item.url}')
-        new_url_titles = self.storage.get_new_titles(url_item.url, url_titles)
-        if new_url_titles:
-            self._notify_new_titles(url_item, new_url_titles)
-            self.storage.save(url_item.url, new_url_titles, url_titles)
+        logger.info(f'parsed {len(titles)} titles from {url_item.url}')
+        stored_doc = self.storage.get(url_item.url)
+        stored_titles = set(stored_doc['data']['titles'])
+        new_titles = [r for r in titles if r not in stored_titles]
+        if new_titles:
+            self._notify_new_titles(url_item, new_titles)
+            self.storage.update_ref(stored_doc['ref'], titles)
 
     def run(self):
         start_ts = time.time()
-        urls = set()
         for url in self.config.URLS:
             url_item = URLItem(url)
-            urls.add(url_item.url)
             try:
                 self._process_url_item(url_item)
             except Exception as exc:
                 logger.exception(f'failed to process {url_item}')
                 Notifier().send(title=f'{NAME} error',
                     body=f'failed to process {url_item.id}: {exc}')
-        self.storage.cleanup(urls)
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')
 
 
