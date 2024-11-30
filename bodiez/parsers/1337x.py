@@ -1,5 +1,7 @@
 from urllib.parse import urlparse
 
+from playwright.sync_api import TimeoutError
+
 from bodiez.parsers.base import BaseParser
 
 
@@ -21,6 +23,11 @@ class X1337xParser(BaseParser):
             context.route('**/*', self._request_handler)
             page = context.new_page()
             page.goto(url)
-            for tr in page.locator('xpath=//table/tbody/tr').all():
-                td = tr.locator('xpath=.//td').nth(0)
-                yield td.text_content().strip()
+            selector = 'xpath=//table/tbody/tr'
+            try:
+                page.wait_for_selector(selector, timeout=10000)
+            except TimeoutError:
+                return
+            for element in page.locator(selector).element_handles():
+                res = element.query_selector_all('xpath=.//td')[0]
+                yield res.text_content().strip()

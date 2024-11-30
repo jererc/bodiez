@@ -1,5 +1,7 @@
 from urllib.parse import urlparse
 
+from playwright.sync_api import TimeoutError
+
 from bodiez.parsers.base import BaseParser
 
 
@@ -23,7 +25,10 @@ class LexpresspropertyParser(BaseParser):
             page = context.new_page()
             page.goto(url)
             selector = 'xpath=//div[contains(@class, "card-row")]'
-            page.wait_for_selector(selector, timeout=10000)
+            try:
+                page.wait_for_selector(selector, timeout=10000)
+            except TimeoutError:
+                return
             for element in page.locator(selector).element_handles():
                 title = element.query_selector('xpath=.//div[contains(@class, '
                     '"title-holder")]/h2')

@@ -62,7 +62,9 @@ class X1337xTestCase(BaseTestCase):
     def test_no_result(self):
         self._collect([
             'https://1337x.to/search/sfsfsfsdfsd/1/',
-        ])
+            ],
+            # headless=False,
+        )
 
     def test_invalid_title(self):
         with patch.object(parsers.X1337xParser, '_get_title') as mock__get_title:
@@ -101,9 +103,16 @@ class NvidiaGeforceTestCase(BaseTestCase):
 
 
 class LexpresspropertyTestCase(BaseTestCase):
+    def test_no_result(self):
+        self._collect([
+            ('https://www.lexpressproperty.com/en/buy-mauritius/all/la_gaulette-la_preneuse/?price_max=5000000&currency=MUR&filters%5Binterior_unit%5D%5Beq%5D=m2&filters%5Bland_unit%5D%5Beq%5D=m2', 'lexpressproperty'),
+            ],
+            # headless=False,
+        )
+
     def test_ok(self):
         self._collect([
-            ('https://www.lexpressproperty.com/en/buy-mauritius/all/west/?price_max=5000000&currency=MUR&filters%5Binterior_unit%5D%5Beq%5D=m2&filters%5Bland_unit%5D%5Beq%5D=m2', 'lexpressproperty 1'),
+            ('https://www.lexpressproperty.com/en/buy-mauritius/all/west/?price_max=5000000&currency=MUR&filters%5Binterior_unit%5D%5Beq%5D=m2&filters%5Bland_unit%5D%5Beq%5D=m2', 'lexpressproperty'),
             ],
             # headless=False,
         )
