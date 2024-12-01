@@ -37,9 +37,9 @@ def main():
             work_path=WORK_PATH,
             run_delta=3600,
             force_run_delta=2 * 3600,
+            max_cpu_percent=10,
             min_uptime=300,
             requires_online=True,
-            max_cpu_percent=10,
         )
         if args.daemon:
             service.run()
