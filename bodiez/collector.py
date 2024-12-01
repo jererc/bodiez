@@ -83,7 +83,7 @@ class Collector:
         res = []
         for parser in sorted(parsers, key=lambda x: x.id):
             titles = [r for r in parser.parse(url_item) if r]
-            logger.debug(f'{parser.id} results for {url_item}:\n'
+            logger.info(f'{parser.id} results for {url_item}:\n'
                 f'{json.dumps(titles, indent=4)}')
             if not titles:
                 logger.info(f'no result for {url_item} '
