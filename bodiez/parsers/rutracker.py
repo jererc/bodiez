@@ -18,11 +18,11 @@ class RutrackerParser(BaseParser):
         else:
             route.continue_()
 
-    def parse(self, url):
+    def parse(self, url_item):
         with self.playwright_context() as context:
             context.route('**/*', self._request_handler)
             page = context.new_page()
-            page.goto(url)
+            page.goto(url_item.url)
             selector = 'xpath=//div[contains(@class, "t-title")]'
             timeout = 10000 if self.config.HEADLESS else 120000
             try:

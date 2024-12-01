@@ -49,7 +49,8 @@ class BaseTestCase(unittest.TestCase):
         config = Config(
             __file__,
             HEADLESS=headless,
-            URLS=urls,
+            URLS=[r if isinstance(r, dict) else {'url': r}
+                for r in urls],
             GOOGLE_CREDS=GOOGLE_CREDS,
             FIRESTORE_COLLECTION='test',
         )
@@ -95,7 +96,7 @@ class NvidiaGeforceTestCase(BaseTestCase):
         self._collect([
             'https://www.nvidia.com/en-us/geforce/news/',
             ],
-            # headless=False,
+            headless=False,
         )
 
 
@@ -126,7 +127,7 @@ class CollectTestCase(BaseTestCase):
             # headless=False,
         )
 
-    def test_new(self):
+    def test_workflow(self):
         urls = [
             'https://1337x.to/user/FitGirl/',
         ]

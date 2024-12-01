@@ -28,7 +28,6 @@ def main():
     path = os.path.realpath(os.path.expanduser(args.path))
     config = Config(
         os.path.join(path, 'user_settings.py'),
-        STORAGE_PATH=os.path.join(path, 'bodiez'),
         HEADLESS=not args.interactive,
     )
     if args.cmd == 'collect':

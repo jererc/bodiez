@@ -18,14 +18,13 @@ class NvidiaGeforceParser(BaseParser):
         else:
             route.continue_()
 
-    def parse(self, url):
+    def parse(self, url_item):
         with self.playwright_context() as context:
             context.route('**/*', self._request_handler)
             page = context.new_page()
-            page.goto(url)
+            page.goto(url_item.url)
             selector = 'xpath=//div[contains(@class, "article-title-text")]'
             page.wait_for_selector(selector, timeout=10000)
-            elements = page.locator(selector).element_handles()
-            for element in elements:
+            for element in page.locator(selector).element_handles():
                 title = element.query_selector('xpath=.//a')
                 yield title.text_content().strip()

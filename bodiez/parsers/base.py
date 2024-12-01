@@ -11,9 +11,8 @@ from bodiez import WORK_PATH, logger
 class BaseParser:
     id = None
 
-    def __init__(self, config, url_params):
+    def __init__(self, config):
         self.config = config
-        self.url_params = url_params
         self.work_path = os.path.join(WORK_PATH,
             'parsers', f'.{self.id}')
 
@@ -41,7 +40,7 @@ class BaseParser:
                 context.storage_state(path=state_path)
                 context.close()
 
-    def parse(self, url):
+    def parse(self, url_item):
         raise NotImplementedError()
 
 

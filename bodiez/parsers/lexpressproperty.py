@@ -19,11 +19,11 @@ class LexpresspropertyParser(BaseParser):
         else:
             route.continue_()
 
-    def parse(self, url):
+    def parse(self, url_item):
         with self.playwright_context() as context:
             context.route('**/*', self._request_handler)
             page = context.new_page()
-            page.goto(url)
+            page.goto(url_item.url)
             selector = 'xpath=//div[contains(@class, "card-row")]'
             try:
                 page.wait_for_selector(selector, timeout=10000)

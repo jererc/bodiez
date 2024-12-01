@@ -42,11 +42,12 @@ class URLItemTestCase(unittest.TestCase):
     def test_1(self):
         urls = [
             'https://1337x.to/user/FitGirl/',
-            ('https://1337x.to/sort-search/monster%20hunter%20repack/time/desc/1/', 'monster hunter'),
+            'https://1337x.to/sort-search/monster%20hunter%20repack/time/desc/1/',
             'https://rutracker.org/forum/tracker.php?f=557',
         ]
-        res = [collector.URLItem(r) for r in urls]
-        pprint(res)
+        res = [collector.URLItem(url=r) for r in urls]
+        for r in res:
+            print(r)
         self.assertTrue(all(bool(r.id) for r in res))
         self.assertTrue(all(bool(r.url) for r in res))
 
