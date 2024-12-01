@@ -101,6 +101,8 @@ class Collector:
         stored_titles = set(stored_doc['data']['titles'])
         new_titles = [r for r in titles if r not in stored_titles]
         if new_titles:
+            logger.info(f'new results for {url_item}:\n'
+                f'{json.dumps(new_titles, indent=4)}')
             self._notify_new_titles(url_item, new_titles)
             self.store.update_ref(stored_doc['ref'], titles)
 
