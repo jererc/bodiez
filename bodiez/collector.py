@@ -86,7 +86,7 @@ class Collector:
             logger.debug(f'{parser.id} results for {url_item}:\n'
                 f'{json.dumps(titles, indent=4)}')
             if not titles:
-                logger.info(f'no result for {url_item.url} '
+                logger.info(f'no result for {url_item} '
                     f'using parser {parser.id}')
                 continue
             res.extend(titles)
@@ -96,7 +96,7 @@ class Collector:
         titles = self._collect_titles(url_item)
         if not (titles or url_item.allow_no_results):
             raise Exception('no result')
-        logger.info(f'collected {len(titles)} titles from {url_item.url}')
+        logger.info(f'collected {len(titles)} titles for {url_item}')
         stored_doc = self.store.get(url_item.url)
         stored_titles = set(stored_doc['data']['titles'])
         new_titles = [r for r in titles if r not in stored_titles]
@@ -115,7 +115,7 @@ class Collector:
             except Exception as exc:
                 logger.exception(f'failed to process {url_item}')
                 Notifier().send(title=f'{NAME} error',
-                    body=f'failed to process {url_item.id}: {exc}')
+                    body=f'{url_item.id}: {exc}')
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')
 
 
