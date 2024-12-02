@@ -1,9 +1,16 @@
+from dataclasses import dataclass, field
+from typing import List
 import time
 from urllib.parse import quote
 
 from google.cloud import firestore
 
-from bodiez import logger
+
+@dataclass
+class Document:
+    url: str
+    titles: List[str] = field(default_factory=list)
+    updated_ts: int = 0
 
 
 class FireStore:
@@ -16,23 +23,16 @@ class FireStore:
     def _get_doc_id(self, url):
         return quote(url, safe='')
 
-    def _get_or_set(self, url):
-        doc_id = self._get_doc_id(url)
-        doc_ref = self.col.document(doc_id)
-        doc = doc_ref.get()
-        if doc.exists:
-            logger.debug(f'loaded stored doc {doc_ref.id}')
-            return {'ref': doc_ref, 'data': doc.to_dict()}
-        data = {'url': url, 'titles': []}
-        doc_ref.set(data)
-        return {'ref': doc_ref, 'data': data}
-
     def get(self, url):
-        return self._get_or_set(url)
+        doc_ref = self.col.document(self._get_doc_id(url))
+        doc = doc_ref.get()
+        return Document(**doc.to_dict()) if doc.exists else Document(url=url)
 
-    def update(self, doc_ref, titles=None):
-        data = {'updated_ts': int(time.time())}
+    def set(self, url, titles=None):
+        data = {
+            'url': url,
+            'updated_ts': int(time.time()),
+        }
         if titles is not None:
             data['titles'] = titles
-        doc_ref.update(data)
-        return doc_ref
+        self.col.document(self._get_doc_id(url)).set(data)

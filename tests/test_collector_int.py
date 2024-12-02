@@ -180,8 +180,7 @@ class CollectTestCase(BaseTestCase):
                 mock__collect_titles.side_effect = side__collect_titles
                 collector.run()
 
-        res = collector.store.get(config.URLS[0]['url'])
-        pprint(res)
-        titles = res['data']['titles']
-        self.assertEqual(len(titles), result_count * 2)
-        self.assertEqual(len(set(titles)), len(titles))
+        doc = collector.store.get(config.URLS[0]['url'])
+        pprint(doc)
+        self.assertEqual(len(doc.titles), result_count * 2)
+        self.assertEqual(len(set(doc.titles)), len(doc.titles))

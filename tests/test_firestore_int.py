@@ -68,49 +68,29 @@ class FireStoreTestCase(unittest.TestCase):
         self.fs.col.document(self.fs._get_doc_id(self.url)).delete()
 
     def test_workflow(self):
-        def get():
-            self.results.append(self.fs.get(self.url))
+        doc = self.fs.get(self.url)
+        pprint(doc)
+        self.assertEqual(doc.url, self.url)
+        self.assertEqual(doc.titles, [])
+        self.assertEqual(doc.updated_ts, 0)
 
-        def update(doc_ref, titles):
-            self.fs.update(doc_ref, titles)
+        self.fs.set(self.url, titles=None)
+        doc = self.fs.get(self.url)
+        pprint(doc)
+        self.assertEqual(doc.url, self.url)
+        self.assertEqual(doc.titles, [])
+        self.assertTrue(doc.updated_ts > 0)
 
-        # Get documents
-        self.results = []
-        ths = [Thread(target=get) for i in range(3)]
-        for th in ths:
-            th.start()
-        for th in ths:
-            th.join()
-        pprint(self.results)
-        self.assertEqual(len({r['ref'].id for r in self.results}), 1)
+        titles = self.titles[5:15]
+        self.fs.set(self.url, titles=titles)
+        doc = self.fs.get(self.url)
+        self.assertEqual(doc.url, self.url)
+        self.assertEqual(doc.titles, titles)
+        self.assertTrue(doc.updated_ts > 0)
 
-        # Handle new titles
-        res = self.results[0]
-        pprint(res)
-        doc_ref = res['ref']
         titles = self.titles[3:13]
-        new_titles = [r for r in titles if r not in res['data']['titles']]
-        pprint(new_titles)
-        self.assertEqual(new_titles, titles)
-
-        # Update documents
-        ths = [Thread(target=update, args=(doc_ref, titles,)) for i in range(3)]
-        for th in ths:
-            th.start()
-        for th in ths:
-            th.join()
-        res = self.fs.get(self.url)
-        pprint(res)
-        self.assertEqual(res['data']['titles'], titles)
-        self.assertTrue(res['data']['updated_ts'])
-        doc_ref = res['ref']
-
-        titles = self.titles[:10]
-        ths = [Thread(target=update, args=(doc_ref, titles,)) for i in range(3)]
-        for th in ths:
-            th.start()
-        for th in ths:
-            th.join()
-        res = self.fs.get(self.url)
-        pprint(res)
-        self.assertEqual(res['data']['titles'], titles)
+        self.fs.set(self.url, titles=titles)
+        doc = self.fs.get(self.url)
+        self.assertEqual(doc.url, self.url)
+        self.assertEqual(doc.titles, titles)
+        self.assertTrue(doc.updated_ts > 0)
