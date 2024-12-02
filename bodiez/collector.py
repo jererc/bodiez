@@ -92,6 +92,8 @@ class Collector:
                     f'using parser {parser.id}')
                 continue
             res.extend(bodies)
+        logger.debug(f'parser {parser.id} collected bodies for '
+            f'{url_item.id}:\n{json.dumps(bodies, indent=4)}')
         logger.info(f'collected {len(res)} bodies for {url_item.id} in '
             f'{time.time() - start_ts:.02f} seconds')
         return res
