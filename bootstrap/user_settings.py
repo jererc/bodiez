@@ -1,6 +1,6 @@
 import os
 
-GOOGLE_CREDS = os.path.join(os.path.expanduser('~'), 'creds.json')
+GOOGLE_CREDS = os.path.join(os.path.expanduser('~'), 'google_creds.json')
 URLS = [
     {
         'url': 'https://1337x.to/cat/Games/1/',
