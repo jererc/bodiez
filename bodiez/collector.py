@@ -78,22 +78,24 @@ class Collector:
                 yield parser_cls(self.config)
 
     def _collect_titles(self, url_item):
+        start_ts = time.time()
         parsers = list(self._iterate_parsers(url_item))
         if not parsers:
             raise Exception('no available parser')
         res = []
         for parser in sorted(parsers, key=lambda x: x.id):
             titles = [r for r in parser.parse(url_item) if r]
-            logger.info(f'{parser.id} results for {url_item}:\n'
-                f'{json.dumps(titles, indent=4)}')
             if not titles:
                 logger.info(f'no result for {url_item} '
                     f'using parser {parser.id}')
                 continue
             res.extend(titles)
+        logger.info(f'collected {len(res)} titles for {url_item} in '
+            f'{time.time() - start_ts:.02f} seconds')
         return res
 
     def _process_url_item(self, url_item):
+        start_ts = time.time()
         doc = self.store.get(url_item.url)
         if (doc['data'].get('updated_ts', 0)
                 > time.time() - url_item.update_delta):
@@ -102,7 +104,6 @@ class Collector:
         titles = self._collect_titles(url_item)
         if not (titles or url_item.allow_no_results):
             raise Exception('no result')
-        logger.info(f'collected {len(titles)} titles for {url_item}')
         doc_titles = doc['data']['titles']
         new_titles = [r for r in titles if r not in doc_titles]
         if new_titles:
@@ -114,6 +115,8 @@ class Collector:
                 + history_titles[:len(titles)])
         else:
             self.store.update(doc['ref'])
+        logger.info(f'processed {url_item} in '
+            f'{time.time() - start_ts:.02f} seconds')
 
     def run(self):
         start_ts = time.time()
