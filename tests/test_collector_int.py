@@ -48,11 +48,12 @@ class BaseTestCase(unittest.TestCase):
     def _collect(self, urls, headless=True, reset_storage=True):
         config = Config(
             __file__,
-            HEADLESS=headless,
             URLS=[r if isinstance(r, dict) else {'url': r}
                 for r in urls],
             GOOGLE_CREDS=GOOGLE_CREDS,
             FIRESTORE_COLLECTION='test',
+            MIN_BODIES_HISTORY=10,
+            HEADLESS=headless,
         )
         if reset_storage:
             self._reset_storage(config)
@@ -140,13 +141,14 @@ class WorkflowTestCase(BaseTestCase):
             ],
             GOOGLE_CREDS=GOOGLE_CREDS,
             FIRESTORE_COLLECTION='test',
+            MIN_BODIES_HISTORY=10,
         )
         self._reset_storage(config)
         collector = module.Collector(config)
 
         doc = collector.store.get(config.URLS[0]['url'])
         pprint(doc)
-        self.assertFalse(doc.titles)
+        self.assertFalse(doc.bodies)
 
         with patch.object(module.Notifier, 'send') as mock_send:
             collector.run()
@@ -156,22 +158,22 @@ class WorkflowTestCase(BaseTestCase):
 
         doc = collector.store.get(config.URLS[0]['url'])
         pprint(doc)
-        self.assertTrue(doc.titles)
+        self.assertTrue(doc.bodies)
 
         with patch.object(module.Notifier, 'send') as mock_send:
             collector.run()
         pprint(mock_send.call_args_list)
         self.assertFalse(mock_send.call_args_list)
 
-        new_titles = [f'title {i}' for i in range(2)]
+        new_bodies = [f'body {i}' for i in range(2)]
         with patch.object(module.Notifier, 'send') as mock_send, \
                 patch.object(collector,
-                    '_collect_titles') as mock__collect_titles:
-            mock__collect_titles.return_value = (new_titles
-                + doc.titles[:-len(new_titles)])
+                    '_collect_bodies') as mock__collect_bodies:
+            mock__collect_bodies.return_value = (new_bodies
+                + doc.bodies[:-len(new_bodies)])
             collector.run()
         pprint(mock_send.call_args_list)
-        prev_doc_titles = doc.titles
+        prev_doc_bodies = doc.bodies
         doc = collector.store.get(config.URLS[0]['url'])
         pprint(doc)
-        self.assertEqual(doc.titles, new_titles + prev_doc_titles)
+        self.assertEqual(doc.bodies, new_bodies + prev_doc_bodies)

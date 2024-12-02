@@ -31,7 +31,7 @@ def main():
         GOOGLE_CREDS=os.path.join(WORK_PATH, 'google_creds.json'),
         FIRESTORE_COLLECTION=NAME,
         HEADLESS=not args.interactive,
-        MIN_TITLES_HISTORY=50,
+        MIN_BODIES_HISTORY=50,
         RUN_DELTA=3600,
     )
     if args.cmd == 'collect':

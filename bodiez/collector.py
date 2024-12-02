@@ -25,11 +25,11 @@ def get_url_netloc_token(url):
     return '.'.join(out_parts[:-1])
 
 
-def clean_title(title):
-    res = re.sub(r'\(.*?\)', '', title).strip()
+def clean_body(body):
+    res = re.sub(r'\(.*?\)', '', body).strip()
     res = re.sub(r'\[.*?\]', '', res).strip()
     res = re.sub(r'[\(][^\(]*$|[\[][^\[]*$', '', res).strip()
-    return res or title
+    return res or body
 
 
 @dataclass
@@ -59,39 +59,39 @@ class Collector:
         self.max_notif_per_url = (self.config.MAX_NOTIF_PER_URL
             or MAX_NOTIF_PER_URL)
 
-    def _notify_new_titles(self, url_item, titles):
+    def _notify_new_bodies(self, url_item, bodies):
         notif_title = f'{NAME} {url_item.id}'
-        rev_titles = [clean_title(r) for r in reversed(titles)]
+        rev_bodies = [clean_body(r) for r in reversed(bodies)]
         max_latest = self.max_notif_per_url - 1
-        latest_titles = rev_titles[-max_latest:]
-        older_titles = rev_titles[:-max_latest]
-        if older_titles:
-            body = ', '.join(reversed(older_titles))
+        latest_bodies = rev_bodies[-max_latest:]
+        older_bodies = rev_bodies[:-max_latest]
+        if older_bodies:
+            body = ', '.join(reversed(older_bodies))
             if len(body) > MAX_NOTIF_BODY_SIZE:
                 body = f'{body[:MAX_NOTIF_BODY_SIZE]}...'
             Notifier().send(title=notif_title, body=f'{body}')
-        for title in latest_titles:
-            Notifier().send(title=notif_title, body=title)
+        for body in latest_bodies:
+            Notifier().send(title=notif_title, body=body)
 
     def _iterate_parsers(self, url_item):
         for parser_cls in self.parsers:
             if parser_cls.can_parse_url(url_item.url):
                 yield parser_cls(self.config)
 
-    def _collect_titles(self, url_item):
+    def _collect_bodies(self, url_item):
         start_ts = time.time()
         parsers = list(self._iterate_parsers(url_item))
         if not parsers:
             raise Exception('no available parser')
         res = []
         for parser in sorted(parsers, key=lambda x: x.id):
-            titles = [r for r in parser.parse(url_item) if r]
-            if not titles:
+            bodies = [r for r in parser.parse(url_item) if r]
+            if not bodies:
                 logger.info(f'no result for {url_item} '
                     f'using parser {parser.id}')
                 continue
-            res.extend(titles)
-        logger.info(f'collected {len(res)} titles for {url_item} in '
+            res.extend(bodies)
+        logger.info(f'collected {len(res)} bodies for {url_item} in '
             f'{time.time() - start_ts:.02f} seconds')
         return res
 
@@ -102,17 +102,17 @@ class Collector:
                 time.time() - url_item.update_delta):
             logger.debug(f'skipped recently updated {url_item}')
             return
-        titles = self._collect_titles(url_item)
-        if not (titles or url_item.allow_no_results):
+        bodies = self._collect_bodies(url_item)
+        if not (bodies or url_item.allow_no_results):
             raise Exception('no result')
-        new_titles = [r for r in titles if r not in doc.titles]
-        if new_titles:
-            logger.info(f'new titles for {url_item}:\n'
-                f'{json.dumps(new_titles, indent=4)}')
-            self._notify_new_titles(url_item, new_titles)
-        titles_history = [r for r in doc.titles if r not in titles]
-        self.store.set(url_item.url, titles + titles_history[
-            :max(self.config.MIN_TITLES_HISTORY, len(titles))])
+        new_bodies = [r for r in bodies if r not in doc.bodies]
+        if new_bodies:
+            logger.info(f'new bodies for {url_item}:\n'
+                f'{json.dumps(new_bodies, indent=4)}')
+            self._notify_new_bodies(url_item, new_bodies)
+        bodies_history = [r for r in doc.bodies if r not in bodies]
+        self.store.set(url_item.url, bodies + bodies_history[
+            :max(self.config.MIN_BODIES_HISTORY, len(bodies))])
         logger.info(f'processed {url_item} in '
             f'{time.time() - start_ts:.02f} seconds')
 

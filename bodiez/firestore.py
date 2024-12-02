@@ -9,7 +9,7 @@ from google.cloud import firestore
 @dataclass
 class Document:
     url: str
-    titles: List[str] = field(default_factory=list)
+    bodies: List[str] = field(default_factory=list)
     updated_ts: int = 0
 
 
@@ -24,14 +24,12 @@ class FireStore:
         return quote(url, safe='')
 
     def get(self, url):
-        doc_ref = self.col.document(self._get_doc_id(url))
-        doc = doc_ref.get()
+        doc = self.col.document(self._get_doc_id(url)).get()
         return Document(**doc.to_dict()) if doc.exists else Document(url=url)
 
-    def set(self, url, titles):
-        data = {
+    def set(self, url, bodies):
+        self.col.document(self._get_doc_id(url)).set({
             'url': url,
-            'titles': titles or [],
+            'bodies': bodies or [],
             'updated_ts': int(time.time()),
-        }
-        self.col.document(self._get_doc_id(url)).set(data)
+        })

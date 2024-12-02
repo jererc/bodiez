@@ -42,7 +42,7 @@ class FireStoreTestCase(unittest.TestCase):
             FIRESTORE_COLLECTION='test',
         ))
         self.url = 'https://1337x.to/user/FitGirl/'
-        self.titles = [
+        self.bodies = [
             "Expeditions: Rome (v1.6.0.741.23995 + Death or Glory DLC + Bonus OST, MULTi8) [F...",
             "Valkyrie of Phantasm (v1.04, MULTi3) [FitGirl Repack]",
             "MechWarrior 5: Clans - Digital Collectors Edition (v1.0.80 + 2 DLCs, MULTi5) [Fi...1",
@@ -70,26 +70,26 @@ class FireStoreTestCase(unittest.TestCase):
         doc = self.fs.get(self.url)
         pprint(doc)
         self.assertEqual(doc.url, self.url)
-        self.assertEqual(doc.titles, [])
+        self.assertEqual(doc.bodies, [])
         self.assertEqual(doc.updated_ts, 0)
 
-        self.fs.set(self.url, titles=None)
+        self.fs.set(self.url, bodies=None)
         doc = self.fs.get(self.url)
         pprint(doc)
         self.assertEqual(doc.url, self.url)
-        self.assertEqual(doc.titles, [])
+        self.assertEqual(doc.bodies, [])
         self.assertTrue(doc.updated_ts > 0)
 
-        titles = self.titles[5:15]
-        self.fs.set(self.url, titles=titles)
+        bodies = self.bodies[5:15]
+        self.fs.set(self.url, bodies=bodies)
         doc = self.fs.get(self.url)
         self.assertEqual(doc.url, self.url)
-        self.assertEqual(doc.titles, titles)
+        self.assertEqual(doc.bodies, bodies)
         self.assertTrue(doc.updated_ts > 0)
 
-        titles = self.titles[3:13]
-        self.fs.set(self.url, titles=titles)
+        bodies = self.bodies[3:13]
+        self.fs.set(self.url, bodies=bodies)
         doc = self.fs.get(self.url)
         self.assertEqual(doc.url, self.url)
-        self.assertEqual(doc.titles, titles)
+        self.assertEqual(doc.bodies, bodies)
         self.assertTrue(doc.updated_ts > 0)

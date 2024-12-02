@@ -13,8 +13,7 @@ class BaseParser:
 
     def __init__(self, config):
         self.config = config
-        self.work_path = os.path.join(WORK_PATH,
-            'parsers', f'.{self.id}')
+        self.work_path = os.path.join(WORK_PATH, 'parsers', f'.{self.id}')
 
     @staticmethod
     def can_parse_url(url):

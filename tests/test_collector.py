@@ -12,30 +12,30 @@ from bodiez import collector
 from bodiez.parsers import base
 
 
-class CleanTitleTestCase(unittest.TestCase):
+class CleanBodyTestCase(unittest.TestCase):
     def test_1(self):
-        title = 'L.A. Noire: The Complete Edition (v2675.1 + All DLCs, MULTi6) [FitGirl Repack]'
-        self.assertEqual(collector.clean_title(title), 'L.A. Noire: The Complete Edition')
+        body = 'L.A. Noire: The Complete Edition (v2675.1 + All DLCs, MULTi6) [FitGirl Repack]'
+        self.assertEqual(collector.clean_body(body), 'L.A. Noire: The Complete Edition')
 
     def test_2(self):
-        title = 'L.A. Noire: The Complete Edition (v2675.1 + All DLCs, MULTi6) [FitGirl...'
-        self.assertEqual(collector.clean_title(title), 'L.A. Noire: The Complete Edition')
+        body = 'L.A. Noire: The Complete Edition (v2675.1 + All DLCs, MULTi6) [FitGirl...'
+        self.assertEqual(collector.clean_body(body), 'L.A. Noire: The Complete Edition')
 
     def test_3(self):
-        title = 'L.A. Noire: The Complete Edition (v2675.1 + All DLCs, ...'
-        self.assertEqual(collector.clean_title(title), 'L.A. Noire: The Complete Edition')
+        body = 'L.A. Noire: The Complete Edition (v2675.1 + All DLCs, ...'
+        self.assertEqual(collector.clean_body(body), 'L.A. Noire: The Complete Edition')
 
     def test_4(self):
-        title = 'L.A. Noire (The Complete Edition) (v2675.1 + All DLCs, ...'
-        self.assertEqual(collector.clean_title(title), 'L.A. Noire')
+        body = 'L.A. Noire (The Complete Edition) (v2675.1 + All DLCs, ...'
+        self.assertEqual(collector.clean_body(body), 'L.A. Noire')
 
     def test_5(self):
-        title = 'L.A. Noire [X] (v2675.1 + All DLCs, MULTi6) [FitGirl Repack]'
-        self.assertEqual(collector.clean_title(title), 'L.A. Noire')
+        body = 'L.A. Noire [X] (v2675.1 + All DLCs, MULTi6) [FitGirl Repack]'
+        self.assertEqual(collector.clean_body(body), 'L.A. Noire')
 
     def test_6(self):
-        title = '[X] L.A. Noire (v2675.1 + All DLCs, MULTi6) [FitGirl Repack]'
-        self.assertEqual(collector.clean_title(title), 'L.A. Noire')
+        body = '[X] L.A. Noire (v2675.1 + All DLCs, MULTi6) [FitGirl Repack]'
+        self.assertEqual(collector.clean_body(body), 'L.A. Noire')
 
 
 class URLItemTestCase(unittest.TestCase):
