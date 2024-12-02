@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
-from typing import List
 import time
+from typing import List
 from urllib.parse import quote
 
 from google.cloud import firestore
