@@ -51,8 +51,9 @@ class URLItem:
 
 
 class Collector:
-    def __init__(self, config, headless=True):
+    def __init__(self, config, force=False):
         self.config = config
+        self.force = force
         self.parsers = list(iterate_parsers())
         self.store = FireStore(self.config)
         self.max_notif_per_url = (self.config.MAX_NOTIF_PER_URL
@@ -97,7 +98,8 @@ class Collector:
     def _process_url_item(self, url_item):
         start_ts = time.time()
         doc = self.store.get(url_item.url)
-        if doc.updated_ts > time.time() - url_item.update_delta:
+        if not (self.force or doc.updated_ts <
+                time.time() - url_item.update_delta):
             logger.debug(f'skipped recently updated {url_item}')
             return
         titles = self._collect_titles(url_item)
@@ -129,5 +131,5 @@ class Collector:
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')
 
 
-def collect(config):
-    Collector(config).run()
+def collect(config, force=False):
+    Collector(config, force=force).run()

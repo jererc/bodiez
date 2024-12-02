@@ -49,7 +49,7 @@ def main():
         elif args.task:
             service.run_once()
         else:
-            collect(config)
+            collect(config, force=True)
 
 
 if __name__ == '__main__':
