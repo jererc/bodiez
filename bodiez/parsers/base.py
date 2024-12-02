@@ -14,9 +14,10 @@ class BaseParser:
     def __init__(self, config):
         self.config = config
         self.work_path = os.path.join(WORK_PATH, 'parsers', f'.{self.id}')
+        self.timeout = 10000 if self.config.HEADLESS else 120000
 
     @staticmethod
-    def can_parse_url(url):
+    def can_parse(url_item):
         raise NotImplementedError()
 
     @contextmanager

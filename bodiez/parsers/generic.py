@@ -14,14 +14,13 @@ class SimpleParser(BaseParser):
             return False
 
     def parse(self, url_item):
-        timeout = 10000 if self.config.HEADLESS else 120000
         with self.playwright_context() as context:
             context.route('**/*', self._request_handler)
             page = context.new_page()
             page.goto(url_item.url)
             selector = f'xpath={url_item.params["xpath"]}'
             try:
-                page.wait_for_selector(selector, timeout=timeout)
+                page.wait_for_selector(selector, timeout=self.timeout)
             except TimeoutError:
                 return
             for element in page.locator(selector).all():
@@ -40,14 +39,13 @@ class SubElementParser(BaseParser):
             return False
 
     def parse(self, url_item):
-        timeout = 10000 if self.config.HEADLESS else 120000
         with self.playwright_context() as context:
             context.route('**/*', self._request_handler)
             page = context.new_page()
             page.goto(url_item.url)
             selector = f'xpath={url_item.params["parent_xpath"]}'
             try:
-                page.wait_for_selector(selector, timeout=timeout)
+                page.wait_for_selector(selector, timeout=self.timeout)
             except TimeoutError:
                 return
             for element in page.locator(selector).element_handles():
