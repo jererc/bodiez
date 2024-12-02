@@ -32,6 +32,7 @@ def main():
         FIRESTORE_COLLECTION=NAME,
         HEADLESS=not args.interactive,
         RUN_DELTA=3600,
+        MIN_TITLES_HISTORY=50,
     )
     if args.cmd == 'collect':
         service = Service(
