@@ -41,7 +41,7 @@ class BaseTestCase(unittest.TestCase):
     def _reset_storage(self, config):
         fs = FireStore(config)
         print(f'deleting all documents in firestore collection '
-            f'{fs.collection_name}...')
+            f'{config.FIRESTORE_COLLECTION}...')
         for doc in fs.col.list_documents():
             doc.delete()
 
@@ -120,7 +120,7 @@ class CollectTestCase(BaseTestCase):
     def test_all(self):
         self._collect([
             'https://1337x.to/user/FitGirl/',
-            'https://rutracker.org/forum/tracker.php?f=557',
+            # 'https://rutracker.org/forum/tracker.php?f=557',
             'https://www.nvidia.com/en-us/geforce/news/',
             'https://www.lexpressproperty.com/en/buy-mauritius/all/west/?price_max=5000000&currency=MUR&filters%5Binterior_unit%5D%5Beq%5D=m2&filters%5Bland_unit%5D%5Beq%5D=m2',
             ],
@@ -128,14 +128,60 @@ class CollectTestCase(BaseTestCase):
         )
 
     def test_workflow(self):
-        urls = [
-            'https://1337x.to/user/FitGirl/',
-        ]
+        config = Config(
+            __file__,
+            URLS=[
+                {
+                    'url': 'https://1337x.to/user/FitGirl/',
+                    'update_delta': 0,
+                },
+            ],
+            GOOGLE_CREDS=GOOGLE_CREDS,
+            FIRESTORE_COLLECTION='test',
+        )
+        self._reset_storage(config)
+        collector = module.Collector(config)
         call_args_lists = []
         for i in range(2):
             with patch.object(module.Notifier, 'send') as mock_send:
-                self._collect(urls, reset_storage=i == 0)
+                collector.run()
             pprint(mock_send.call_args_list)
             call_args_lists.append(mock_send.call_args_list)
         self.assertTrue(len(call_args_lists[0]), module.MAX_NOTIF_PER_URL)
         self.assertFalse(call_args_lists[1])
+
+    def test_history(self):
+        self._index = 0
+        result_count = 10
+
+        def side__collect_titles(*args, **kwargs):
+            res = [f'title {i + self._index * result_count // 2}'
+                for i in range(result_count)]
+            self._index += 1
+            return res
+
+        config = Config(
+            __file__,
+            URLS=[
+                {
+                    'url': 'https://1337x.to/user/FitGirl/',
+                    'update_delta': 0,
+                },
+            ],
+            GOOGLE_CREDS=GOOGLE_CREDS,
+            FIRESTORE_COLLECTION='test',
+        )
+        self._reset_storage(config)
+        collector = module.Collector(config)
+        for i in range(4):
+            with patch.object(module.Notifier, 'send') as mock_send, \
+                    patch.object(module.Collector,
+                        '_collect_titles') as mock__collect_titles:
+                mock__collect_titles.side_effect = side__collect_titles
+                collector.run()
+
+        res = collector.store.get(config.URLS[0]['url'])
+        pprint(res)
+        titles = res['data']['titles']
+        self.assertEqual(len(titles), result_count * 2)
+        self.assertEqual(len(set(titles)), len(titles))

@@ -68,10 +68,14 @@ class FireStoreTestCase(unittest.TestCase):
         self.fs.col.document(self.fs._get_doc_id(self.url)).delete()
 
     def test_workflow(self):
-        # Get documents
-        self.results = []
         def get():
             self.results.append(self.fs.get(self.url))
+
+        def update(doc_ref, titles):
+            self.fs.update(doc_ref, titles)
+
+        # Get documents
+        self.results = []
         ths = [Thread(target=get) for i in range(3)]
         for th in ths:
             th.start()
@@ -90,30 +94,23 @@ class FireStoreTestCase(unittest.TestCase):
         self.assertEqual(new_titles, titles)
 
         # Update documents
-        self.results = []
-        def update(doc_ref, titles):
-            self.results.append(self.fs.update_ref(doc_ref, titles))
         ths = [Thread(target=update, args=(doc_ref, titles,)) for i in range(3)]
         for th in ths:
             th.start()
         for th in ths:
             th.join()
-        pprint(self.results)
-
         res = self.fs.get(self.url)
         pprint(res)
         self.assertEqual(res['data']['titles'], titles)
+        self.assertTrue(res['data']['updated_ts'])
         doc_ref = res['ref']
 
         titles = self.titles[:10]
-        self.results = []
         ths = [Thread(target=update, args=(doc_ref, titles,)) for i in range(3)]
         for th in ths:
             th.start()
         for th in ths:
             th.join()
-        pprint(self.results)
-
         res = self.fs.get(self.url)
         pprint(res)
         self.assertEqual(res['data']['titles'], titles)

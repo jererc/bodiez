@@ -36,6 +36,7 @@ def clean_title(title):
 class URLItem:
     url: str
     id: str = None
+    update_delta: int = 3600
     allow_no_results: bool = False
 
     def __post_init__(self):
@@ -93,18 +94,26 @@ class Collector:
         return res
 
     def _process_url_item(self, url_item):
+        doc = self.store.get(url_item.url)
+        if (doc['data'].get('updated_ts', 0)
+                > time.time() - url_item.update_delta):
+            logger.debug(f'skipping recently updated {url_item}')
+            return
         titles = self._collect_titles(url_item)
         if not (titles or url_item.allow_no_results):
             raise Exception('no result')
         logger.info(f'collected {len(titles)} titles for {url_item}')
-        stored_doc = self.store.get(url_item.url)
-        stored_titles = set(stored_doc['data']['titles'])
-        new_titles = [r for r in titles if r not in stored_titles]
+        doc_titles = doc['data']['titles']
+        new_titles = [r for r in titles if r not in doc_titles]
         if new_titles:
             logger.info(f'new results for {url_item}:\n'
                 f'{json.dumps(new_titles, indent=4)}')
             self._notify_new_titles(url_item, new_titles)
-            self.store.update_ref(stored_doc['ref'], titles)
+            history_titles = [r for r in doc_titles if r not in titles]
+            self.store.update(doc['ref'], titles
+                + history_titles[:len(titles)])
+        else:
+            self.store.update(doc['ref'])
 
     def run(self):
         start_ts = time.time()

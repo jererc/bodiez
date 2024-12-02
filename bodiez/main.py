@@ -4,7 +4,7 @@ import sys
 
 from svcutils.service import Config, Service
 
-from bodiez import WORK_PATH
+from bodiez import WORK_PATH, NAME
 from bodiez.collector import collect
 
 
@@ -28,15 +28,18 @@ def main():
     path = os.path.realpath(os.path.expanduser(args.path))
     config = Config(
         os.path.join(path, 'user_settings.py'),
+        GOOGLE_CREDS=os.path.join(WORK_PATH, 'gcs.json'),
+        FIRESTORE_COLLECTION=NAME,
         HEADLESS=not args.interactive,
+        RUN_DELTA=3600,
     )
     if args.cmd == 'collect':
         service = Service(
             target=collect,
             args=(config,),
             work_path=WORK_PATH,
-            run_delta=3600,
-            force_run_delta=2 * 3600,
+            run_delta=config.RUN_DELTA,
+            force_run_delta=2 * config.RUN_DELTA,
             max_cpu_percent=10,
             min_uptime=300,
             requires_online=True,
