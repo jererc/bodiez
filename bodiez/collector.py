@@ -88,11 +88,11 @@ class Collector:
         for parser in sorted(parsers, key=lambda x: x.id):
             bodies = [r for r in parser.parse(url_item) if r]
             if not bodies:
-                logger.info(f'no result for {url_item} '
+                logger.info(f'no result for {url_item.id} '
                     f'using parser {parser.id}')
                 continue
             res.extend(bodies)
-        logger.info(f'collected {len(res)} bodies for {url_item} in '
+        logger.info(f'collected {len(res)} bodies for {url_item.id} in '
             f'{time.time() - start_ts:.02f} seconds')
         return res
 
@@ -101,20 +101,20 @@ class Collector:
         doc = self.store.get(url_item.url)
         if not (self.force or doc.updated_ts <
                 time.time() - url_item.update_delta):
-            logger.debug(f'skipped recently updated {url_item}')
+            logger.debug(f'skipped recently updated {url_item.id}')
             return
         bodies = self._collect_bodies(url_item)
         if not (bodies or url_item.allow_no_results):
             raise Exception('no result')
         new_bodies = [r for r in bodies if r not in doc.bodies]
         if new_bodies:
-            logger.info(f'new bodies for {url_item}:\n'
+            logger.info(f'new bodies for {url_item.id}:\n'
                 f'{json.dumps(new_bodies, indent=4)}')
             self._notify_new_bodies(url_item, new_bodies)
         bodies_history = [r for r in doc.bodies if r not in bodies]
         self.store.set(url_item.url, bodies + bodies_history[
             :max(self.config.MIN_BODIES_HISTORY, len(bodies))])
-        logger.info(f'processed {url_item} in '
+        logger.info(f'processed {url_item.id} in '
             f'{time.time() - start_ts:.02f} seconds')
 
     def run(self):
