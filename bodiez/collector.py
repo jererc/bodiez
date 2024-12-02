@@ -110,11 +110,9 @@ class Collector:
             logger.info(f'new titles for {url_item}:\n'
                 f'{json.dumps(new_titles, indent=4)}')
             self._notify_new_titles(url_item, new_titles)
-            history_titles = [r for r in doc.titles if r not in titles]
-            self.store.set(url_item.url, titles
-                + history_titles[:max(10, len(titles))])
-        else:
-            self.store.set(url_item.url)
+        history_titles = [r for r in doc.titles if r not in titles]
+        self.store.set(url_item.url, titles
+            + history_titles[:max(10, len(titles))])
         logger.info(f'processed {url_item} in '
             f'{time.time() - start_ts:.02f} seconds')
 

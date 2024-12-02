@@ -28,11 +28,10 @@ class FireStore:
         doc = doc_ref.get()
         return Document(**doc.to_dict()) if doc.exists else Document(url=url)
 
-    def set(self, url, titles=None):
+    def set(self, url, titles):
         data = {
             'url': url,
+            'titles': titles or [],
             'updated_ts': int(time.time()),
         }
-        if titles is not None:
-            data['titles'] = titles
         self.col.document(self._get_doc_id(url)).set(data)

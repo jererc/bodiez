@@ -12,7 +12,7 @@ WORK_PATH = os.path.join(os.path.expanduser('~'), '_tests', 'bodiez')
 module.WORK_PATH = WORK_PATH
 module.logger.setLevel(logging.DEBUG)
 module.logger.handlers.clear()
-from bodiez import collector as module, parsers
+from bodiez import collector as module
 from bodiez.firestore import FireStore
 
 
@@ -127,7 +127,9 @@ class CollectTestCase(BaseTestCase):
             # headless=False,
         )
 
-    def test_workflow(self):
+
+class WorkflowTestCase(BaseTestCase):
+    def test_1(self):
         config = Config(
             __file__,
             URLS=[
@@ -141,46 +143,35 @@ class CollectTestCase(BaseTestCase):
         )
         self._reset_storage(config)
         collector = module.Collector(config)
-        call_args_lists = []
-        for i in range(2):
-            with patch.object(module.Notifier, 'send') as mock_send:
-                collector.run()
-            pprint(mock_send.call_args_list)
-            call_args_lists.append(mock_send.call_args_list)
-        self.assertTrue(len(call_args_lists[0]), module.MAX_NOTIF_PER_URL)
-        self.assertFalse(call_args_lists[1])
-
-    def test_history(self):
-        self._index = 0
-        result_count = 10
-
-        def side__collect_titles(*args, **kwargs):
-            res = [f'title {i + self._index * result_count // 2}'
-                for i in range(result_count)]
-            self._index += 1
-            return res
-
-        config = Config(
-            __file__,
-            URLS=[
-                {
-                    'url': 'https://1337x.to/user/FitGirl/',
-                    'update_delta': 0,
-                },
-            ],
-            GOOGLE_CREDS=GOOGLE_CREDS,
-            FIRESTORE_COLLECTION='test',
-        )
-        self._reset_storage(config)
-        collector = module.Collector(config)
-        for i in range(4):
-            with patch.object(module.Notifier, 'send') as mock_send, \
-                    patch.object(module.Collector,
-                        '_collect_titles') as mock__collect_titles:
-                mock__collect_titles.side_effect = side__collect_titles
-                collector.run()
 
         doc = collector.store.get(config.URLS[0]['url'])
         pprint(doc)
-        self.assertEqual(len(doc.titles), result_count * 2)
-        self.assertEqual(len(set(doc.titles)), len(doc.titles))
+        self.assertFalse(doc.titles)
+
+        with patch.object(module.Notifier, 'send') as mock_send:
+            collector.run()
+        pprint(mock_send.call_args_list)
+        self.assertEqual(len(mock_send.call_args_list),
+            module.MAX_NOTIF_PER_URL)
+
+        doc = collector.store.get(config.URLS[0]['url'])
+        pprint(doc)
+        self.assertTrue(doc.titles)
+
+        with patch.object(module.Notifier, 'send') as mock_send:
+            collector.run()
+        pprint(mock_send.call_args_list)
+        self.assertFalse(mock_send.call_args_list)
+
+        new_titles = [f'title {i}' for i in range(2)]
+        with patch.object(module.Notifier, 'send') as mock_send, \
+                patch.object(collector,
+                    '_collect_titles') as mock__collect_titles:
+            mock__collect_titles.return_value = (new_titles
+                + doc.titles[:-len(new_titles)])
+            collector.run()
+        pprint(mock_send.call_args_list)
+        prev_doc_titles = doc.titles
+        doc = collector.store.get(config.URLS[0]['url'])
+        pprint(doc)
+        self.assertEqual(doc.titles, new_titles + prev_doc_titles)

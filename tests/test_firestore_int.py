@@ -2,7 +2,6 @@ import logging
 import os
 from pprint import pprint
 import shutil
-from threading import Thread
 import unittest
 
 from svcutils.service import Config
