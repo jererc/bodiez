@@ -63,72 +63,63 @@ class BaseTestCase(unittest.TestCase):
         return module.collect(config)
 
 
-class X1337xTestCase(BaseTestCase):
-    def test_no_result(self):
+class GenericTestCase(BaseTestCase):
+    def test_1337x(self):
         self._collect([
-                {
-                    'url': 'https://1337x.to/search/asdasdasdasd/1/',
-                    'id': 'epic id',
-                    'allow_no_results': True,
+            {
+                'url': 'https://1337x.to/user/FitGirl/',
+                'params': {
+                    'main_xpath': '//table/tbody/tr',
+                    'text_xpaths': [
+                        './/td[1]/a[2]',
+                    ],
                 },
+            },
             ],
             headless=False,
         )
 
-    def test_ok(self):
+    def test_nvidia(self):
         self._collect([
-            'https://1337x.to/user/FitGirl/',
-            # 'https://1337x.to/user/DODI/',
-            'https://1337x.to/sort-search/battlefield%20repack/time/desc/1/',
-            'https://1337x.to/cat/Movies/1/',
+            {
+                'url': 'https://www.nvidia.com/en-us/geforce/news/',
+                'params': {
+                    'main_xpath': '//div[contains(@class, "article-title-text")]',
+                    'text_xpaths': [
+                        './/a',
+                    ],
+                },
+            },
             ],
-            # headless=False,
+            headless=False,
+        )
+
+    def test_lexpressproperty(self):
+        self._collect([
+            {
+                'url': 'https://www.lexpressproperty.com/en/buy-mauritius/all/west/?price_max=5000000&currency=MUR&filters%5Binterior_unit%5D%5Beq%5D=m2&filters%5Bland_unit%5D%5Beq%5D=m2',
+                'params': {
+                    'main_xpath': '//div[contains(@class, "card-row")]',
+                    'text_xpaths': [
+                        './/div[contains(@class, "title-holder")]/h2',
+                        './/address',
+                        './/div[contains(@class, "card-foot-price")]/strong/a',
+                    ],
+                },
+            },
+            ],
+            headless=False,
         )
 
 
 class RutrackerTestCase(BaseTestCase):
     def test_ok(self):
         self._collect([
-            'https://rutracker.org/forum/tracker.php?f=557',
+            {
+                'url': 'https://rutracker.org/forum/tracker.php?f=557',
+            },
             ],
             headless=False,
-        )
-
-
-class NvidiaGeforceTestCase(BaseTestCase):
-    def test_ok(self):
-        self._collect([
-            'https://www.nvidia.com/en-us/geforce/news/',
-            ],
-            headless=False,
-        )
-
-
-class LexpresspropertyTestCase(BaseTestCase):
-    def test_no_result(self):
-        self._collect([
-            'https://www.lexpressproperty.com/en/buy-mauritius/all/la_gaulette-la_preneuse/?price_max=5000000&currency=MUR&filters%5Binterior_unit%5D%5Beq%5D=m2&filters%5Bland_unit%5D%5Beq%5D=m2',
-            ],
-            # headless=False,
-        )
-
-    def test_ok(self):
-        self._collect([
-            'https://www.lexpressproperty.com/en/buy-mauritius/all/west/?price_max=5000000&currency=MUR&filters%5Binterior_unit%5D%5Beq%5D=m2&filters%5Bland_unit%5D%5Beq%5D=m2',
-            ],
-            # headless=False,
-        )
-
-
-class CollectTestCase(BaseTestCase):
-    def test_all(self):
-        self._collect([
-            'https://1337x.to/user/FitGirl/',
-            # 'https://rutracker.org/forum/tracker.php?f=557',
-            'https://www.nvidia.com/en-us/geforce/news/',
-            'https://www.lexpressproperty.com/en/buy-mauritius/all/west/?price_max=5000000&currency=MUR&filters%5Binterior_unit%5D%5Beq%5D=m2&filters%5Bland_unit%5D%5Beq%5D=m2',
-            ],
-            # headless=False,
         )
 
 

@@ -9,8 +9,8 @@ class RutrackerParser(BaseParser):
     id = 'rutracker'
 
     @staticmethod
-    def can_parse_url(url):
-        return 'rutracker' in urlparse(url).netloc.split('.')
+    def can_parse(url_item):
+        return 'rutracker' in urlparse(url_item.url).netloc.split('.')
 
     def _request_handler(self, route, request):
         if request.resource_type == 'image' or '1xbet' in request.url:

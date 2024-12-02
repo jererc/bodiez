@@ -1,16 +1,17 @@
-from urllib.parse import urlparse
-
 from playwright.sync_api import TimeoutError
 
 from bodiez.parsers.base import BaseParser
 
 
-class X1337xParser(BaseParser):
-    id = '1337x'
+class GenericParser(BaseParser):
+    id = 'generic'
 
     @staticmethod
-    def can_parse_url(url):
-        return '1337x' in urlparse(url).netloc.split('.')
+    def can_parse(url_item):
+        try:
+            return bool(url_item.params['main_xpath'])
+        except KeyError:
+            return False
 
     def _request_handler(self, route, request):
         if request.resource_type == 'image':
@@ -23,12 +24,13 @@ class X1337xParser(BaseParser):
             context.route('**/*', self._request_handler)
             page = context.new_page()
             page.goto(url_item.url)
-            selector = 'xpath=//table/tbody/tr'
+            selector = f'xpath={url_item.params["main_xpath"]}'
             try:
                 page.wait_for_selector(selector, timeout=10000)
             except TimeoutError:
                 return
             for element in page.locator(selector).element_handles():
-                td = element.query_selector_all('xpath=.//td')[0]
-                title = td.query_selector_all('xpath=.//a')[1]
-                yield title.text_content().strip()
+                text_elements = [element.query_selector(f'xpath={x}')
+                    for x in url_item.params['text_xpaths']]
+                yield ', '.join([r.text_content().strip() if r else 'NULL'
+                    for r in text_elements])

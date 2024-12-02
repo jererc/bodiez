@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import json
 import logging
 import re
@@ -38,6 +38,7 @@ class URLItem:
     id: str = None
     update_delta: int = 3600
     allow_no_results: bool = False
+    params: dict = field(default_factory=dict)
 
     def __post_init__(self):
         if not self.id:
@@ -75,7 +76,7 @@ class Collector:
 
     def _iterate_parsers(self, url_item):
         for parser_cls in self.parsers:
-            if parser_cls.can_parse_url(url_item.url):
+            if parser_cls.can_parse(url_item):
                 yield parser_cls(self.config)
 
     def _collect_bodies(self, url_item):
