@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='bodiez',
-    version='2024.12.02.181759',
+    version='2024.12.02.182009',
     author='jererc',
     author_email='jererc@gmail.com',
     url='https://github.com/jererc/bodiez',

@@ -128,7 +128,7 @@ class Collector:
             try:
                 self._process_url_item(url_item)
             except Exception as exc:
-                logger.exception(f'failed to process {url_item}')
+                logger.exception(f'failed to process {url_item.id}')
                 Notifier().send(title=f'{NAME} error',
                     body=f'{url_item.id}: {exc}')
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')

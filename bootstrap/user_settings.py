@@ -9,8 +9,8 @@ params_geforce_news = {
     'xpath': '//div[contains(@class, "article-title-text")]/a',
 }
 params_lexpress = {
-    'main_xpath': '//div[contains(@class, "card-row")]',
-    'text_xpaths': [
+    'parent_xpath': '//div[contains(@class, "card-row")]',
+    'children_xpaths': [
         './/div[contains(@class, "title-holder")]/h2',
         './/address',
         './/div[contains(@class, "card-foot-price")]/strong/a',
