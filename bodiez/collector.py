@@ -132,5 +132,5 @@ class Collector:
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')
 
 
-def collect(config, force=False):
-    Collector(config, force=force).run()
+def collect(config, force=False, url_item_id=None):
+    Collector(config, force=force, url_item_id=url_item_id).run()
