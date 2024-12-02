@@ -47,78 +47,103 @@ class BaseTestCase(unittest.TestCase):
             doc.delete()
         remove_path(config.SHARED_STORE_PATH)
 
-    def _collect(self, urls, headless=True, reset_storage=True):
+    def _collect(self, url, headless=True):
         config = Config(
             __file__,
-            URLS=[r if isinstance(r, dict) else {'url': r}
-                for r in urls],
             SHARED_STORE_PATH=os.path.join(WORK_PATH, 'bodiez'),
-            GOOGLE_CREDS=GOOGLE_CREDS,
+            GOOGLE_CREDS=None,
             FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,
             HEADLESS=headless,
         )
-        if reset_storage:
-            self._reset_storage(config)
-        return module.collect(config)
+        remove_path(config.SHARED_STORE_PATH)
+        res = module.Collector(config)._collect_bodies(module.URLItem(**url))
+        self.assertTrue(res)
 
 
 class GenericTestCase(BaseTestCase):
     def test_1337x(self):
-        self._collect([
+        self._collect(
             {
                 'url': 'https://1337x.to/user/FitGirl/',
                 'params': {
-                    'main_xpath': '//table/tbody/tr',
-                    'text_xpaths': [
+                    'xpath': '//table/tbody/tr/td[1]/a[2]',
+                },
+            },
+            headless=False,
+        )
+
+        self._collect(
+            {
+                'url': 'https://1337x.to/user/FitGirl/',
+                'params': {
+                    'parent_xpath': '//table/tbody/tr',
+                    'children_xpaths': [
                         './/td[1]/a[2]',
                     ],
                 },
             },
-            ],
             headless=False,
         )
 
     def test_nvidia(self):
-        self._collect([
+        self._collect(
             {
                 'url': 'https://www.nvidia.com/en-us/geforce/news/',
                 'params': {
-                    'main_xpath': '//div[contains(@class, "article-title-text")]',
-                    'text_xpaths': [
+                    'xpath': '//div[contains(@class, "article-title-text")]/a',
+                },
+            },
+            headless=False,
+        )
+
+        self._collect(
+            {
+                'url': 'https://www.nvidia.com/en-us/geforce/news/',
+                'params': {
+                    'parent_xpath': '//div[contains(@class, "article-title-text")]',
+                    'children_xpaths': [
                         './/a',
                     ],
                 },
             },
-            ],
             headless=False,
         )
 
-    def test_lexpressproperty(self):
-        self._collect([
+    def test_lexpress(self):
+        self._collect(
             {
                 'url': 'https://www.lexpressproperty.com/en/buy-mauritius/all/west/?price_max=5000000&currency=MUR&filters%5Binterior_unit%5D%5Beq%5D=m2&filters%5Bland_unit%5D%5Beq%5D=m2',
                 'params': {
-                    'main_xpath': '//div[contains(@class, "card-row")]',
-                    'text_xpaths': [
+                    'parent_xpath': '//div[contains(@class, "card-row")]',
+                    'children_xpaths': [
                         './/div[contains(@class, "title-holder")]/h2',
                         './/address',
                         './/div[contains(@class, "card-foot-price")]/strong/a',
                     ],
                 },
             },
-            ],
+            headless=False,
+        )
+
+    def test_rutracker(self):
+        self._collect(
+            {
+                'url': 'https://rutracker.org/forum/tracker.php?f=557',
+                'params': {
+                    'xpath': '//div[contains(@class, "t-title")]/a',
+                },
+            },
             headless=False,
         )
 
 
 class RutrackerTestCase(BaseTestCase):
     def test_ok(self):
-        self._collect([
+        self._collect(
             {
                 'url': 'https://rutracker.org/forum/tracker.php?f=557',
             },
-            ],
             headless=False,
         )
 

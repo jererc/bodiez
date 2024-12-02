@@ -39,6 +39,12 @@ class BaseParser:
                 context.storage_state(path=state_path)
                 context.close()
 
+    def _request_handler(self, route, request):
+        if request.resource_type == 'image':
+            route.abort()
+        else:
+            route.continue_()
+
     def parse(self, url_item):
         raise NotImplementedError()
 
