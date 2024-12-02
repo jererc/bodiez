@@ -13,7 +13,7 @@ def parse_args():
     parser.add_argument('--path', '-p', default=os.getcwd())
     subparsers = parser.add_subparsers(dest='cmd')
     collect_parser = subparsers.add_parser('collect')
-    collect_parser.add_argument('--url-item-id')
+    collect_parser.add_argument('--url-id')
     collect_parser.add_argument('--daemon', action='store_true')
     collect_parser.add_argument('--task', action='store_true')
     collect_parser.add_argument('--interactive', '-i', action='store_true')
@@ -52,7 +52,7 @@ def main():
         elif args.task:
             service.run_once()
         else:
-            collect(config, force=True, url_item_id=args.url_item_id)
+            collect(config, force=True, url_id=args.url_id)
 
 
 if __name__ == '__main__':
