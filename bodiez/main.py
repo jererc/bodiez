@@ -28,6 +28,7 @@ def main():
     path = os.path.realpath(os.path.expanduser(args.path))
     config = Config(
         os.path.join(path, 'user_settings.py'),
+        SHARED_STORE_PATH=os.path.join(path, 'bodiez'),
         GOOGLE_CREDS=os.path.join(WORK_PATH, 'google_creds.json'),
         FIRESTORE_COLLECTION=NAME,
         HEADLESS=not args.interactive,

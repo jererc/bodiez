@@ -2,6 +2,7 @@ import logging
 import os
 from pprint import pprint
 import shutil
+import time
 import unittest
 from unittest.mock import patch
 
@@ -13,7 +14,7 @@ module.WORK_PATH = WORK_PATH
 module.logger.setLevel(logging.DEBUG)
 module.logger.handlers.clear()
 from bodiez import collector as module
-from bodiez.firestore import FireStore
+from bodiez.store import Firestore
 
 
 GOOGLE_CREDS = os.path.join(os.path.expanduser('~'), 'gcs-bodiez.json')
@@ -39,17 +40,19 @@ class BaseTestCase(unittest.TestCase):
         makedirs(WORK_PATH)
 
     def _reset_storage(self, config):
-        fs = FireStore(config)
+        fs = Firestore(config)
         print(f'deleting all documents in firestore collection '
             f'{config.FIRESTORE_COLLECTION}...')
         for doc in fs.col.list_documents():
             doc.delete()
+        remove_path(config.SHARED_STORE_PATH)
 
     def _collect(self, urls, headless=True, reset_storage=True):
         config = Config(
             __file__,
             URLS=[r if isinstance(r, dict) else {'url': r}
                 for r in urls],
+            SHARED_STORE_PATH=os.path.join(WORK_PATH, 'bodiez'),
             GOOGLE_CREDS=GOOGLE_CREDS,
             FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,
@@ -139,6 +142,7 @@ class WorkflowTestCase(BaseTestCase):
                     'update_delta': 0,
                 },
             ],
+            SHARED_STORE_PATH=os.path.join(WORK_PATH, 'bodiez'),
             GOOGLE_CREDS=GOOGLE_CREDS,
             FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,
@@ -146,12 +150,16 @@ class WorkflowTestCase(BaseTestCase):
         self._reset_storage(config)
         collector = module.Collector(config)
 
+        def run():
+            time.sleep(.01)
+            collector.run()
+
         doc = collector.store.get(config.URLS[0]['url'])
         pprint(doc)
         self.assertFalse(doc.bodies)
 
         with patch.object(module.Notifier, 'send') as mock_send:
-            collector.run()
+            run()
         pprint(mock_send.call_args_list)
         self.assertEqual(len(mock_send.call_args_list),
             module.MAX_NOTIF_PER_URL)
@@ -161,7 +169,7 @@ class WorkflowTestCase(BaseTestCase):
         self.assertTrue(doc.bodies)
 
         with patch.object(module.Notifier, 'send') as mock_send:
-            collector.run()
+            run()
         pprint(mock_send.call_args_list)
         self.assertFalse(mock_send.call_args_list)
 
@@ -171,7 +179,7 @@ class WorkflowTestCase(BaseTestCase):
                     '_collect_bodies') as mock__collect_bodies:
             mock__collect_bodies.return_value = (new_bodies
                 + doc.bodies[:-len(new_bodies)])
-            collector.run()
+            run()
         pprint(mock_send.call_args_list)
         prev_doc_bodies = doc.bodies
         doc = collector.store.get(config.URLS[0]['url'])

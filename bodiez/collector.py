@@ -8,7 +8,7 @@ from urllib.parse import urlparse, unquote_plus
 from svcutils.service import Notifier
 
 from bodiez import NAME, logger
-from bodiez.firestore import FireStore
+from bodiez.store import get_store
 from bodiez.parsers.base import iterate_parsers
 
 
@@ -55,7 +55,7 @@ class Collector:
         self.config = config
         self.force = force
         self.parsers = list(iterate_parsers())
-        self.store = FireStore(self.config)
+        self.store = get_store(self.config)
         self.max_notif_per_url = (self.config.MAX_NOTIF_PER_URL
             or MAX_NOTIF_PER_URL)
 
