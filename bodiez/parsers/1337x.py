@@ -29,5 +29,6 @@ class X1337xParser(BaseParser):
             except TimeoutError:
                 return
             for element in page.locator(selector).element_handles():
-                title = element.query_selector_all('xpath=.//td')[0]
+                td = element.query_selector_all('xpath=.//td')[0]
+                title = td.query_selector_all('xpath=.//a')[1]
                 yield title.text_content().strip()
