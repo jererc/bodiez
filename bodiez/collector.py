@@ -105,7 +105,7 @@ class Collector:
             raise Exception('no result')
         new_titles = [r for r in titles if r not in doc.titles]
         if new_titles:
-            logger.info(f'new results for {url_item}:\n'
+            logger.info(f'new titles for {url_item}:\n'
                 f'{json.dumps(new_titles, indent=4)}')
             self._notify_new_titles(url_item, new_titles)
             history_titles = [r for r in doc.titles if r not in titles]
