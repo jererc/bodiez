@@ -31,8 +31,8 @@ def main():
         GOOGLE_CREDS=os.path.join(WORK_PATH, 'gcs.json'),
         FIRESTORE_COLLECTION=NAME,
         HEADLESS=not args.interactive,
-        RUN_DELTA=3600,
         MIN_TITLES_HISTORY=50,
+        RUN_DELTA=3600,
     )
     if args.cmd == 'collect':
         service = Service(
