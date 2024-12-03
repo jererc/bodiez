@@ -44,7 +44,7 @@ def main():
             run_delta=config.RUN_DELTA,
             force_run_delta=2 * config.RUN_DELTA,
             max_cpu_percent=10,
-            min_uptime=240,
+            min_uptime=180,
             requires_online=True,
         )
         if args.daemon:
