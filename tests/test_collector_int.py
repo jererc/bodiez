@@ -155,11 +155,11 @@ class TimeoutTestCase(BaseTestCase):
         self.assertEqual(res, [])
 
 
-class NvidiaDriverTestCase(BaseTestCase):
+class GeforceDriverVersionTestCase(BaseTestCase):
     def test_1(self):
         self._test_collect(
             {
-                'url': 'nvidia_driver_version',
+                'url': 'geforce_driver_version',
             },
             headless=True,
         )
