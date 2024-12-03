@@ -28,12 +28,12 @@ class BaseParser:
     def _get_state_dirname(self):
         return urlparse(self.url_item.url).netloc
 
-    def _validate_domain(self, request):
+    def _is_external_domain(self, request):
         return (get_url_domain_name(self.url_item.url)
-            in urlparse(request.url).netloc.split('.'))
+            not in urlparse(request.url).netloc.split('.'))
 
     def _request_handler(self, route, request):
-        if self.url_item.block_external and not self._validate_domain(request):
+        if self.url_item.block_external and self._is_external_domain(request):
             route.abort()
             return
         if self.url_item.block_images and request.resource_type == 'image':
