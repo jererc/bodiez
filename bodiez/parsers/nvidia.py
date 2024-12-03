@@ -1,3 +1,5 @@
+from urllib.parse import unquote
+
 import requests
 
 from bodiez.parsers.base import BaseParser
@@ -16,4 +18,5 @@ class NvidiaDriverVersionParser(BaseParser):
         res = requests.get(URL)
         if res.status_code != 200:
             raise Exception(f'error {res.status_code}')
-        yield res.json()['IDS'][0]['downloadInfo']['Version']
+        data = res.json()['IDS'][0]['downloadInfo']
+        yield f'{unquote(data["Name"])} v{data["Version"]}'
