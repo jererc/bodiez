@@ -155,6 +155,16 @@ class TimeoutTestCase(BaseTestCase):
         self.assertEqual(res, [])
 
 
+class NvidiaDriverTestCase(BaseTestCase):
+    def test_1(self):
+        self._test_collect(
+            {
+                'url': 'nvidia_driver_version',
+            },
+            headless=True,
+        )
+
+
 class WorkflowTestCase(BaseTestCase):
     def test_1(self):
         config = Config(
