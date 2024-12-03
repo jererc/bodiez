@@ -1,5 +1,3 @@
-from urllib.parse import unquote
-
 import requests
 
 from bodiez.parsers.base import BaseParser
