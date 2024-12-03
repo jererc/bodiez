@@ -46,8 +46,8 @@ class URLItem:
     def _generate_id(self):
         parsed = urlparse(unquote_plus(self.url))
         words = re.findall(r'\b\w+\b', f'{parsed.path} {parsed.query}')
-        return '-'.join([get_url_domain_name(self.url)]
-            + [r for r in words if len(r) > 1])
+        tokens = [get_url_domain_name(self.url)] + words
+        return '-'.join([r for r in tokens if len(r) > 1])
 
 
 class Collector:
@@ -88,12 +88,12 @@ class Collector:
         for parser in sorted(parsers, key=lambda x: x.id):
             bodies = [r for r in parser.parse() if r]
             if not bodies:
-                logger.info(f'no result for {url_item.id} '
-                    f'using parser {parser.id}')
+                logger.info(f'no results for {url_item.id} '
+                    f'with parser {parser.id}')
                 continue
             res.extend(bodies)
-        logger.debug(f'parser {parser.id} collected bodies for '
-            f'{url_item.id}:\n{json.dumps(bodies, indent=4)}')
+        logger.debug(f'collected bodies for {url_item.id} '
+            f'with parser {parser.id}:\n{json.dumps(bodies, indent=4)}')
         logger.info(f'collected {len(res)} bodies for {url_item.id} in '
             f'{time.time() - start_ts:.02f} seconds')
         return res

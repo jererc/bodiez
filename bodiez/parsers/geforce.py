@@ -12,11 +12,10 @@ class GeforceDriverVersionParser(BaseParser):
     id = 'geforce_driver_version'
 
     def can_parse(self):
-        return self.url_item.url == 'geforce_driver_version'
+        return self.url_item.url == 'geforce-driver-version'
 
     def parse(self):
         res = requests.get(URL)
         if res.status_code != 200:
             raise Exception(f'error {res.status_code}')
-        data = res.json()['IDS'][0]['downloadInfo']
-        yield f'{unquote(data["Name"])} v{data["Version"]}'
+        yield res.json()['IDS'][0]['downloadInfo']['Version']

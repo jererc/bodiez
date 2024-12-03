@@ -159,7 +159,7 @@ class GeforceDriverVersionTestCase(BaseTestCase):
     def test_1(self):
         self._test_collect(
             {
-                'url': 'geforce_driver_version',
+                'url': 'geforce-driver-version',
             },
             headless=True,
         )
