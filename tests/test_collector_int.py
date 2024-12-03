@@ -59,6 +59,8 @@ class BaseTestCase(unittest.TestCase):
         remove_path(config.SHARED_STORE_PATH)
         res = module.Collector(config)._collect_bodies(module.URLItem(**url))
         self.assertTrue(res)
+        self.assertTrue(all(isinstance(r, str) for r in res))
+        self.assertTrue(len(set(res)) > len(res) * .9)
 
 
 class GenericTestCase(BaseTestCase):
@@ -66,22 +68,19 @@ class GenericTestCase(BaseTestCase):
         self._collect(
             {
                 'url': 'https://1337x.to/user/FitGirl/',
-                'params': {
-                    'xpath': '//table/tbody/tr/td[1]/a[2]',
-                },
+                'xpath': '//table/tbody/tr/td[1]/a[2]',
             },
             headless=False,
         )
 
+    def test_1337x_sub(self):
         self._collect(
             {
                 'url': 'https://1337x.to/user/FitGirl/',
-                'params': {
-                    'parent_xpath': '//table/tbody/tr',
-                    'children_xpaths': [
-                        './/td[1]/a[2]',
-                    ],
-                },
+                'parent_xpath': '//table/tbody/tr',
+                'child_xpaths': [
+                    './/td[1]/a[2]',
+                ],
             },
             headless=False,
         )
@@ -90,22 +89,19 @@ class GenericTestCase(BaseTestCase):
         self._collect(
             {
                 'url': 'https://www.nvidia.com/en-us/geforce/news/',
-                'params': {
-                    'xpath': '//div[contains(@class, "article-title-text")]/a',
-                },
+                'xpath': '//div[contains(@class, "article-title-text")]/a',
             },
             headless=False,
         )
 
+    def test_nvidia_sub(self):
         self._collect(
             {
                 'url': 'https://www.nvidia.com/en-us/geforce/news/',
-                'params': {
-                    'parent_xpath': '//div[contains(@class, "article-title-text")]',
-                    'children_xpaths': [
-                        './/a',
-                    ],
-                },
+                'parent_xpath': '//div[contains(@class, "article-title-text")]',
+                'child_xpaths': [
+                    './/a',
+                ],
             },
             headless=False,
         )
@@ -114,14 +110,12 @@ class GenericTestCase(BaseTestCase):
         self._collect(
             {
                 'url': 'https://www.lexpressproperty.com/en/buy-mauritius/all/west/?price_max=5000000&currency=MUR&filters%5Binterior_unit%5D%5Beq%5D=m2&filters%5Bland_unit%5D%5Beq%5D=m2',
-                'params': {
-                    'parent_xpath': '//div[contains(@class, "card-row")]',
-                    'children_xpaths': [
-                        './/div[contains(@class, "title-holder")]/h2',
-                        './/address',
-                        './/div[contains(@class, "card-foot-price")]/strong/a',
-                    ],
-                },
+                'parent_xpath': '//div[contains(@class, "card-row")]',
+                'child_xpaths': [
+                    './/div[contains(@class, "title-holder")]/h2',
+                    './/address',
+                    './/div[contains(@class, "card-foot-price")]/strong/a',
+                ],
             },
             headless=False,
         )
@@ -130,19 +124,7 @@ class GenericTestCase(BaseTestCase):
         self._collect(
             {
                 'url': 'https://rutracker.org/forum/tracker.php?f=557',
-                'params': {
-                    'xpath': '//div[contains(@class, "t-title")]/a',
-                },
-            },
-            headless=False,
-        )
-
-
-class RutrackerTestCase(BaseTestCase):
-    def test_ok(self):
-        self._collect(
-            {
-                'url': 'https://rutracker.org/forum/tracker.php?f=557',
+                'xpath': '//div[contains(@class, "t-title")]/a',
             },
             headless=False,
         )
@@ -155,6 +137,7 @@ class WorkflowTestCase(BaseTestCase):
             URLS=[
                 {
                     'url': 'https://1337x.to/user/FitGirl/',
+                    'xpath': '//table/tbody/tr/td[1]/a[2]',
                     'update_delta': 0,
                 },
             ],

@@ -3,13 +3,14 @@ import json
 import logging
 import re
 import time
+from typing import List
 from urllib.parse import urlparse, unquote_plus
 
 from svcutils.service import Notifier
 
 from bodiez import NAME, logger
 from bodiez.store import get_store
-from bodiez.parsers.base import iterate_parsers
+from bodiez.parsers.base import get_url_domain_name, iterate_parsers
 
 
 MAX_NOTIF_PER_URL = 4
@@ -17,12 +18,6 @@ MAX_NOTIF_BODY_SIZE = 500
 
 logging.getLogger('selenium').setLevel(logging.INFO)
 logging.getLogger('urllib3').setLevel(logging.INFO)
-
-
-def get_url_netloc_token(url):
-    parts = urlparse(url).netloc.split('.')
-    out_parts = parts[1:] if parts[0] == 'www' else parts
-    return '.'.join(out_parts[:-1])
 
 
 def clean_body(body):
@@ -38,7 +33,11 @@ class URLItem:
     id: str = None
     update_delta: int = 3600
     allow_no_results: bool = False
-    params: dict = field(default_factory=dict)
+    block_external: bool = True
+    block_images: bool = True
+    xpath: str = None
+    parent_xpath: str = None
+    child_xpaths: List[str] = field(default_factory=list)
 
     def __post_init__(self):
         if not self.id:
@@ -47,7 +46,7 @@ class URLItem:
     def _generate_id(self):
         parsed = urlparse(unquote_plus(self.url))
         words = re.findall(r'\b\w+\b', f'{parsed.path} {parsed.query}')
-        return '-'.join([get_url_netloc_token(self.url)]
+        return '-'.join([get_url_domain_name(self.url)]
             + [r for r in words if len(r) > 1])
 
 
@@ -76,8 +75,9 @@ class Collector:
 
     def _iterate_parsers(self, url_item):
         for parser_cls in self.parsers:
-            if parser_cls.can_parse(url_item):
-                yield parser_cls(self.config)
+            parser = parser_cls(self.config, url_item)
+            if parser.can_parse():
+                yield parser
 
     def _collect_bodies(self, url_item):
         start_ts = time.time()
@@ -86,7 +86,7 @@ class Collector:
             raise Exception('no available parser')
         res = []
         for parser in sorted(parsers, key=lambda x: x.id):
-            bodies = [r for r in parser.parse(url_item) if r]
+            bodies = [r for r in parser.parse() if r]
             if not bodies:
                 logger.info(f'no result for {url_item.id} '
                     f'using parser {parser.id}')
