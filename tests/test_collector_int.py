@@ -130,6 +130,17 @@ class GenericTestCase(BaseTestCase):
         )
 
 
+class TimeoutTestCase(BaseTestCase):
+    def test_rutracker(self):
+        self._collect(
+            {
+                'url': 'https://rutracker.org/forum/tracker.php?f=557',
+                'xpath': '//div[contains(@class, "INVALID")]/a',
+            },
+            headless=True,
+        )
+
+
 class WorkflowTestCase(BaseTestCase):
     def test_1(self):
         config = Config(

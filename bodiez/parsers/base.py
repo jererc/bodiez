@@ -4,7 +4,7 @@ import inspect
 import os
 from urllib.parse import urlparse
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import TimeoutError, sync_playwright
 
 from bodiez import WORK_PATH, logger
 
@@ -61,6 +61,14 @@ class BaseParser:
             finally:
                 context.storage_state(path=state_path)
                 context.close()
+
+    def _wait_for_selector(self, page, selector):
+        try:
+            page.wait_for_selector(selector, timeout=self.timeout)
+        except TimeoutError:
+            if not self.url_item.allow_no_results:
+                raise Exception('timeout')
+            logger.debug(f'timed out for {selector}')
 
     def can_parse(self):
         raise NotImplementedError()

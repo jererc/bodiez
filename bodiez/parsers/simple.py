@@ -1,10 +1,8 @@
-from playwright.sync_api import TimeoutError
-
 from bodiez.parsers.base import BaseParser
 
 
-class SimpleParser(BaseParser):
-    id = 'simple'
+class SimpleElementParser(BaseParser):
+    id = 'simple_element'
 
     def can_parse(self):
         try:
@@ -17,9 +15,6 @@ class SimpleParser(BaseParser):
             page = context.new_page()
             page.goto(self.url_item.url)
             selector = f'xpath={self.url_item.xpath}'
-            try:
-                page.wait_for_selector(selector, timeout=self.timeout)
-            except TimeoutError:
-                return
+            self._wait_for_selector(page, selector)
             for element in page.locator(selector).all():
                 yield element.text_content().strip()

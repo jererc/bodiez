@@ -107,7 +107,7 @@ class Collector:
             return
         bodies = self._collect_bodies(url_item)
         if not (bodies or url_item.allow_no_results):
-            raise Exception('no result')
+            raise Exception('no results')
         new_bodies = [r for r in bodies if r not in doc.bodies]
         if new_bodies:
             logger.info(f'new bodies for {url_item.id}:\n'
