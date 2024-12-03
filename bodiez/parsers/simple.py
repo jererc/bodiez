@@ -5,10 +5,7 @@ class SimpleElementParser(BaseParser):
     id = 'simple_element'
 
     def can_parse(self):
-        try:
-            return bool(self.url_item.xpath)
-        except KeyError:
-            return False
+        return bool(self.url_item.xpath)
 
     def parse(self):
         with self.playwright_context() as context:

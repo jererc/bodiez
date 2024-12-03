@@ -57,7 +57,10 @@ class BaseTestCase(unittest.TestCase):
             HEADLESS=headless,
         )
         remove_path(config.SHARED_STORE_PATH)
-        res = module.Collector(config)._collect_bodies(module.URLItem(**url))
+        return module.Collector(config)._collect_bodies(module.URLItem(**url))
+
+    def _test_collect(self, *args, **kwargs):
+        res = self._collect(*args, **kwargs)
         self.assertTrue(res)
         self.assertTrue(all(isinstance(r, str) for r in res))
         self.assertTrue(len(set(res)) > len(res) * .9)
@@ -65,7 +68,7 @@ class BaseTestCase(unittest.TestCase):
 
 class GenericTestCase(BaseTestCase):
     def test_1337x(self):
-        self._collect(
+        self._test_collect(
             {
                 'url': 'https://1337x.to/user/FitGirl/',
                 'xpath': '//table/tbody/tr/td[1]/a[2]',
@@ -74,7 +77,7 @@ class GenericTestCase(BaseTestCase):
         )
 
     def test_1337x_sub(self):
-        self._collect(
+        self._test_collect(
             {
                 'url': 'https://1337x.to/user/FitGirl/',
                 'parent_xpath': '//table/tbody/tr',
@@ -86,7 +89,7 @@ class GenericTestCase(BaseTestCase):
         )
 
     def test_nvidia(self):
-        self._collect(
+        self._test_collect(
             {
                 'url': 'https://www.nvidia.com/en-us/geforce/news/',
                 'xpath': '//div[contains(@class, "article-title-text")]/a',
@@ -95,7 +98,7 @@ class GenericTestCase(BaseTestCase):
         )
 
     def test_nvidia_sub(self):
-        self._collect(
+        self._test_collect(
             {
                 'url': 'https://www.nvidia.com/en-us/geforce/news/',
                 'parent_xpath': '//div[contains(@class, "article-title-text")]',
@@ -107,7 +110,7 @@ class GenericTestCase(BaseTestCase):
         )
 
     def test_lexpress(self):
-        self._collect(
+        self._test_collect(
             {
                 'url': 'https://www.lexpressproperty.com/en/buy-mauritius/all/west/?price_max=5000000&currency=MUR&filters%5Binterior_unit%5D%5Beq%5D=m2&filters%5Bland_unit%5D%5Beq%5D=m2',
                 'parent_xpath': '//div[contains(@class, "card-row")]',
@@ -121,7 +124,7 @@ class GenericTestCase(BaseTestCase):
         )
 
     def test_rutracker(self):
-        self._collect(
+        self._test_collect(
             {
                 'url': 'https://rutracker.org/forum/tracker.php?f=557',
                 'xpath': '//div[contains(@class, "t-title")]/a',
@@ -131,14 +134,25 @@ class GenericTestCase(BaseTestCase):
 
 
 class TimeoutTestCase(BaseTestCase):
-    def test_rutracker(self):
-        self._collect(
+    def test_timeout(self):
+        self.assertRaises(Exception, self._collect,
             {
-                'url': 'https://rutracker.org/forum/tracker.php?f=557',
-                'xpath': '//div[contains(@class, "INVALID")]/a',
+                'url': 'https://1337x.to/user/FitGirl/',
+                'xpath': '//table/tbody/tr/td[999]/a[999]',
             },
             headless=True,
         )
+
+    def test_no_result(self):
+        res = self._collect(
+            {
+                'url': 'https://1337x.to/search/asdasdasd/1/',
+                'xpath': '//table/tbody/tr/td[1]/a[2]',
+                'allow_no_results': True,
+            },
+            headless=True,
+        )
+        self.assertEqual(res, [])
 
 
 class WorkflowTestCase(BaseTestCase):

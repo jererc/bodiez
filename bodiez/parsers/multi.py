@@ -5,11 +5,8 @@ class MultiElementParser(BaseParser):
     id = 'multi_element'
 
     def can_parse(self):
-        try:
-            return (bool(self.url_item.parent_xpath)
-                and bool(self.url_item.child_xpaths))
-        except KeyError:
-            return False
+        return (bool(self.url_item.parent_xpath)
+            and bool(self.url_item.child_xpaths))
 
     def parse(self):
         with self.playwright_context() as context:
