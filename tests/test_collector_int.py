@@ -54,7 +54,6 @@ class BaseTestCase(unittest.TestCase):
             GOOGLE_CREDS=None,
             FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,
-            MAX_NOTIF_PER_URL=3,
             HEADLESS=headless,
         )
         remove_path(config.SHARED_STORE_PATH)
@@ -68,6 +67,18 @@ class BaseTestCase(unittest.TestCase):
 
 
 class NotifyTestCase(BaseTestCase):
+    def _notify(self, url_item, bodies):
+        config = Config(
+            __file__,
+            URLS=[],
+            SHARED_STORE_PATH=os.path.join(WORK_PATH, 'bodiez'),
+            GOOGLE_CREDS=None,
+            FIRESTORE_COLLECTION='test',
+            MIN_BODIES_HISTORY=10,
+        )
+        collector = module.Collector(config)
+        collector._notify_new_bodies(url_item, bodies=bodies)
+
     def test_1(self):
         bodies = [
             "Lords of the Fallen: Deluxe Edition (v1.6.49 + 6 DLCs/Bonuses + Multiplayer, MUL...",
@@ -91,19 +102,64 @@ class NotifyTestCase(BaseTestCase):
             "MEGATON MUSASHI W: WIRED - Deluxe Edition (v3.1.4 + 39 DLCs, MULTi8) [FitGirl Re...",
             "BEYBLADE X XONE (v1.0.0 + Bypass Save Fixes, ENG/JAP) [FitGirl Repack]"
         ]
-
-        config = Config(
-            __file__,
-            URLS=[],
-            SHARED_STORE_PATH=os.path.join(WORK_PATH, 'bodiez'),
-            GOOGLE_CREDS=None,
-            FIRESTORE_COLLECTION='test',
-            MIN_BODIES_HISTORY=10,
-            MAX_NOTIF_PER_URL=3,
+        url_item = module.URLItem(
+            url='https://1337x.to/user/FitGirl/',
+            id='FitGirl',
+            max_bodies_per_notif=3,
         )
-        collector = module.Collector(config)
-        url_item = module.URLItem(url='https://1337x.to/user/FitGirl/')
-        collector._notify_new_bodies(url_item, bodies=bodies)
+        self._notify(url_item, bodies=bodies)
+
+    def test_2(self):
+        bodies = [
+            "Residential land - 501.87 m\u00b2, Albion, West, Rs 4,227,200",
+            "Residential land - 613.56 m\u00b2, Albion, West, Rs 4,845,000",
+            "Residential land - 556 m\u00b2, Albion, West, Rs 4,400,000",
+            "Apartment - 2 Bedrooms - 70 m\u00b2, Flic en Flac, West, Rs 3,700,000",
+            "Residential land - 414 m\u00b2, Albion, West, Rs 4,300,000",
+            "Residential land - 468.51 m\u00b2, Albion, West, Rs 3,198,000",
+            "House / Villa - 4 Bedrooms - 158 m\u00b2, Pointe aux Sables, West, Rs 3,800,000",
+            "Residential land - 368.52 m\u00b2, Pointe aux Sables, West, Rs 2,900,000",
+            "Apartment - 3 Bedrooms - 60 m\u00b2, Pointe aux Sables, West, Rs 950,000",
+            "Residential land - 502.15 m\u00b2, Albion, West, Rs 4,227,200",
+            "Residential land - 613.59 m\u00b2, Albion, West, Rs 4,845,000",
+            "Apartment - 1 Bedroom - 45 m\u00b2, Flic en Flac, West, Rs 4,500,000",
+            "Residential land - 759.83 m\u00b2, Pointe aux Sables, West, Rs 4,700,000",
+            "Residential land - 575 m\u00b2, Albion, West, Rs 4,500,000",
+            "Residential land - 367 m\u00b2, Pointe aux Sables, West, Rs 3,200,000",
+            "Residential land - 760 m\u00b2, Albion, West, Rs 5,000,000"
+        ]
+        url_item = module.URLItem(
+            url='https://www.lexpressproperty.com/en/buy-mauritius/all/west/?price_max=5000000&currency=MUR&filters%5Binterior_unit%5D%5Beq%5D=m2&filters%5Bland_unit%5D%5Beq%5D=m2',
+            id='land-for-sale',
+            max_bodies_per_notif=2,
+        )
+        self._notify(url_item, bodies=bodies)
+
+    def test_3(self):
+        bodies = [
+            "Residential land - 760 m\u00b2\rAlbion, West\rRs 5,000,000",
+            "Apartment - 2 Bedrooms - 65 m\u00b2\rFlic en Flac, West\rRs 4,700,000",
+            "Residential land - 501.87 m\u00b2\rAlbion, West\rRs 4,227,200",
+            "Residential land - 613.56 m\u00b2\rAlbion, West\rRs 4,845,000",
+            "Residential land - 556 m\u00b2\rAlbion, West\rRs 4,400,000",
+            "Apartment - 2 Bedrooms - 70 m\u00b2\rFlic en Flac, West\rRs 3,700,000",
+            "Residential land - 414 m\u00b2\rAlbion, West\rRs 4,300,000",
+            "Residential land - 468.51 m\u00b2\rAlbion, West\rRs 3,198,000",
+            "House / Villa - 4 Bedrooms - 158 m\u00b2\rPointe aux Sables, West\rRs 3,800,000",
+            "Residential land - 368.52 m\u00b2\rPointe aux Sables, West\rRs 2,900,000",
+            "Apartment - 3 Bedrooms - 60 m\u00b2\rPointe aux Sables, West\rRs 950,000",
+            "Residential land - 502.15 m\u00b2\rAlbion, West\rRs 4,227,200",
+            "Residential land - 613.59 m\u00b2\rAlbion, West\rRs 4,845,000",
+            "Apartment - 1 Bedroom - 45 m\u00b2\rFlic en Flac, West\rRs 4,500,000",
+            "Residential land - 759.83 m\u00b2\rPointe aux Sables, West\rRs 4,700,000",
+            "Residential land - 575 m\u00b2\rAlbion, West\rRs 4,500,000"
+        ]
+        url_item = module.URLItem(
+            url='https://www.lexpressproperty.com/en/buy-mauritius/all/west/?price_max=5000000&currency=MUR&filters%5Binterior_unit%5D%5Beq%5D=m2&filters%5Bland_unit%5D%5Beq%5D=m2',
+            id='land-for-sale',
+            max_bodies_per_notif=1,
+        )
+        self._notify(url_item, bodies=bodies)
 
 
 class GenericTestCase(BaseTestCase):
@@ -159,6 +215,7 @@ class GenericTestCase(BaseTestCase):
                     './/address',
                     './/div[contains(@class, "card-foot-price")]/strong/a',
                 ],
+                'multi_element_delimiter': '\r',
             },
             headless=False,
         )
@@ -220,7 +277,6 @@ class WorkflowTestCase(BaseTestCase):
             GOOGLE_CREDS=GOOGLE_CREDS,
             FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,
-            MAX_NOTIF_PER_URL=3,
         )
         self._reset_storage(config)
         collector = module.Collector(config)
@@ -236,8 +292,7 @@ class WorkflowTestCase(BaseTestCase):
         with patch.object(module.Notifier, 'send') as mock_send:
             run()
         pprint(mock_send.call_args_list)
-        self.assertEqual(len(mock_send.call_args_list),
-            module.MAX_NOTIF_PER_URL)
+        self.assertEqual(len(mock_send.call_args_list), 3)
 
         doc = collector.store.get(config.URLS[0]['url'])
         pprint(doc)

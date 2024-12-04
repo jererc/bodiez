@@ -13,8 +13,6 @@ from bodiez.store import get_store
 from bodiez.parsers.base import get_url_domain_name, iterate_parsers
 
 
-MAX_BODY_LINES = 4
-
 logging.getLogger('selenium').setLevel(logging.INFO)
 logging.getLogger('urllib3').setLevel(logging.INFO)
 
@@ -42,6 +40,9 @@ class URLItem:
     xpath: str = None
     parent_xpath: str = None
     child_xpaths: List[str] = field(default_factory=list)
+    multi_element_delimiter: str = ', '
+    max_notif: int = 3
+    max_bodies_per_notif: int = 3
 
     def __post_init__(self):
         if not self.id:
@@ -62,13 +63,12 @@ class Collector:
         self.store = get_store(self.config)
 
     def _notify_new_bodies(self, url_item, bodies):
-        notif_title = f'{NAME}\r{url_item.id}'
+        notif_title = f'{NAME} {url_item.id}'
         batches = list(generate_batches([clean_body(r) for r in bodies],
-            batch_size=MAX_BODY_LINES))
-        for i, batch in enumerate(reversed(
-                batches[:self.config.MAX_NOTIF_PER_URL])):
-            if i == 0 and len(batches) > self.config.MAX_NOTIF_PER_URL:
-                lines = batch[:MAX_BODY_LINES - 1] + ['and more...']
+            batch_size=url_item.max_bodies_per_notif))
+        for i, batch in enumerate(reversed(batches[:url_item.max_notif])):
+            if i == 0 and len(batches) > url_item.max_notif:
+                lines = batch + ['and more...']
             else:
                 lines = batch
             Notifier().send(title=notif_title, body='\r'.join(lines))
