@@ -17,16 +17,16 @@ logging.getLogger('selenium').setLevel(logging.INFO)
 logging.getLogger('urllib3').setLevel(logging.INFO)
 
 
+def generate_batches(data, batch_size):
+    for i in range(0, len(data), batch_size):
+        yield data[i:i + batch_size]
+
+
 def clean_body(body):
     res = re.sub(r'\(.*?\)', '', body).strip()
     res = re.sub(r'\[.*?\]', '', res).strip()
     res = re.sub(r'[\(][^\(]*$|[\[][^\[]*$', '', res).strip()
     return res or body
-
-
-def generate_batches(data, batch_size):
-    for i in range(0, len(data), batch_size):
-        yield data[i:i + batch_size]
 
 
 @dataclass
@@ -43,10 +43,13 @@ class URLItem:
     multi_element_delimiter: str = ', '
     max_notif: int = 4
     max_bodies_per_notif: int = 1
+    cleaner: any = clean_body
 
     def __post_init__(self):
         if not self.id:
             self.id = self._generate_id()
+        if not self.cleaner:
+            self.cleaner = lambda x: x
 
     def _generate_id(self):
         parsed = urlparse(unquote_plus(self.url))
@@ -64,7 +67,7 @@ class Collector:
 
     def _notify_new_bodies(self, url_item, bodies):
         notif_title = f'{NAME} {url_item.id}'
-        batches = list(generate_batches([clean_body(r) for r in bodies],
+        batches = list(generate_batches([url_item.cleaner(r) for r in bodies],
             batch_size=url_item.max_bodies_per_notif))
         for i, batch in enumerate(reversed(batches[:url_item.max_notif])):
             if i == 0 and len(batches) > url_item.max_notif:

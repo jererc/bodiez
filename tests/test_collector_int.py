@@ -105,6 +105,7 @@ class NotifyTestCase(BaseTestCase):
         url_item = module.URLItem(
             url='https://1337x.to/user/FitGirl/',
             id='FitGirl',
+            cleaner=None,
         )
         self._notify(url_item, bodies=bodies)
 
@@ -130,6 +131,7 @@ class NotifyTestCase(BaseTestCase):
         url_item = module.URLItem(
             url='https://www.lexpressproperty.com/en/buy-mauritius/all/west/?price_max=5000000&currency=MUR&filters%5Binterior_unit%5D%5Beq%5D=m2&filters%5Bland_unit%5D%5Beq%5D=m2',
             id='land-for-sale',
+            cleaner=lambda x: x.replace('Residential land - ', '').strip(),
             max_bodies_per_notif=3,
         )
         self._notify(url_item, bodies=bodies)
