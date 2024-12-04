@@ -18,10 +18,11 @@ def generate_batches(data, batch_size):
 
 
 def clean_body(body):
-    res = re.sub(r'\(.*?\)', '', body).strip()
-    res = re.sub(r'\[.*?\]', '', res).strip()
-    res = re.sub(r'[\(][^\(]*$|[\[][^\[]*$', '', res).strip()
-    return res or body
+    res = re.sub(r'\([^)]*\)', '', body)
+    res = re.sub(r'\[[^]]*\]', '', res)
+    res = re.sub(r'\([^(]*$|\[[^[]*$', '', res)
+    res = re.sub(r'\s{2,}', ' ', res)
+    return res.strip() or body
 
 
 @dataclass
