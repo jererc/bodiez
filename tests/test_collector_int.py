@@ -54,6 +54,7 @@ class BaseTestCase(unittest.TestCase):
             GOOGLE_CREDS=None,
             FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,
+            MAX_NOTIF_PER_URL=3,
             HEADLESS=headless,
         )
         remove_path(config.SHARED_STORE_PATH)
@@ -64,6 +65,45 @@ class BaseTestCase(unittest.TestCase):
         self.assertTrue(res)
         self.assertTrue(all(isinstance(r, str) for r in res))
         self.assertTrue(len(set(res)) > len(res) * .9)
+
+
+class NotifyTestCase(BaseTestCase):
+    def test_1(self):
+        bodies = [
+            "Lords of the Fallen: Deluxe Edition (v1.6.49 + 6 DLCs/Bonuses + Multiplayer, MUL...",
+            "Slackers: Carts of Glory (v0.9975, MULTi12) [FitGirl Repack]",
+            "Roboquest: Digital Deluxe Edition (v1.5.0-280/Endless Update + Bonus Content + W...",
+            "The Black Grimoire: Cursebreaker (Build 16377283) [FitGirl Repack]",
+            "My Dream Setup: Complete Edition (Build 16575801 + 4 DLCs, MULTi12) [FitGirl Rep...",
+            "DON'T SCREAM (v1.0/Release, MULTi17) [FitGirl Repack]",
+            "The Troop (Build 20241125 + US Forces DLC, MULTi10) [FitGirl Repack]",
+            "Alaloth: Champions of The Four Kingdoms - Deluxe Edition (v1.0/Release + 4 DLCs/...",
+            "Project Wingman: Frontline-59 Edition (v2.1.0.A.24.1202.9377 + DLC + Windows 7 F...",
+            "Monster Hunter Stories (v1.1.0/Denuvoless + DLC + Bonus OST + Windows 7 Fix, MUL...",
+            "METAL SLUG ATTACK RELOADED (v1029101748, MULTi12) [FitGirl Repack]",
+            "Fruitbus: Fine Dining Edition (v1.0.4-24957 + Bonus Soundtrack, MULTi10) [FitGir...",
+            "Shredders: 540INDY Edition (Glacier Update + 13 DLCs, MULTi10) [FitGirl Repack]",
+            "Halluci-Sabbat of Koishi (v1.1.12 + Bonus Content, MULTi3) [FitGirl Repack, Sele...",
+            "Automobilista 2 (v1.6.3.0.2752 + 20 DLCs, MULTi6) [FitGirl Repack]",
+            "Skies above the Great War (MULTi25) [FitGirl Repack, Selective Download - from 8...",
+            "Deathbound: Ultimate Edition (v1.1.8f1 + 4 DLCs/Bonuses, MULTi13) [FitGirl Repac...",
+            "MXGP 24: The Official Game - Fox Holeshot Edition (+ 5 DLCs, MULTi11) [FitGirl R...",
+            "MEGATON MUSASHI W: WIRED - Deluxe Edition (v3.1.4 + 39 DLCs, MULTi8) [FitGirl Re...",
+            "BEYBLADE X XONE (v1.0.0 + Bypass Save Fixes, ENG/JAP) [FitGirl Repack]"
+        ]
+
+        config = Config(
+            __file__,
+            URLS=[],
+            SHARED_STORE_PATH=os.path.join(WORK_PATH, 'bodiez'),
+            GOOGLE_CREDS=None,
+            FIRESTORE_COLLECTION='test',
+            MIN_BODIES_HISTORY=10,
+            MAX_NOTIF_PER_URL=3,
+        )
+        collector = module.Collector(config)
+        url_item = module.URLItem(url='https://1337x.to/user/FitGirl/')
+        collector._notify_new_bodies(url_item, bodies=bodies)
 
 
 class GenericTestCase(BaseTestCase):
@@ -180,6 +220,7 @@ class WorkflowTestCase(BaseTestCase):
             GOOGLE_CREDS=GOOGLE_CREDS,
             FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,
+            MAX_NOTIF_PER_URL=3,
         )
         self._reset_storage(config)
         collector = module.Collector(config)
