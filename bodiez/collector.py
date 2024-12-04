@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 import json
-import logging
 import re
 import time
 from typing import List
@@ -11,10 +10,6 @@ from svcutils.service import Notifier
 from bodiez import NAME, logger
 from bodiez.store import get_store
 from bodiez.parsers.base import get_url_domain_name, iterate_parsers
-
-
-logging.getLogger('selenium').setLevel(logging.INFO)
-logging.getLogger('urllib3').setLevel(logging.INFO)
 
 
 def generate_batches(data, batch_size):
