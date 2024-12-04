@@ -120,14 +120,15 @@ class Collector:
         start_ts = time.time()
         for item in self.config.URLS:
             url_item = URLItem(**item)
+            logger.debug(f'processing {url_item.id}')
             if url_id and url_item.id != url_id:
                 continue
             try:
                 self._process_url_item(url_item)
             except Exception as exc:
                 logger.exception(f'failed to process {url_item.id}')
-                Notifier().send(title=f'{NAME} error',
-                    body=f'{url_item.id}: {exc}')
+                Notifier().send(title=f'{NAME} {url_item.id}',
+                    body=f'error: {exc}')
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')
 
 
