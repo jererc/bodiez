@@ -138,4 +138,4 @@ class Collector:
 
 
 def collect(config, force=False, test=False, url_id=None):
-    Collector(config, force=force, test=False).run(url_id)
+    Collector(config, force=force, test=test).run(url_id)
