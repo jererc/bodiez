@@ -9,6 +9,8 @@ import uuid
 
 from google.cloud import firestore
 
+from bodiez import logger
+
 
 @dataclass
 class Document:
@@ -78,6 +80,8 @@ class SharedStore:
 
 
 def get_store(config):
-    if os.path.exists(config.GOOGLE_CREDS):
-        return Firestore(config)
-    return SharedStore(config)
+    if not os.path.exists(config.GOOGLE_CREDS):
+        logger.info(f'missing GOOGLE_CREDS file {config.GOOGLE_CREDS}, '
+            'using local storage')
+        return SharedStore(config)
+    return Firestore(config)
