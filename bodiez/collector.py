@@ -69,7 +69,7 @@ class Collector:
         for i, batch in enumerate(reversed(batches[:url_item.max_notif])):
             if i == 0 and len(batches) > url_item.max_notif:
                 more = sum(len(r) for r in batches[url_item.max_notif:])
-                batch[-1] += f' (+ {more} more)'
+                batch[-1] += f' (+{more} more)'
             Notifier().send(title=notif_title, body='\r'.join(batch))
 
     def _iterate_parsers(self, url_item):
