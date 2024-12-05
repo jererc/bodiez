@@ -82,6 +82,6 @@ class SharedStore:
 def get_store(config):
     if not os.path.exists(config.GOOGLE_CREDS):
         logger.info(f'missing GOOGLE_CREDS file {config.GOOGLE_CREDS}, '
-            'using local storage')
+            f'using local storage {config.SHARED_STORE_DIR}')
         return SharedStore(config)
     return Firestore(config)
