@@ -37,7 +37,7 @@ class URLItem:
     parent_xpath: str = None
     child_xpaths: List[str] = field(default_factory=list)
     multi_element_delimiter: str = ', '
-    max_notif: int = 4
+    max_notif: int = 3
     max_bodies_per_notif: int = 1
     cleaner: any = clean_body
 
