@@ -4,7 +4,7 @@ import sys
 
 from svcutils.service import Config, Service
 
-from bodiez import WORK_PATH, NAME
+from bodiez import WORK_DIR, NAME
 from bodiez.collector import collect
 
 
@@ -30,7 +30,7 @@ def main():
     config = Config(
         os.path.join(path, 'user_settings.py'),
         SHARED_STORE_PATH=os.path.join(path, 'bodiez'),
-        GOOGLE_CREDS=os.path.join(WORK_PATH, 'google_creds.json'),
+        GOOGLE_CREDS=os.path.join(WORK_DIR, 'google_creds.json'),
         FIRESTORE_COLLECTION=NAME,
         HEADLESS=not args.interactive,
         MIN_BODIES_HISTORY=50,
@@ -40,7 +40,7 @@ def main():
         service = Service(
             target=collect,
             args=(config,),
-            work_path=WORK_PATH,
+            work_dir=WORK_DIR,
             run_delta=config.RUN_DELTA,
             force_run_delta=2 * config.RUN_DELTA,
             max_cpu_percent=10,

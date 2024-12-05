@@ -8,8 +8,8 @@ import unittest
 from svcutils.service import Config
 
 import bodiez as module
-WORK_PATH = os.path.join(os.path.expanduser('~'), '_tests', 'bodiez')
-module.WORK_PATH = WORK_PATH
+WORK_DIR = os.path.join(os.path.expanduser('~'), '_tests', 'bodiez')
+module.WORK_DIR = WORK_DIR
 module.logger.setLevel(logging.DEBUG)
 module.logger.handlers.clear()
 from bodiez import store
@@ -34,8 +34,8 @@ def makedirs(path):
 
 class FirestoreTestCase(unittest.TestCase):
     def setUp(self):
-        remove_path(WORK_PATH)
-        makedirs(WORK_PATH)
+        remove_path(WORK_DIR)
+        makedirs(WORK_DIR)
         self.fs = store.Firestore(Config(
             __file__,
             GOOGLE_CREDS=GOOGLE_CREDS,
@@ -79,11 +79,11 @@ class FirestoreTestCase(unittest.TestCase):
 
 class SharedStoreTestCase(unittest.TestCase):
     def setUp(self):
-        remove_path(WORK_PATH)
-        makedirs(WORK_PATH)
+        remove_path(WORK_DIR)
+        makedirs(WORK_DIR)
         self.sl = store.SharedStore(Config(
             __file__,
-            SHARED_STORE_PATH=os.path.join(WORK_PATH, 'bodiez'),
+            SHARED_STORE_PATH=os.path.join(WORK_DIR, 'bodiez'),
             HEADLESS=True,
         ))
         self.url = 'https://1337x.to/user/FitGirl/'

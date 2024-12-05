@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 
 from playwright.sync_api import TimeoutError, sync_playwright
 
-from bodiez import WORK_PATH, logger
+from bodiez import WORK_DIR, logger
 
 
 def get_url_domain_name(url):
@@ -21,7 +21,7 @@ class BaseParser:
     def __init__(self, config, url_item):
         self.config = config
         self.url_item = url_item
-        self.work_path = os.path.join(WORK_PATH, 'parsers',
+        self.work_dir = os.path.join(WORK_DIR, 'parsers',
             self._get_state_dirname())
         self.timeout = 10000 if self.config.HEADLESS else 120000
 
@@ -43,9 +43,9 @@ class BaseParser:
 
     @contextmanager
     def playwright_context(self):
-        if not os.path.exists(self.work_path):
-            os.makedirs(self.work_path)
-        state_path = os.path.join(self.work_path, 'state.json')
+        if not os.path.exists(self.work_dir):
+            os.makedirs(self.work_dir)
+        state_path = os.path.join(self.work_dir, 'state.json')
         with sync_playwright() as p:
             try:
                 browser = p.chromium.launch(

@@ -9,8 +9,8 @@ from unittest.mock import patch
 from svcutils.service import Config
 
 import bodiez as module
-WORK_PATH = os.path.join(os.path.expanduser('~'), '_tests', 'bodiez')
-module.WORK_PATH = WORK_PATH
+WORK_DIR = os.path.join(os.path.expanduser('~'), '_tests', 'bodiez')
+module.WORK_DIR = WORK_DIR
 module.logger.setLevel(logging.DEBUG)
 module.logger.handlers.clear()
 from bodiez import collector as module
@@ -36,8 +36,8 @@ def makedirs(path):
 
 class BaseTestCase(unittest.TestCase):
     def setUp(self):
-        # remove_path(WORK_PATH)
-        makedirs(WORK_PATH)
+        # remove_path(WORK_DIR)
+        makedirs(WORK_DIR)
 
     def _reset_storage(self, config):
         fs = Firestore(config)
@@ -50,7 +50,7 @@ class BaseTestCase(unittest.TestCase):
     def _collect(self, url, headless=True):
         config = Config(
             __file__,
-            SHARED_STORE_PATH=os.path.join(WORK_PATH, 'bodiez'),
+            SHARED_STORE_PATH=os.path.join(WORK_DIR, 'bodiez'),
             GOOGLE_CREDS=None,
             FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,
@@ -71,7 +71,7 @@ class NotifyTestCase(BaseTestCase):
         config = Config(
             __file__,
             URLS=[],
-            SHARED_STORE_PATH=os.path.join(WORK_PATH, 'bodiez'),
+            SHARED_STORE_PATH=os.path.join(WORK_DIR, 'bodiez'),
             GOOGLE_CREDS=None,
             FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,
@@ -334,7 +334,7 @@ class WorkflowTestCase(BaseTestCase):
                     'update_delta': 0,
                 },
             ],
-            SHARED_STORE_PATH=os.path.join(WORK_PATH, 'bodiez'),
+            SHARED_STORE_PATH=os.path.join(WORK_DIR, 'bodiez'),
             GOOGLE_CREDS=GOOGLE_CREDS,
             FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,
