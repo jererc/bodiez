@@ -55,9 +55,10 @@ class URLItem:
 
 
 class Collector:
-    def __init__(self, config, force=False):
+    def __init__(self, config, force=False, test=False):
         self.config = config
         self.force = force
+        self.test = test
         self.parsers = list(iterate_parsers())
         self.store = get_store(self.config)
 
@@ -99,13 +100,16 @@ class Collector:
     def _process_url_item(self, url_item):
         start_ts = time.time()
         doc = self.store.get(url_item.url)
-        if not (self.force or doc.updated_ts <
+        if not (self.force or self.test or doc.updated_ts <
                 time.time() - url_item.update_delta):
             logger.debug(f'skipped recently updated {url_item.id}')
             return
         bodies = self._collect_bodies(url_item)
         if not (bodies or url_item.allow_no_results):
             raise Exception('no results')
+        if self.test:
+            self._notify_new_bodies(url_item, bodies)
+            return
         new_bodies = [r for r in bodies if r not in doc.bodies]
         if new_bodies:
             logger.info(f'new bodies for {url_item.id}:\n'
@@ -133,5 +137,5 @@ class Collector:
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')
 
 
-def collect(config, force=False, url_id=None):
-    Collector(config, force=force).run(url_id)
+def collect(config, force=False, test=False, url_id=None):
+    Collector(config, force=force, test=False).run(url_id)
