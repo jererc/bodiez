@@ -42,13 +42,13 @@ class Firestore:
 class SharedStore:
     def __init__(self, config):
         self.config = config
-        self.base_path = self.config.SHARED_STORE_PATH
+        self.base_dir = self.config.SHARED_STORE_DIR
 
     def _get_filename(self):
         return f'{int(time.time() * 1000)}-{str(uuid.uuid4())[:8]}.json'
 
     def _get_url_dir(self, url):
-        return os.path.join(self.base_path, quote(url, safe=''))
+        return os.path.join(self.base_dir, quote(url, safe=''))
 
     def _list_url_files(self, url):
         return sorted(glob(os.path.join(self._get_url_dir(url), '*.json')))

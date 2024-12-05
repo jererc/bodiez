@@ -45,18 +45,18 @@ class BaseTestCase(unittest.TestCase):
             f'{config.FIRESTORE_COLLECTION}...')
         for doc in fs.col.list_documents():
             doc.delete()
-        remove_path(config.SHARED_STORE_PATH)
+        remove_path(config.SHARED_STORE_DIR)
 
     def _collect(self, url, headless=True):
         config = Config(
             __file__,
-            SHARED_STORE_PATH=os.path.join(WORK_DIR, 'bodiez'),
+            SHARED_STORE_DIR=os.path.join(WORK_DIR, 'bodiez'),
             GOOGLE_CREDS=None,
             FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,
             HEADLESS=headless,
         )
-        remove_path(config.SHARED_STORE_PATH)
+        remove_path(config.SHARED_STORE_DIR)
         return module.Collector(config)._collect_bodies(module.URLItem(**url))
 
     def _test_collect(self, *args, **kwargs):
@@ -71,7 +71,7 @@ class NotifyTestCase(BaseTestCase):
         config = Config(
             __file__,
             URLS=[],
-            SHARED_STORE_PATH=os.path.join(WORK_DIR, 'bodiez'),
+            SHARED_STORE_DIR=os.path.join(WORK_DIR, 'bodiez'),
             GOOGLE_CREDS=None,
             FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,
@@ -334,7 +334,7 @@ class WorkflowTestCase(BaseTestCase):
                     'update_delta': 0,
                 },
             ],
-            SHARED_STORE_PATH=os.path.join(WORK_DIR, 'bodiez'),
+            SHARED_STORE_DIR=os.path.join(WORK_DIR, 'bodiez'),
             GOOGLE_CREDS=GOOGLE_CREDS,
             FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,

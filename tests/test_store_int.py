@@ -83,7 +83,7 @@ class SharedStoreTestCase(unittest.TestCase):
         makedirs(WORK_DIR)
         self.sl = store.SharedStore(Config(
             __file__,
-            SHARED_STORE_PATH=os.path.join(WORK_DIR, 'bodiez'),
+            SHARED_STORE_DIR=os.path.join(WORK_DIR, 'bodiez'),
             HEADLESS=True,
         ))
         self.url = 'https://1337x.to/user/FitGirl/'
