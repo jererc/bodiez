@@ -6,7 +6,7 @@ Install
 -------
 
 Download `bootstrap/bootstrap.bat` or `bootstrap/bootstrap.sh` in some directory and run it.
-A windows task / linux crontab is created.
+This creates the virtualenv and a windows task or linux crontab.
 Set the `URLS` and params in the `user_settings.py` config file.
 
 
