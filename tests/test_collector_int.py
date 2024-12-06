@@ -219,6 +219,7 @@ class NotifyTestCase(BaseTestCase):
             id='classical',
             # cleaner=lambda x: x,
             max_bodies_per_notif=3,
+            block_external=True,
         )
         self._notify(url_item, bodies=bodies)
 
@@ -286,6 +287,7 @@ class GenericTestCase(BaseTestCase):
             {
                 'url': 'https://rutracker.org/forum/tracker.php?f=557',
                 'xpath': '//div[contains(@class, "t-title")]/a',
+                'block_external': True,
             },
             headless=False,
         )

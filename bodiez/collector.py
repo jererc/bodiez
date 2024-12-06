@@ -32,7 +32,7 @@ class URLItem:
     active: bool = True
     update_delta: int = 3600
     allow_no_results: bool = False
-    block_external: bool = True
+    block_external: bool = False
     block_images: bool = True
     xpath: str = None
     parent_xpath: str = None
