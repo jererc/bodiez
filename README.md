@@ -5,7 +5,7 @@ Bodiez
 Install
 -------
 
-Download `bootstrap\bootstrap.bat` or `bootstrap\bootstrap.sh` in some directory and run it.
+Download `bootstrap/bootstrap.bat` or `bootstrap/bootstrap.sh` in some directory and run it.
 A windows task / linux crontab is created.
 Set the `URLS` and params in the `user_settings.py` config file.
 
