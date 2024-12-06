@@ -15,7 +15,7 @@ DB
 
 For google firestore: create a google cloud project, enable firestore, create the default db, download the service credentials to `~/.bodiez/google_creds.json`.
 
-Otherwise the data is stored locally and can be shared between hosts using a cloud sync (MEGA, OneDrive).
+Otherwise the data is stored locally and can be shared between hosts using any cloud sync (MEGA, OneDrive, Google Drive, etc).
 
 
 Testing urls
