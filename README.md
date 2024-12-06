@@ -21,13 +21,13 @@ Otherwise the data is stored locally and can be shared between hosts using any c
 Testing urls
 ------------
 
-In a terminal:
+In a terminal, activate the virtualenv:
 
 ```
 jererc@ub2404:~$ source ~/venv/bodiez/bin/activate
 ```
 
-Help:
+Display the command line help:
 
 ```
 (bodiez) jererc@ub2404:~$ bodiez collect --help
@@ -42,7 +42,7 @@ options:
   --test
 ```
 
-In the `user_settings.py` dir:
+In the `user_settings.py` dir (or using `--path`):
 
 ```
 (bodiez) jererc@ub2404:~/tmp/test-bodiez$ bodiez collect --test --interactive --url-id games
