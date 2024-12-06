@@ -1,5 +1,5 @@
-from dataclasses import dataclass, field
-import json
+from dataclasses import asdict, dataclass, field
+from pprint import pformat
 import re
 import time
 from typing import List
@@ -93,7 +93,7 @@ class Collector:
                 continue
             res.extend(bodies)
         logger.debug(f'collected bodies for {url_item.id} '
-            f'with parser {parser.id}:\n{json.dumps(bodies, indent=4)}')
+            f'with parser {parser.id}:\n{pformat(bodies, width=160)}')
         logger.info(f'collected {len(res)} bodies for {url_item.id} in '
             f'{time.time() - start_ts:.02f} seconds')
         return res
@@ -114,7 +114,7 @@ class Collector:
         new_bodies = [r for r in bodies if r not in doc.bodies]
         if new_bodies:
             logger.info(f'new bodies for {url_item.id}:\n'
-                f'{json.dumps(new_bodies, indent=4)}')
+                f'{pformat(new_bodies, width=160)}')
             self._notify_new_bodies(url_item, new_bodies)
         bodies_history = [r for r in doc.bodies if r not in bodies]
         self.store.set(url_item.url, bodies + bodies_history[
@@ -130,7 +130,8 @@ class Collector:
                 continue
             if url_id and url_item.id != url_id:
                 continue
-            logger.debug(f'processing {url_item.id}')
+            logger.debug(f'processing {url_item.id}:\n'
+                f'{pformat(asdict(url_item), width=160)}')
             try:
                 self._process_url_item(url_item)
             except Exception as exc:
