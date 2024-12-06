@@ -40,7 +40,6 @@ options:
   --task
   --interactive, -i
   --test
-(bodiez) jererc@ub2404:~$
 ```
 
 In the `user_settings.py` dir:
@@ -74,5 +73,4 @@ DEBUG:svcutils.service:collected bodies for games with parser simple_element:
 ]
 INFO:svcutils.service:collected 20 bodies for games in 7.75 seconds
 INFO:svcutils.service:processed in 7.86 seconds
-(bodiez) jererc@ub2404:~/tmp/test-bodiez$
 ```
