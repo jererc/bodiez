@@ -353,7 +353,7 @@ class WorkflowTestCase(BaseTestCase):
         with patch.object(module.Notifier, 'send') as mock_send:
             run()
         pprint(mock_send.call_args_list)
-        self.assertEqual(len(mock_send.call_args_list), 4)
+        self.assertEqual(len(mock_send.call_args_list), 3)
 
         doc = collector.store.get(config.URLS[0]['url'])
         pprint(doc)

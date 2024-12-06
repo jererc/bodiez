@@ -29,6 +29,7 @@ def clean_body(body):
 class URLItem:
     url: str
     id: str = None
+    active: bool = True
     update_delta: int = 3600
     allow_no_results: bool = False
     block_external: bool = True
@@ -125,6 +126,8 @@ class Collector:
         start_ts = time.time()
         for item in self.config.URLS:
             url_item = URLItem(**item)
+            if not (url_item.active or self.test):
+                continue
             if url_id and url_item.id != url_id:
                 continue
             logger.debug(f'processing {url_item.id}')
