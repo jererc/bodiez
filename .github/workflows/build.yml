@@ -30,14 +30,14 @@ jobs:
 
     - name: Build Linux Executable
       run: |
-        pyinstaller --onefile main.py
+        pyinstaller --onefile bodiez/main.py
         ls dist/
 
     - name: Upload Linux Executable
       uses: actions/upload-artifact@v3
       with:
         name: linux-executable
-        path: dist/main
+        path: dist/bodiez
 
   # Job for building Windows executable
   build-windows:
@@ -60,11 +60,11 @@ jobs:
 
     - name: Build Windows Executable
       run: |
-        pyinstaller --onefile main.py
+        pyinstaller --onefile bodiez/main.py
         dir dist
 
     - name: Upload Windows Executable
       uses: actions/upload-artifact@v3
       with:
         name: windows-executable
-        path: dist/main.exe
+        path: dist/bodiez.exe
