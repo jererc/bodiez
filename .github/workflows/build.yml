@@ -42,7 +42,7 @@ jobs:
     - name: Upload Linux Executable
       uses: actions/upload-artifact@v3
       with:
-        name: bodiez
+        name: bodiez-linux
         path: dist/bodiez
 
   # Job for building Windows executable
@@ -79,5 +79,5 @@ jobs:
     - name: Upload Windows Executable
       uses: actions/upload-artifact@v3
       with:
-        name: bodiez
+        name: bodiez-windows
         path: dist/bodiez.exe
