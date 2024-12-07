@@ -92,9 +92,6 @@ class BaseParser:
 def iterate_parsers():
     from bodiez.parsers import simple, multi, custom
     for module in (simple, multi, custom):
-        try:
-            for name, obj in inspect.getmembers(module, inspect.isclass):
-                if issubclass(obj, BaseParser) and obj is not BaseParser:
-                    yield obj
-        except ImportError as exc:
-            logger.error(f'failed to import {name}: {exc}')
+        for name, obj in inspect.getmembers(module, inspect.isclass):
+            if issubclass(obj, BaseParser) and obj is not BaseParser:
+                yield obj
