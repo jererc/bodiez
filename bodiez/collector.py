@@ -14,6 +14,13 @@ from bodiez.parsers import generic, custom
 from bodiez.parsers.base import BaseParser, get_url_domain_name
 
 
+def iterate_parsers():
+    for module in (generic, custom):
+        for name, obj in inspect.getmembers(module, inspect.isclass):
+            if issubclass(obj, BaseParser) and obj is not BaseParser:
+                yield obj
+
+
 def generate_batches(data, batch_size):
     for i in range(0, len(data), batch_size):
         yield data[i:i + batch_size]
@@ -25,13 +32,6 @@ def clean_body(body):
     res = re.sub(r'\([^(]*$|\[[^[]*$', '', res)
     res = re.sub(r'\s{2,}', ' ', res)
     return res.strip() or body
-
-
-def iterate_parsers():
-    for module in (generic, custom):
-        for name, obj in inspect.getmembers(module, inspect.isclass):
-            if issubclass(obj, BaseParser) and obj is not BaseParser:
-                yield obj
 
 
 @dataclass
