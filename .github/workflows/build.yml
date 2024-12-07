@@ -39,7 +39,7 @@ jobs:
 
     - name: Build Windows Executable
       run: |
-        pyinstaller --onefile --name bodiez bodiez/main.py
+        pyinstaller --onefile --strip --name bodiez bodiez/main.py
         dir dist
 
     - name: Upload Windows Executable
