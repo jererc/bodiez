@@ -7,6 +7,9 @@ from playwright.sync_api import TimeoutError, sync_playwright
 from bodiez import WORK_DIR, logger
 
 
+BASE_STATE_DIRNAME = 'state'
+
+
 def get_url_domain_name(url):
     parts = urlparse(url).netloc.split('.')
     out_parts = parts[1:] if parts[0] == 'www' else parts
@@ -19,7 +22,7 @@ class BaseParser:
     def __init__(self, config, url_item):
         self.config = config
         self.url_item = url_item
-        self.work_dir = os.path.join(WORK_DIR, 'parsers',
+        self.work_dir = os.path.join(WORK_DIR, BASE_STATE_DIRNAME,
             self._get_state_dirname())
         self.timeout = 10000 if self.config.HEADLESS else 120000
 
