@@ -48,6 +48,7 @@ class BaseParser:
             os.makedirs(self.state_dir)
         state_path = os.path.join(self.state_dir, 'state.json')
         with sync_playwright() as p:
+            context = None
             try:
                 browser = p.webkit.launch(
                     headless=self.config.HEADLESS,
@@ -60,8 +61,9 @@ class BaseParser:
                 context.route('**/*', self._request_handler)
                 yield context
             finally:
-                context.storage_state(path=state_path)
-                context.close()
+                if context:
+                    context.storage_state(path=state_path)
+                    context.close()
 
     def _wait_for_selector(self, page, selector):
         try:
