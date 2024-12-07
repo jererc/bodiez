@@ -2,11 +2,12 @@ from contextlib import contextmanager
 import importlib
 import inspect
 import os
+import pkgutil
 from urllib.parse import urlparse
 
 from playwright.sync_api import TimeoutError, sync_playwright
 
-from bodiez import WORK_DIR, logger
+from bodiez import WORK_DIR, logger, parsers
 
 
 def get_url_domain_name(url):
@@ -77,15 +78,12 @@ class BaseParser:
         raise NotImplementedError()
 
 
-def iterate_parsers(package='bodiez.parsers'):
-    for filename in os.listdir(os.path.dirname(os.path.realpath(__file__))):
-        basename, ext = os.path.splitext(filename)
-        if ext == '.py' and not filename.startswith('__'):
-            module_name = f'{package}.{basename}'
-            try:
-                module = importlib.import_module(module_name)
-                for name, obj in inspect.getmembers(module, inspect.isclass):
-                    if issubclass(obj, BaseParser) and obj is not BaseParser:
-                        yield obj
-            except ImportError as exc:
-                logger.error(f'failed to import {module_name}: {exc}')
+def iterate_parsers():
+    for _, name, _ in pkgutil.iter_modules(parsers.__path__):
+        try:
+            module = importlib.import_module(f'bodiez.parsers.{name}')
+            for name, obj in inspect.getmembers(module, inspect.isclass):
+                if issubclass(obj, BaseParser) and obj is not BaseParser:
+                    yield obj
+        except ImportError as exc:
+            logger.error(f'failed to import {name}: {exc}')
