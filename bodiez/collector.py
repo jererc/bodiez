@@ -9,9 +9,9 @@ from urllib.parse import urlparse, unquote_plus
 from svcutils.service import Notifier
 
 from bodiez import NAME, logger
-from bodiez.store import get_store
 from bodiez.parsers import generic, custom
 from bodiez.parsers.base import BaseParser, get_url_domain_name
+from bodiez.store import get_store
 
 
 def iterate_parsers():
