@@ -1,5 +1,8 @@
 from contextlib import contextmanager
+import importlib
+import inspect
 import os
+import pkgutil
 from urllib.parse import urlparse
 
 from playwright.sync_api import TimeoutError, sync_playwright
@@ -22,7 +25,7 @@ class BaseParser:
     def __init__(self, config, url_item):
         self.config = config
         self.url_item = url_item
-        self.work_dir = os.path.join(WORK_DIR, BASE_STATE_DIRNAME,
+        self.state_dir = os.path.join(WORK_DIR, BASE_STATE_DIRNAME,
             self._get_state_dirname())
         self.timeout = 10000 if self.config.HEADLESS else 120000
 
@@ -44,9 +47,9 @@ class BaseParser:
 
     @contextmanager
     def playwright_context(self):
-        if not os.path.exists(self.work_dir):
-            os.makedirs(self.work_dir)
-        state_path = os.path.join(self.work_dir, 'state.json')
+        if not os.path.exists(self.state_dir):
+            os.makedirs(self.state_dir)
+        state_path = os.path.join(self.state_dir, 'state.json')
         with sync_playwright() as p:
             try:
                 browser = p.chromium.launch(
@@ -76,3 +79,12 @@ class BaseParser:
 
     def parse(self):
         raise NotImplementedError()
+
+
+def iterate_parsers(package_name='bodiez.parsers'):
+    package = importlib.import_module(package_name)
+    for _, module_name, ispkg in pkgutil.iter_modules(package.__path__):
+        module = importlib.import_module(f'{package_name}.{module_name}')
+        for name, obj in inspect.getmembers(module, inspect.isclass):
+            if issubclass(obj, BaseParser) and obj is not BaseParser:
+                yield obj
