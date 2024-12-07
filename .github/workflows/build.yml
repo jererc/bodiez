@@ -30,7 +30,7 @@ jobs:
         export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
         pip install -r requirements.txt
 
-    - name: Install playwright browsers
+    - name: Install playwright browser
       run: |
         export PLAYWRIGHT_BROWSERS_PATH=0
         playwright install webkit
@@ -67,7 +67,7 @@ jobs:
         set PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
         pip install -r requirements.txt
 
-    - name: Install playwright browsers
+    - name: Install playwright browser
       shell: cmd
       run: |
         set PLAYWRIGHT_BROWSERS_PATH=0
