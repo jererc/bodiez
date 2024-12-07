@@ -29,8 +29,10 @@ jobs:
         pip install -r requirements.txt
 
     - name: Install playwright dependency
+      shell: cmd
       run: |
-        $env:PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1; pip install playwright
+        set PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+        pip install playwright
         playwright install chromium
 
     - name: Build Linux Executable
@@ -63,9 +65,10 @@ jobs:
         pip install pyinstaller
         pip install -r requirements.txt
 
-    - name: Install playwright dependency
+    - name: Install Playwright Dependency
       run: |
-        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 pip install playwright
+        export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+        pip install playwright
         playwright install chromium
 
     - name: Build Windows Executable
