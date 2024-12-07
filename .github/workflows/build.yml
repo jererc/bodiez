@@ -1,4 +1,4 @@
-# name: Build Executables for Windows and Linux
+name: Build Executables for Windows and Linux
 
 # on:
 #   push:
@@ -8,76 +8,76 @@
 #     branches:
 #       - main
 
-# jobs:
-#   # Job for building Linux executable
-#   build-linux:
-#     runs-on: ubuntu-latest
+jobs:
+  # Job for building Linux executable
+  build-linux:
+    runs-on: ubuntu-latest
 
-#     steps:
-#     - name: Checkout code
-#       uses: actions/checkout@v3
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-#     - name: Set up Python
-#       uses: actions/setup-python@v4
-#       with:
-#         python-version: '3.10'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
 
-#     - name: Install dependencies
-#       run: |
-#         python -m pip install --upgrade pip
-#         pip install pyinstaller
-#         pip install -r requirements.txt
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install -r requirements.txt
 
-#     - name: Install Playwright Dependency
-#       run: |
-#         export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-#         pip install playwright
-#         playwright install chromium
+    - name: Install Playwright Dependency
+      run: |
+        export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+        pip install playwright
+        playwright install chromium
 
-#     - name: Build Linux Executable
-#       run: |
-#         pyinstaller --onefile --name bodiez bodiez/main.py
-#         ls dist/
+    - name: Build Linux Executable
+      run: |
+        pyinstaller --onefile --name bodiez bodiez/main.py
+        ls dist/
 
-#     - name: Upload Linux Executable
-#       uses: actions/upload-artifact@v3
-#       with:
-#         name: bodiez-linux
-#         path: dist/bodiez
+    - name: Upload Linux Executable
+      uses: actions/upload-artifact@v3
+      with:
+        name: bodiez-linux
+        path: dist/bodiez
 
-#   # Job for building Windows executable
-#   build-windows:
-#     runs-on: windows-latest
+  # Job for building Windows executable
+  build-windows:
+    runs-on: windows-latest
 
-#     steps:
-#     - name: Checkout code
-#       uses: actions/checkout@v3
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-#     - name: Set up Python
-#       uses: actions/setup-python@v4
-#       with:
-#         python-version: '3.10'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
 
-#     - name: Install dependencies
-#       run: |
-#         python -m pip install --upgrade pip
-#         pip install pyinstaller
-#         pip install -r requirements.txt
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install -r requirements.txt
 
-#     - name: Install playwright dependency
-#       shell: cmd
-#       run: |
-#         set PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-#         pip install playwright
-#         playwright install chromium
+    - name: Install playwright dependency
+      shell: cmd
+      run: |
+        set PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+        pip install playwright
+        playwright install chromium
 
-#     - name: Build Windows Executable
-#       run: |
-#         pyinstaller --onefile --name bodiez bodiez/main.py
-#         dir dist
+    - name: Build Windows Executable
+      run: |
+        pyinstaller --onefile --name bodiez bodiez/main.py
+        dir dist
 
-#     - name: Upload Windows Executable
-#       uses: actions/upload-artifact@v3
-#       with:
-#         name: bodiez-windows
-#         path: dist/bodiez.exe
+    - name: Upload Windows Executable
+      uses: actions/upload-artifact@v3
+      with:
+        name: bodiez-windows
+        path: dist/bodiez.exe
