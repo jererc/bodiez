@@ -1,4 +1,5 @@
 from dataclasses import asdict, dataclass, field
+import inspect
 from pprint import pformat
 import re
 import time
@@ -9,7 +10,8 @@ from svcutils.service import Notifier
 
 from bodiez import NAME, logger
 from bodiez.store import get_store
-from bodiez.parsers.base import get_url_domain_name, iterate_parsers
+from bodiez.parsers import generic, custom
+from bodiez.parsers.base import BaseParser, get_url_domain_name
 
 
 def generate_batches(data, batch_size):
@@ -23,6 +25,13 @@ def clean_body(body):
     res = re.sub(r'\([^(]*$|\[[^[]*$', '', res)
     res = re.sub(r'\s{2,}', ' ', res)
     return res.strip() or body
+
+
+def iterate_parsers():
+    for module in (generic, custom):
+        for name, obj in inspect.getmembers(module, inspect.isclass):
+            if issubclass(obj, BaseParser) and obj is not BaseParser:
+                yield obj
 
 
 @dataclass

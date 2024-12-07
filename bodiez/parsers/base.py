@@ -1,14 +1,10 @@
 from contextlib import contextmanager
-import importlib
-import inspect
 import os
-import pkgutil
 from urllib.parse import urlparse
 
 from playwright.sync_api import TimeoutError, sync_playwright
 
 from bodiez import WORK_DIR, logger
-from bodiez.parsers import generic, custom
 
 
 def get_url_domain_name(url):
@@ -77,10 +73,3 @@ class BaseParser:
 
     def parse(self):
         raise NotImplementedError()
-
-
-def iterate_parsers():
-    for module in (generic, custom):
-        for name, obj in inspect.getmembers(module, inspect.isclass):
-            if issubclass(obj, BaseParser) and obj is not BaseParser:
-                yield obj
