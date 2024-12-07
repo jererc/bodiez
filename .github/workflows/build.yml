@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - exe
   pull_request:
     branches:
       - main
