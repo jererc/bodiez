@@ -81,10 +81,10 @@ class BaseParser:
         raise NotImplementedError()
 
 
-def iterate_parsers(package_name='bodiez.parsers'):
-    package = importlib.import_module(package_name)
-    for _, module_name, ispkg in pkgutil.iter_modules(package.__path__):
-        module = importlib.import_module(f'{package_name}.{module_name}')
-        for name, obj in inspect.getmembers(module, inspect.isclass):
-            if issubclass(obj, BaseParser) and obj is not BaseParser:
-                yield obj
+# def iterate_parsers(package_name='bodiez.parsers'):
+#     package = importlib.import_module(package_name)
+#     for _, module_name, ispkg in pkgutil.iter_modules(package.__path__):
+#         module = importlib.import_module(f'{package_name}.{module_name}')
+#         for name, obj in inspect.getmembers(module, inspect.isclass):
+#             if issubclass(obj, BaseParser) and obj is not BaseParser:
+#                 yield obj

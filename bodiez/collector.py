@@ -1,4 +1,5 @@
 from dataclasses import asdict, dataclass, field
+import inspect
 from pprint import pformat
 import re
 import time
@@ -8,8 +9,16 @@ from urllib.parse import urlparse, unquote_plus
 from svcutils.service import Notifier
 
 from bodiez import NAME, logger
-from bodiez.parsers.base import get_url_domain_name, iterate_parsers
+from bodiez.parsers import generic, geforce
+from bodiez.parsers.base import BaseParser, get_url_domain_name
 from bodiez.store import get_store
+
+
+def iterate_parsers(package_name='bodiez.parsers'):
+    for module in (generic, geforce):
+        for name, obj in inspect.getmembers(module, inspect.isclass):
+            if issubclass(obj, BaseParser) and obj is not BaseParser:
+                yield obj
 
 
 def generate_batches(data, batch_size):
