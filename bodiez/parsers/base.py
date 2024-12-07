@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 from playwright.sync_api import TimeoutError, sync_playwright
 
 from bodiez import WORK_DIR, logger
+from bodiez.parsers import simple, multi, custom
 
 
 def get_url_domain_name(url):
@@ -90,7 +91,6 @@ class BaseParser:
 
 
 def iterate_parsers():
-    from bodiez.parsers import simple, multi, custom
     for module in (simple, multi, custom):
         for name, obj in inspect.getmembers(module, inspect.isclass):
             if issubclass(obj, BaseParser) and obj is not BaseParser:
