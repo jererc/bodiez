@@ -30,7 +30,7 @@ jobs:
 
     - name: Build Linux Executable
       run: |
-        pyinstaller --onefile bodiez/main.py
+        pyinstaller --onefile --name bodiez bodiez/main.py
         ls dist/
 
     - name: Upload Linux Executable
@@ -60,7 +60,7 @@ jobs:
 
     - name: Build Windows Executable
       run: |
-        pyinstaller --onefile bodiez/main.py
+        pyinstaller --onefile --name bodiez bodiez/main.py
         dir dist
 
     - name: Upload Windows Executable
