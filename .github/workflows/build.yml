@@ -26,7 +26,7 @@ jobs:
     - name: Install System Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libvpx7 libavif13
+        sudo apt-get install -y libvpx7 libavif13 libicu70
 
     - name: Install Dependencies
       run: |
@@ -45,6 +45,7 @@ jobs:
         pyinstaller --onefile --name bodiez \
           --add-binary /usr/lib/x86_64-linux-gnu/libvpx.so.7:. \
           --add-binary /usr/lib/x86_64-linux-gnu/libavif.so.13:. \
+          --add-binary /usr/lib/x86_64-linux-gnu/libicudata.so.70:. \
           bodiez/main.py
         ls -lh dist
 
