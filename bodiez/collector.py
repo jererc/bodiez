@@ -9,13 +9,13 @@ from urllib.parse import urlparse, unquote_plus
 from svcutils.service import Notifier
 
 from bodiez import NAME, logger
-from bodiez.parsers import generic, geforce
+from bodiez.parsers import custom, generic
 from bodiez.parsers.base import BaseParser, get_url_domain_name
 from bodiez.store import get_store
 
 
-def iterate_parsers(package_name='bodiez.parsers'):
-    for module in (generic, geforce):
+def iterate_parsers():
+    for module in (custom, generic):
         for name, obj in inspect.getmembers(module, inspect.isclass):
             if issubclass(obj, BaseParser) and obj is not BaseParser:
                 yield obj

@@ -1,8 +1,5 @@
 from contextlib import contextmanager
-import importlib
-import inspect
 import os
-import pkgutil
 from urllib.parse import urlparse
 
 from playwright.sync_api import TimeoutError, sync_playwright
@@ -79,12 +76,3 @@ class BaseParser:
 
     def parse(self):
         raise NotImplementedError()
-
-
-# def iterate_parsers(package_name='bodiez.parsers'):
-#     package = importlib.import_module(package_name)
-#     for _, module_name, ispkg in pkgutil.iter_modules(package.__path__):
-#         module = importlib.import_module(f'{package_name}.{module_name}')
-#         for name, obj in inspect.getmembers(module, inspect.isclass):
-#             if issubclass(obj, BaseParser) and obj is not BaseParser:
-#                 yield obj

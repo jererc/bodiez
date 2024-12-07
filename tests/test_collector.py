@@ -59,7 +59,7 @@ class URLItemTestCase(unittest.TestCase):
 
 class ParsersTestCase(unittest.TestCase):
     def test_1(self):
-        res = list(base.iterate_parsers())
+        res = list(collector.iterate_parsers())
         pprint(res)
         self.assertTrue(res)
         self.assertTrue(all(r.id is not None for r in res))
