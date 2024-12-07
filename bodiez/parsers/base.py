@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 from playwright.sync_api import TimeoutError, sync_playwright
 
 from bodiez import WORK_DIR, logger
-from bodiez.parsers import simple, multi, custom
+from bodiez.parsers import generic, custom
 
 
 def get_url_domain_name(url):
@@ -79,19 +79,8 @@ class BaseParser:
         raise NotImplementedError()
 
 
-# def iterate_parsers():
-#     for _, name, _ in pkgutil.iter_modules(parsers.__path__):
-#         try:
-#             module = importlib.import_module(f'bodiez.parsers.{name}')
-#             for name, obj in inspect.getmembers(module, inspect.isclass):
-#                 if issubclass(obj, BaseParser) and obj is not BaseParser:
-#                     yield obj
-#         except ImportError as exc:
-#             logger.error(f'failed to import {name}: {exc}')
-
-
 def iterate_parsers():
-    for module in (simple, multi, custom):
+    for module in (generic, custom):
         for name, obj in inspect.getmembers(module, inspect.isclass):
             if issubclass(obj, BaseParser) and obj is not BaseParser:
                 yield obj
