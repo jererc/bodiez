@@ -26,9 +26,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pyinstaller
-        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 pip install playwright
-        playwright install chromium
         pip install -r requirements.txt
+
+    - name: Install playwright dependency
+      run: |
+        $env:PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1; pip install playwright
+        playwright install chromium
 
     - name: Build Linux Executable
       run: |
@@ -58,9 +61,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pyinstaller
+        pip install -r requirements.txt
+
+    - name: Install playwright dependency
+      run: |
         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 pip install playwright
         playwright install chromium
-        pip install -r requirements.txt
 
     - name: Build Windows Executable
       run: |
