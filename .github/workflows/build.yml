@@ -31,11 +31,11 @@ jobs:
         set PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
         pip install -r requirements.txt
 
-    # - name: Install Dependencies
-    #   shell: cmd
-    #   run: |
-    #     set PLAYWRIGHT_BROWSERS_PATH=0
-    #     playwright install webkit
+    - name: Install Dependencies
+      shell: cmd
+      run: |
+        set PLAYWRIGHT_BROWSERS_PATH=0
+        playwright install webkit
 
     - name: Build Windows Executable
       run: |
