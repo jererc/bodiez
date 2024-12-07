@@ -35,7 +35,7 @@ jobs:
       shell: cmd
       run: |
         set PLAYWRIGHT_BROWSERS_PATH=0
-        playwright install chromium
+        playwright install webkit
 
     - name: Build Windows Executable
       run: |

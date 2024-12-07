@@ -52,7 +52,7 @@ class BaseParser:
         state_path = os.path.join(self.state_dir, 'state.json')
         with sync_playwright() as p:
             try:
-                browser = p.chromium.launch(
+                browser = p.webkit.launch(
                     headless=self.config.HEADLESS,
                     args=[
                         # '--disable-blink-features=AutomationControlled',
