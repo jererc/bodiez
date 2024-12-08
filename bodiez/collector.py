@@ -145,7 +145,8 @@ class Collector:
                 logger.exception(f'failed to process {url_item.id}')
                 Notifier().send(title=f'{NAME} {url_item.id}',
                     body=f'error: {exc}')
-        logger.info(f'report:\n{pformat(self.report)}')
+        if self.report:
+            logger.info(f'report:\n{pformat(self.report)}')
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')
 
 
