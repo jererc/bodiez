@@ -34,6 +34,11 @@ jobs:
       run: |
         python -m playwright install-deps
 
+    # - name: Install System Dependencies
+    #   run: |
+    #     sudo apt-get update
+    #     sudo apt-get install -y libvpx7 libavif13 libicu70
+
     - name: Install playwright browser
       run: |
         export PLAYWRIGHT_BROWSERS_PATH=0
