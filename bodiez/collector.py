@@ -1,5 +1,6 @@
 from dataclasses import asdict, dataclass, field
 from pprint import pformat
+import json
 import re
 import time
 from typing import List
@@ -146,7 +147,8 @@ class Collector:
                 Notifier().send(title=f'{NAME} {url_item.id}',
                     body=f'error: {exc}')
         if self.report:
-            logger.info(f'report:\n{pformat(self.report)}')
+            logger.info('report:\n'
+                f'{json.dumps(self.report, sort_keys=True, indent=4)}')
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')
 
 
