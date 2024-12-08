@@ -34,11 +34,6 @@ jobs:
       run: |
         python -m playwright install-deps
 
-    # - name: Install System Dependencies
-    #   run: |
-    #     sudo apt-get update
-    #     sudo apt-get install -y libvpx7 libavif13 libicu70
-
     - name: Install playwright browser
       run: |
         export PLAYWRIGHT_BROWSERS_PATH=0
@@ -46,7 +41,11 @@ jobs:
 
     - name: Build Linux Executable
       run: |
-        pyinstaller --onefile --name bodiez bodiez/main.py
+        pyinstaller --onefile --name bodiez \
+          --add-binary /usr/lib/x86_64-linux-gnu/libvpx.so.7:. \
+          --add-binary /usr/lib/x86_64-linux-gnu/libavif.so.13:. \
+          --add-binary /usr/lib/x86_64-linux-gnu/libicudata.so.70:. \
+          bodiez/main.py
         ls dist/
 
     - name: Upload Linux Executable
