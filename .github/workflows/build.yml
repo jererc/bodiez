@@ -37,11 +37,7 @@ jobs:
     - name: Install System dependencies
       run: |
         sudo apt-get update
-    #     sudo apt-get install -y \
-    #       libwoff1 libopus0 libwebpdemux2 libenchant-2-2 libgudev-1.0-0 \
-    #       libsecret-1-0 libhyphen0 libgles2 libegl1 libxslt1.1 libevent-2.1-7 \
-    #       libnotify4 libvpx7 libavif13 libicu70 || true
-        sudo apt install -y libglib2.0-0
+        sudo apt-get install -y libglib2.0-0
 
     - name: Install playwright browser
       run: |
