@@ -4,8 +4,7 @@ import sys
 
 from svcutils.service import Config, Service
 
-from bodiez import WORK_DIR, NAME
-from bodiez.collector import collect
+from bodiez import WORK_DIR, NAME, collector
 
 
 def parse_args():
@@ -13,11 +12,12 @@ def parse_args():
     parser.add_argument('--path', '-p', default=os.getcwd())
     subparsers = parser.add_subparsers(dest='cmd')
     collect_parser = subparsers.add_parser('collect')
-    collect_parser.add_argument('--url-id')
+    collect_parser.add_argument('--headful', action='store_true')
     collect_parser.add_argument('--daemon', action='store_true')
     collect_parser.add_argument('--task', action='store_true')
-    collect_parser.add_argument('--interactive', '-i', action='store_true')
-    collect_parser.add_argument('--test', action='store_true')
+    test_parser = subparsers.add_parser('test')
+    test_parser.add_argument('--headful', action='store_true')
+    test_parser.add_argument('--url-id')
     args = parser.parse_args()
     if not args.cmd:
         parser.print_help()
@@ -33,13 +33,13 @@ def main():
         SHARED_STORE_DIR=os.path.join(path, 'bodiez'),
         GOOGLE_CREDS=os.path.join(WORK_DIR, 'google_creds.json'),
         FIRESTORE_COLLECTION=NAME,
-        HEADLESS=not args.interactive,
+        HEADLESS=not args.headful,
         MIN_BODIES_HISTORY=50,
         RUN_DELTA=3600,
     )
     if args.cmd == 'collect':
         service = Service(
-            target=collect,
+            target=collector.collect,
             args=(config,),
             work_dir=WORK_DIR,
             run_delta=config.RUN_DELTA,
@@ -53,7 +53,9 @@ def main():
         elif args.task:
             service.run_once()
         else:
-            collect(config, force=True, test=args.test, url_id=args.url_id)
+            collector.collect(config, force=True)
+    elif args.cmd == 'test':
+        collector.test(config, url_id=args.url_id)
 
 
 if __name__ == '__main__':
