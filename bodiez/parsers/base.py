@@ -47,6 +47,7 @@ class BaseParser:
         if not os.path.exists(self.state_dir):
             os.makedirs(self.state_dir)
         state_path = os.path.join(self.state_dir, 'state.json')
+        logger.debug(f'PLAYWRIGHT_BROWSERS_PATH: {os.getenv("PLAYWRIGHT_BROWSERS_PATH")}')
         with sync_playwright() as p:
             context = None
             try:
