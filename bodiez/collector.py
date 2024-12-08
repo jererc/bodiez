@@ -25,6 +25,10 @@ def clean_body(body):
     return res.strip() or body
 
 
+def to_float(x):
+    return float(f'{x:.02f}')
+
+
 @dataclass
 class URLItem:
     url: str
@@ -62,6 +66,7 @@ class Collector:
         self.test = test
         self.parsers = list(iterate_parsers())
         self.store = get_store(self.config)
+        self.report = []
 
     def _notify_new_bodies(self, url_item, bodies):
         notif_title = f'{NAME} {url_item.id}'
@@ -80,22 +85,19 @@ class Collector:
                 yield parser
 
     def _collect_bodies(self, url_item):
-        start_ts = time.time()
         parsers = list(self._iterate_parsers(url_item))
         if not parsers:
             raise Exception('no available parser')
         res = []
         for parser in sorted(parsers, key=lambda x: x.id):
             bodies = [r for r in parser.parse() if r]
+            logger.debug(f'collected bodies for {url_item.id} '
+                f'with parser {parser.id}:\n{pformat(bodies, width=160)}')
             if not bodies:
                 logger.info(f'no results for {url_item.id} '
                     f'with parser {parser.id}')
                 continue
             res.extend(bodies)
-        logger.debug(f'collected bodies for {url_item.id} '
-            f'with parser {parser.id}:\n{pformat(bodies, width=160)}')
-        logger.info(f'collected {len(res)} bodies for {url_item.id} in '
-            f'{time.time() - start_ts:.02f} seconds')
         return res
 
     def _process_url_item(self, url_item):
@@ -111,6 +113,7 @@ class Collector:
         if self.test:
             self._notify_new_bodies(url_item, bodies)
             return
+        parsing_duration = time.time() - start_ts
         new_bodies = [r for r in bodies if r not in doc.bodies]
         if new_bodies:
             logger.info(f'new bodies for {url_item.id}:\n'
@@ -119,8 +122,12 @@ class Collector:
         bodies_history = [r for r in doc.bodies if r not in bodies]
         self.store.set(url_item.url, bodies + bodies_history[
             :max(self.config.MIN_BODIES_HISTORY, len(bodies))])
-        logger.info(f'processed {url_item.id} in '
-            f'{time.time() - start_ts:.02f} seconds')
+        self.report.append({
+            'id': url_item.id,
+            'collected': len(bodies),
+            'parsing_duration': to_float(parsing_duration),
+            'duration': to_float(time.time() - start_ts),
+        })
 
     def run(self, url_id=None):
         start_ts = time.time()
@@ -138,6 +145,7 @@ class Collector:
                 logger.exception(f'failed to process {url_item.id}')
                 Notifier().send(title=f'{NAME} {url_item.id}',
                     body=f'error: {exc}')
+        logger.info(f'report:\n{pformat(self.report)}')
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')
 
 
