@@ -45,7 +45,7 @@ jobs:
     - name: Install playwright browser
       run: |
         export PLAYWRIGHT_BROWSERS_PATH=0
-        playwright install webkit
+        playwright install chromium
 
     - name: Build Linux Executable
       run: |

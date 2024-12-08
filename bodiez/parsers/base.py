@@ -51,7 +51,7 @@ class BaseParser:
         with sync_playwright() as p:
             context = None
             try:
-                browser = p.webkit.launch(
+                browser = p.chromium.launch(
                     headless=self.config.HEADLESS,
                     args=[
                         # '--disable-blink-features=AutomationControlled',
