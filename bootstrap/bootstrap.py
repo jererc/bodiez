@@ -14,4 +14,7 @@ Bootstrapper(
         ['playwright', 'install'],
     ],
     force_reinstall=True,
+    download_assets=[
+        ('user_settings.py', 'https://raw.githubusercontent.com/jererc/bodiez/refs/heads/main/bootstrap/user_settings.py'),
+    ],
 ).setup_task()
