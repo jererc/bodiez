@@ -117,8 +117,6 @@ class Collector:
         parsing_duration = time.time() - start_ts
         new_bodies = [r for r in bodies if r not in doc.bodies]
         if new_bodies:
-            logger.info(f'new bodies for {url_item.id}:\n'
-                f'{pformat(new_bodies, width=160)}')
             self._notify_new_bodies(url_item, new_bodies)
         bodies_history = [r for r in doc.bodies if r not in bodies]
         self.store.set(url_item.url, bodies + bodies_history[
@@ -126,6 +124,7 @@ class Collector:
         self.report.append({
             'id': url_item.id,
             'collected': len(bodies),
+            'new_bodies': new_bodies,
             'parsing_duration': to_float(parsing_duration),
             'duration': to_float(time.time() - start_ts),
         })
