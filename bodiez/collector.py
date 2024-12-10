@@ -108,13 +108,14 @@ class Collector:
                 time.time() - url_item.update_delta):
             logger.debug(f'skipped recently updated {url_item.id}')
             return
+        parse_start_ts = time.time()
         bodies = self._collect_bodies(url_item)
+        parsing_duration = time.time() - parse_start_ts
         if not (bodies or url_item.allow_no_results):
             raise Exception('no results')
         if self.test:
             self._notify_new_bodies(url_item, bodies)
             return
-        parsing_duration = time.time() - start_ts
         new_bodies = [r for r in bodies if r not in doc.bodies]
         if new_bodies:
             self._notify_new_bodies(url_item, new_bodies)
