@@ -16,15 +16,13 @@ class GridParser(BaseParser):
         for element in page.locator(selector).all():
             box = element.bounding_box()
             if box:
-                grids[f'{box["width"]}x{box["height"]}'].append(element)
-        return sorted([r for r in grids.values()], key=lambda x: len(x))[-1]
+                grids[(box['width'], box['height'])].append(element)
+        return sorted(list(grids.values()), key=lambda x: len(x))[-1]
 
     def parse(self):
         with self.playwright_context() as context:
             page = context.new_page()
             page.goto(self.url_item.url)
-            selector = f'xpath={self.url_item.grid_xpath}'
-            self._wait_for_selector(page, selector)
             rel_selector = f'xpath={self.url_item.grid_rel_xpath}'
             for element in self._get_grid_elements(page):
                 rel_element = element.locator(rel_selector).all()
