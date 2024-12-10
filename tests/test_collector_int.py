@@ -304,7 +304,7 @@ class GenericTestCase(BaseTestCase):
             headless=False,
         )
 
-    def test_fb_scrolling(self):
+    def test_fb_timeline(self):
         self._test_collect(
             {
                 'url': 'https://www.facebook.com/iqonmauritius',
