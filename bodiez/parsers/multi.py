@@ -15,8 +15,8 @@ class MultiElementParser(BaseParser):
             selector = f'xpath={self.url_item.parent_xpath}'
             self._wait_for_selector(page, selector)
             for element in page.locator(selector).element_handles():
-                children = [element.query_selector(f'xpath={x}')
-                    for x in self.url_item.child_xpaths]
+                children = [element.query_selector(f'xpath={r}')
+                    for r in self.url_item.child_xpaths]
                 yield self.url_item.multi_element_delimiter.join(
                     [r.text_content().strip() if r else 'NULL'
                         for r in children])
