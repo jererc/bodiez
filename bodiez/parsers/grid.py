@@ -28,7 +28,6 @@ class GridParser(BaseParser):
             rel_selector = f'xpath={self.url_item.grid_rel_xpath}'
             for element in self._get_grid_elements(page):
                 rel_element = element.locator(rel_selector).all()
-                texts = [r.text_content().strip() if r else 'NULL'
-                    for r in rel_element]
+                texts = [r.text_content().strip() for r in rel_element]
                 yield self.url_item.multi_element_delimiter.join(
                     [r for r in texts if r])
