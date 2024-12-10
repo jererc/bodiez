@@ -297,7 +297,20 @@ class GenericTestCase(BaseTestCase):
             {
                 'url': 'https://www.facebook.com/marketplace/108433389181024/propertyforsale',
                 'grid_xpath': '//img',
-                'grid_rel_xpath': '../../../../../../../../div/div/div',
+                'rel_xpath': '../../../../../../../../div/div/div',
+                # 'block_external': True,
+                # 'block_images': False,
+            },
+            headless=False,
+        )
+
+    def test_fb_scrolling(self):
+        self._test_collect(
+            {
+                'url': 'https://www.facebook.com/iqonmauritius/?locale=fr_FR',
+                'scroll_xpath': '//*[local-name()="image"]',
+                'rel_xpath': '../../../../../../../../../../../../div[3]/div/div',
+                'max_scrolls': 4,
                 # 'block_external': True,
                 # 'block_images': False,
             },
