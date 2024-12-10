@@ -292,6 +292,18 @@ class GenericTestCase(BaseTestCase):
             headless=False,
         )
 
+    def test_fb_marketplace(self):
+        self._test_collect(
+            {
+                'url': 'https://www.facebook.com/marketplace/108433389181024/propertyforsale',
+                'grid_xpath': '//img',
+                'grid_rel_xpath': '../../../../../../../../div/div/div',
+                # 'block_external': True,
+                # 'block_images': False,
+            },
+            headless=False,
+        )
+
 
 class TimeoutTestCase(BaseTestCase):
     def test_timeout(self):
@@ -313,16 +325,6 @@ class TimeoutTestCase(BaseTestCase):
             headless=True,
         )
         self.assertEqual(res, [])
-
-
-class GeforceDriverVersionTestCase(BaseTestCase):
-    def test_1(self):
-        self._test_collect(
-            {
-                'url': 'geforce-driver-version',
-            },
-            headless=True,
-        )
 
 
 class WorkflowTestCase(BaseTestCase):

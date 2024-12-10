@@ -42,6 +42,8 @@ class URLItem:
     xpath: str = None
     parent_xpath: str = None
     child_xpaths: List[str] = field(default_factory=list)
+    grid_xpath: str = None
+    grid_rel_xpath: str = None
     multi_element_delimiter: str = ', '
     max_notif: int = 3
     max_bodies_per_notif: int = 1

@@ -56,7 +56,7 @@ class BaseParser:
                 browser = p.chromium.launch(
                     headless=self.config.HEADLESS,
                     args=[
-                        # '--disable-blink-features=AutomationControlled',
+                        '--disable-blink-features=AutomationControlled',
                     ],
                 )
                 context = browser.new_context(storage_state=state_path
