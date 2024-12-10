@@ -307,7 +307,7 @@ class GenericTestCase(BaseTestCase):
     def test_fb_scrolling(self):
         self._test_collect(
             {
-                'url': 'https://www.facebook.com/iqonmauritius/?locale=fr_FR',
+                'url': 'https://www.facebook.com/iqonmauritius',
                 'scroll_xpath': '//*[local-name()="image"]',
                 'rel_xpath': '../../../../../../../../../../../../div[3]/div/div',
                 'max_scrolls': 4,
