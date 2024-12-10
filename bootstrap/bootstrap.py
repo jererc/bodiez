@@ -10,10 +10,10 @@ Bootstrapper(
         # 'git+https://github.com/jererc/bodiez.git',
         'bodiez @ https://github.com/jererc/bodiez/archive/refs/heads/main.zip',
     ],
+    force_reinstall=True,
     extra_cmds=[
         ['playwright', 'install'],
     ],
-    force_reinstall=True,
     download_assets=[
         ('user_settings.py', 'https://raw.githubusercontent.com/jererc/bodiez/refs/heads/main/bootstrap/user_settings.py'),
     ],
