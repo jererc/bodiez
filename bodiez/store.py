@@ -83,9 +83,9 @@ class SharedStore:
         }
         with open(file, 'w', encoding='utf-8') as fd:
             json.dump(data, fd, sort_keys=True, indent=4)
-        for store_file in self._list_files(url):
-            if self._get_file_ts(store_file) < time.time() - 60:
-                os.remove(store_file)
+        for sf in self._list_files(url):
+            if sf != file and self._get_file_ts(sf) < time.time() - 60:
+                os.remove(sf)
 
 
 def get_store(config):
