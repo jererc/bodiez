@@ -5,6 +5,7 @@ URLS = [
         'url': 'https://1337x.to/cat/Games/1/',
         'id': 'games',
         'xpath': xpath_1337x,
+        'max_notif': 10,
     },
     {
         'url': 'https://1337x.to/cat/Anime/1/',
