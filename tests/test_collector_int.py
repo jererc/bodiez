@@ -18,6 +18,7 @@ from bodiez.store import Firestore
 
 
 GOOGLE_CREDS = os.path.join(os.path.expanduser('~'), 'gcs-bodiez.json')
+GOOGLE_CREDS = os.path.join(os.path.expanduser('~'), 'gcs.json')
 
 module.logger.setLevel(logging.DEBUG)
 
@@ -40,17 +41,19 @@ class BaseTestCase(unittest.TestCase):
         makedirs(WORK_DIR)
 
     def _reset_storage(self, config):
-        fs = Firestore(config)
-        print(f'deleting all documents in firestore collection '
-            f'{config.FIRESTORE_COLLECTION}...')
-        for doc in fs.col.list_documents():
-            doc.delete()
-        remove_path(config.SHARED_STORE_DIR)
+        if os.path.exists(config.GOOGLE_CREDS):
+            fs = Firestore(config)
+            print(f'deleting all documents in firestore collection '
+                f'{config.FIRESTORE_COLLECTION}...')
+            for doc in fs.col.list_documents():
+                doc.delete()
+        else:
+            remove_path(config.SHARED_STORE_DIR)
 
     def _collect(self, url, headless=True):
         config = Config(
             __file__,
-            SHARED_STORE_DIR=os.path.join(WORK_DIR, 'bodiez'),
+            SHARED_STORE_DIR=os.path.join(WORK_DIR, 'store'),
             GOOGLE_CREDS=None,
             FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,
@@ -71,7 +74,7 @@ class NotifyTestCase(BaseTestCase):
         config = Config(
             __file__,
             URLS=[],
-            SHARED_STORE_DIR=os.path.join(WORK_DIR, 'bodiez'),
+            SHARED_STORE_DIR=os.path.join(WORK_DIR, 'store'),
             GOOGLE_CREDS=None,
             FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,
@@ -353,7 +356,7 @@ class WorkflowTestCase(BaseTestCase):
                     'update_delta': 0,
                 },
             ],
-            SHARED_STORE_DIR=os.path.join(WORK_DIR, 'bodiez'),
+            SHARED_STORE_DIR=os.path.join(WORK_DIR, 'store'),
             GOOGLE_CREDS=GOOGLE_CREDS,
             FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,

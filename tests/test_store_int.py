@@ -83,13 +83,18 @@ class SharedStoreTestCase(unittest.TestCase):
         makedirs(WORK_DIR)
         self.sl = store.SharedStore(Config(
             __file__,
-            SHARED_STORE_DIR=os.path.join(WORK_DIR, 'bodiez'),
+            SHARED_STORE_DIR=os.path.join(WORK_DIR, 'store'),
             HEADLESS=True,
         ))
         self.url = 'https://1337x.to/user/FitGirl/'
+        self.url2 = 'https://1337x.to/user/DODI/'
         self.bodies = [f'body {i}' for i in range(1, 51)]
 
     def test_workflow(self):
+        doc = self.sl.get(self.url2)
+        pprint(doc)
+        self.sl.set(self.url2, bodies=['1', '2'])
+
         doc = self.sl.get(self.url)
         pprint(doc)
         self.assertEqual(doc.url, self.url)
@@ -115,3 +120,9 @@ class SharedStoreTestCase(unittest.TestCase):
         doc = self.sl.get(self.url)
         pprint(doc)
         self.assertEqual(doc.bodies, set_bodies)
+
+        doc = self.sl.get(self.url2)
+        pprint(doc)
+        self.assertEqual(doc.url, self.url2)
+        self.assertEqual(doc.bodies, ['1', '2'])
+        self.assertTrue(doc.updated_ts > 0)

@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from glob import glob
+import hashlib
 import json
 import os
 import time
@@ -45,28 +46,29 @@ class SharedStore:
     def __init__(self, config):
         self.config = config
         self.base_dir = self.config.SHARED_STORE_DIR
+        if not os.path.exists(self.base_dir):
+            os.makedirs(self.base_dir)
 
-    def _get_filename(self):
-        return f'{int(time.time() * 1000)}-{str(uuid.uuid4())[:8]}.json'
+    def _get_doc_id(self, url):
+        return hashlib.md5(url.encode('utf-8')).hexdigest()
 
-    def _get_url_dir(self, url):
-        return os.path.join(self.base_dir, quote(url, safe=''))
+    def _list_files(self, url):
+        return sorted(glob(os.path.join(self.base_dir,
+            f'{self._get_doc_id(url)}-*.json')))
 
-    def _list_url_files(self, url):
-        return sorted(glob(os.path.join(self._get_url_dir(url), '*.json')))
+    def _get_file(self, url):
+        return os.path.join(self.base_dir, f'{self._get_doc_id(url)}-'
+            f'{int(time.time() * 1000)}-{str(uuid.uuid4())[:8]}.json')
 
     def get(self, url):
-        files = self._list_url_files(url)
+        files = self._list_files(url)
         if not files:
             return Document(url=url)
         with open(files[-1], 'r', encoding='utf-8') as fd:
             return Document(**json.load(fd))
 
     def set(self, url, bodies):
-        url_dir = self._get_url_dir(url)
-        if not os.path.exists(url_dir):
-            os.makedirs(url_dir)
-        file = os.path.join(url_dir, self._get_filename())
+        file = self._get_file(url)
         data = {
             'url': url,
             'bodies': bodies,
@@ -74,14 +76,14 @@ class SharedStore:
         }
         with open(file, 'w', encoding='utf-8') as fd:
             json.dump(data, fd, sort_keys=True, indent=4)
-        for f in self._list_url_files(url):
+        for f in self._list_files(url):
             if f != file:
                 os.remove(f)
 
 
 def get_store(config):
     if not os.path.exists(config.GOOGLE_CREDS):
-        logger.warning(f'{config.GOOGLE_CREDS} does not exist, '
+        logger.info(f'{config.GOOGLE_CREDS} does not exist, '
             f'using local storage {config.SHARED_STORE_DIR}')
         return SharedStore(config)
     return Firestore(config)
