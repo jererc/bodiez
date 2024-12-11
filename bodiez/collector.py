@@ -42,10 +42,10 @@ class URLItem:
     xpath: str = None
     parent_xpath: str = None
     child_xpaths: List[str] = field(default_factory=list)
-    grid_xpath: str = None
     scroll_xpath: str = None
-    max_scrolls: int = 3
+    scroll_group_attrs: List[str] = field(default_factory=list)
     rel_xpath: str = None
+    max_scrolls: int = 2
     multi_element_delimiter: str = ', '
     max_notif: int = 3
     max_bodies_per_notif: int = 1
@@ -96,7 +96,7 @@ class Collector:
         res = []
         for parser in sorted(parsers, key=lambda x: x.id):
             bodies = [r for r in parser.parse() if r]
-            logger.debug(f'collected bodies for {url_item.id} '
+            logger.debug(f'collected {len(bodies)} bodies for {url_item.id} '
                 f'with parser {parser.id}:\n{pformat(bodies, width=160)}')
             if not bodies:
                 logger.info(f'no results for {url_item.id} '

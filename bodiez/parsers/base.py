@@ -76,6 +76,14 @@ class BaseParser:
                 raise Exception('timeout')
             logger.debug(f'timed out for {selector}')
 
+    def _print_element(self, element):
+        content = element.evaluate('element => element.outerHTML')
+        try:
+            from bs4 import BeautifulSoup
+            print(BeautifulSoup(content, 'html.parser').prettify())
+        except ImportError:
+            print(content)
+
     def can_parse(self):
         raise NotImplementedError()
 

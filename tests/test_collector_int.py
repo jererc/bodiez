@@ -296,9 +296,11 @@ class GenericTestCase(BaseTestCase):
         self._test_collect(
             {
                 'url': 'https://www.facebook.com/marketplace/108433389181024/propertyforsale',
-                'grid_xpath': '//img',
+                'id': 'property-for-sale',
+                'scroll_xpath': '//img',
                 'rel_xpath': '../../../../../../../../div/div/div',
-                # 'block_external': True,
+                'scroll_group_attrs': ['width', 'height'],
+                # 'max_scrolls': 1,
                 # 'block_images': False,
             },
             headless=False,
@@ -308,10 +310,10 @@ class GenericTestCase(BaseTestCase):
         self._test_collect(
             {
                 'url': 'https://www.facebook.com/iqonmauritius',
+                'id': 'iqon',
                 'scroll_xpath': '//*[local-name()="image"]',
-                'rel_xpath': '../../../../../../../../../../../../div[3]/div/div',
-                'max_scrolls': 4,
-                # 'block_external': True,
+                'rel_xpath': '../../../../../../../../../../../../div[3]/div[1]',
+                # 'max_scrolls': 1,
                 # 'block_images': False,
             },
             headless=False,

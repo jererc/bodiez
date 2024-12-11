@@ -10,6 +10,7 @@ URLS = [
         'url': 'https://1337x.to/cat/Anime/1/',
         'id': 'anime',
         'xpath': xpath_1337x,
+        'active': False,
     },
     {
         'url': 'https://www.nvidia.com/en-us/geforce/news/',
@@ -28,6 +29,23 @@ URLS = [
             './/div[contains(@class, "card-foot-price")]/strong/a',
         ],
         'update_delta': 8 * 3600,
+        'active': False,
+    },
+    {
+        'url': 'https://www.facebook.com/marketplace/108433389181024/propertyforsale',
+        'id': 'facebook-marketplace',
+        'scroll_xpath': '//img',
+        'rel_xpath': '../../../../../../../../div/div/div',
+        'scroll_group_attrs': ['width', 'height'],
+        'update_delta': 16 * 3600,
+        'active': False,
+    },
+    {
+        'url': 'https://www.facebook.com/iqonmauritius',
+        'id': 'facebook-timeline',
+        'scroll_xpath': '//*[local-name()="image"]',
+        'rel_xpath': '../../../../../../../../../../../../div[3]/div[1]',
+        'update_delta': 16 * 3600,
         'active': False,
     },
 ]
