@@ -56,6 +56,13 @@ class SharedStore:
         return sorted(glob(os.path.join(self.base_dir,
             f'{self._get_doc_id(url)}-*.json')))
 
+    def _get_file_ts(self, file):
+        try:
+            return int(os.path.basename(file).split('-')[1]) / 1000
+        except Exception:
+            logger.exception(f'failed to get ts from {file}')
+            return 0
+
     def _get_file(self, url):
         return os.path.join(self.base_dir, f'{self._get_doc_id(url)}-'
             f'{int(time.time() * 1000)}-{str(uuid.uuid4())[:8]}.json')
@@ -76,14 +83,14 @@ class SharedStore:
         }
         with open(file, 'w', encoding='utf-8') as fd:
             json.dump(data, fd, sort_keys=True, indent=4)
-        for f in self._list_files(url):
-            if f != file:
-                os.remove(f)
+        for store_file in self._list_files(url):
+            if self._get_file_ts(store_file) < time.time() - 3600:
+                os.remove(store_file)
 
 
 def get_store(config):
     if os.path.exists(config.GOOGLE_CREDS):
-        logger.debug(f'using google firestore')
+        logger.debug('using google firestore')
         return Firestore(config)
     logger.debug(f'using shared store {config.SHARED_STORE_DIR}')
     return SharedStore(config)
