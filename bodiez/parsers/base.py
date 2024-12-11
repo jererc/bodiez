@@ -27,7 +27,8 @@ class BaseParser:
         self.url_item = url_item
         self.state_dir = os.path.join(WORK_DIR, BASE_STATE_DIRNAME,
             self._get_state_dirname())
-        self.timeout = 10000 if self.config.HEADLESS else 120000
+        self.timeout = (self.url_item.headless_timeout
+            if self.config.HEADLESS else self.url_item.headful_timeout)
 
     def _get_state_dirname(self):
         return urlparse(self.url_item.url).netloc
@@ -66,11 +67,13 @@ class BaseParser:
             finally:
                 if context:
                     context.storage_state(path=state_path)
+                    logger.debug(f'saved state {state_path}')
                     context.close()
 
     def _wait_for_selector(self, page, selector):
+        logger.debug(f'waiting {self.timeout} seconds for {selector}')
         try:
-            page.wait_for_selector(selector, timeout=self.timeout)
+            page.wait_for_selector(selector, timeout=self.timeout * 1000)
         except TimeoutError:
             if not self.url_item.allow_no_results:
                 raise Exception('timeout')

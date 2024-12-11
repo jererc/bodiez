@@ -36,6 +36,8 @@ class URLItem:
     id: str = None
     active: bool = True
     update_delta: int = 3600
+    headless_timeout: int = 10
+    headful_timeout: int = 120
     allow_no_results: bool = False
     block_external: bool = False
     block_images: bool = True
