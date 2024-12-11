@@ -277,7 +277,7 @@ class GenericTestCase(BaseTestCase):
                     './/address',
                     './/div[contains(@class, "card-foot-price")]/strong/a',
                 ],
-                'multi_element_delimiter': '\r',
+                'text_delimiter': '\r',
             },
             headless=False,
         )

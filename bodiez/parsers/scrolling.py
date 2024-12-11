@@ -37,7 +37,7 @@ class ScrollingParser(BaseParser):
                     if not rel_elements:
                         continue
                     texts = [r.text_content().strip() for r in rel_elements]
-                    title = self.url_item.multi_element_delimiter.join(
+                    title = self.url_item.text_delimiter.join(
                         [r for r in texts if r])
                     if title not in seen_titles:
                         yield title

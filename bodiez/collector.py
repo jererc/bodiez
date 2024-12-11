@@ -46,7 +46,7 @@ class URLItem:
     scroll_group_attrs: List[str] = field(default_factory=list)
     rel_xpath: str = None
     max_scrolls: int = 2
-    multi_element_delimiter: str = ', '
+    text_delimiter: str = ', '
     max_notif: int = 3
     max_bodies_per_notif: int = 1
     cleaner: any = clean_body
