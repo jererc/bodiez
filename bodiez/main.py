@@ -17,7 +17,7 @@ def parse_args():
     collect_parser.add_argument('--task', action='store_true')
     test_parser = subparsers.add_parser('test')
     test_parser.add_argument('--headful', action='store_true')
-    test_parser.add_argument('--url-id')
+    test_parser.add_argument('--id')
     args = parser.parse_args()
     if not args.cmd:
         parser.print_help()
@@ -55,7 +55,7 @@ def main():
         else:
             collector.collect(config, force=True)
     elif args.cmd == 'test':
-        collector.test(config, url_id=args.url_id)
+        collector.test(config, url_id=args.id)
 
 
 if __name__ == '__main__':

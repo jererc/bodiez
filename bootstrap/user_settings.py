@@ -23,7 +23,7 @@ URLS = [
     {
         'url': 'https://www.lexpressproperty.com/en/buy-mauritius/residential_land/riviere_noire-la_gaulette-la_preneuse-tamarin/?price_max=8%2C000%2C000&currency=MUR&filters%5Bland_unit%5D%5Beq%5D=m2',
         'id': 'land-west',
-        'parent_xpath': '//div[contains(@class, "card-row")]',
+        'xpath': '//div[contains(@class, "card-row")]',
         'child_xpaths': [
             './/div[contains(@class, "title-holder")]/h2',
             './/address',
@@ -36,7 +36,7 @@ URLS = [
         'url': 'https://www.facebook.com/marketplace/108433389181024/propertyforsale',
         'id': 'facebook-marketplace',
         'scroll_xpath': '//img',
-        'rel_xpath': '../../../../../../../../div/div/div',
+        'rel_xpath': '../../../../../../../div[2]/div',
         'scroll_group_attrs': ['width', 'height'],
         'update_delta': 16 * 3600,
         'active': False,

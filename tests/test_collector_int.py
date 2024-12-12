@@ -227,7 +227,7 @@ class NotifyTestCase(BaseTestCase):
         self._notify(url_item, bodies=bodies)
 
 
-class GenericTestCase(BaseTestCase):
+class SimpleTestCase(BaseTestCase):
     def test_1337x(self):
         self._test_collect(
             {
@@ -237,11 +237,11 @@ class GenericTestCase(BaseTestCase):
             headless=False,
         )
 
-    def test_1337x_sub(self):
+    def test_1337x_child(self):
         self._test_collect(
             {
                 'url': 'https://1337x.to/user/FitGirl/',
-                'parent_xpath': '//table/tbody/tr',
+                'xpath': '//table/tbody/tr',
                 'child_xpaths': [
                     './/td[1]/a[2]',
                 ],
@@ -258,11 +258,11 @@ class GenericTestCase(BaseTestCase):
             headless=False,
         )
 
-    def test_nvidia_sub(self):
+    def test_nvidia_child(self):
         self._test_collect(
             {
                 'url': 'https://www.nvidia.com/en-us/geforce/news/',
-                'parent_xpath': '//div[contains(@class, "article-title-text")]',
+                'xpath': '//div[contains(@class, "article-title-text")]',
                 'child_xpaths': [
                     './/a',
                 ],
@@ -274,7 +274,7 @@ class GenericTestCase(BaseTestCase):
         self._test_collect(
             {
                 'url': 'https://www.lexpressproperty.com/en/buy-mauritius/all/west/?price_max=5000000&currency=MUR&filters%5Binterior_unit%5D%5Beq%5D=m2&filters%5Bland_unit%5D%5Beq%5D=m2',
-                'parent_xpath': '//div[contains(@class, "card-row")]',
+                'xpath': '//div[contains(@class, "card-row")]',
                 'child_xpaths': [
                     './/div[contains(@class, "title-holder")]/h2',
                     './/address',
@@ -295,16 +295,34 @@ class GenericTestCase(BaseTestCase):
             headless=False,
         )
 
+
+class ScrollingTestCase(BaseTestCase):
     def test_fb_marketplace(self):
         self._test_collect(
             {
                 'url': 'https://www.facebook.com/marketplace/108433389181024/propertyforsale',
                 'id': 'property-for-sale',
                 'scroll_xpath': '//img',
-                'rel_xpath': '../../../../../../../../div/div/div',
                 'scroll_group_attrs': ['width', 'height'],
+                'rel_xpath': '../../../../../../../div[2]/div',
                 # 'max_scrolls': 1,
-                # 'block_images': False,
+            },
+            headless=False,
+        )
+
+    def test_fb_marketplace_child(self):
+        self._test_collect(
+            {
+                'url': 'https://www.facebook.com/marketplace/108433389181024/propertyforsale',
+                'id': 'property-for-sale',
+                'scroll_xpath': '//img',
+                'scroll_group_attrs': ['width', 'height'],
+                'rel_xpath': '../../../../../../../div[2]',
+                'child_xpaths': [
+                    './/div[1]',
+                    './/div[3]',
+                ],
+                # 'max_scrolls': 1,
             },
             headless=False,
         )
@@ -317,7 +335,21 @@ class GenericTestCase(BaseTestCase):
                 'scroll_xpath': '//*[local-name()="image"]',
                 'rel_xpath': '../../../../../../../../../../../../div[3]/div[1]',
                 # 'max_scrolls': 1,
-                # 'block_images': False,
+            },
+            headless=False,
+        )
+
+    def test_fb_timeline_child(self):
+        self._test_collect(
+            {
+                'url': 'https://www.facebook.com/iqonmauritius',
+                'id': 'iqon',
+                'scroll_xpath': '//*[local-name()="image"]',
+                'rel_xpath': '../../../../../../../../../../../../div[3]',
+                'child_xpaths': [
+                    './/div[1]',
+                ],
+                # 'max_scrolls': 1,
             },
             headless=False,
         )

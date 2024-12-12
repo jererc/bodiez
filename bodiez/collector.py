@@ -37,12 +37,11 @@ class URLItem:
     active: bool = True
     update_delta: int = 3600
     headless_timeout: int = 10
-    headful_timeout: int = 120
+    headful_timeout: int = 60
     allow_no_results: bool = False
     block_external: bool = False
     block_images: bool = True
     xpath: str = None
-    parent_xpath: str = None
     child_xpaths: List[str] = field(default_factory=list)
     scroll_xpath: str = None
     scroll_group_attrs: List[str] = field(default_factory=list)

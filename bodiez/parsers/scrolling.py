@@ -25,6 +25,12 @@ class ScrollingParser(BaseParser):
         page.evaluate('window.scrollBy(0, window.innerHeight)')
         page.wait_for_timeout(2000)
 
+    def _iterate_children(self, element):
+        for xpath in self.url_item.child_xpaths:
+            children = element.locator(f'xpath={xpath}').all()
+            if children:
+                yield children[0]
+
     def parse(self):
         with self.playwright_context() as context:
             page = context.new_page()
@@ -36,7 +42,12 @@ class ScrollingParser(BaseParser):
                     rel_elements = element.locator(rel_selector).all()
                     if not rel_elements:
                         continue
-                    texts = [r.text_content().strip() for r in rel_elements]
+                    if self.url_item.child_xpaths:
+                        text_elements = list(self._iterate_children(
+                            rel_elements[0]))
+                    else:
+                        text_elements = rel_elements
+                    texts = [r.text_content().strip() for r in text_elements]
                     title = self.url_item.text_delimiter.join(
                         [r for r in texts if r])
                     if title not in seen_titles:
