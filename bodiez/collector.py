@@ -76,14 +76,13 @@ class Collector:
         self.report = []
 
     def _notify_new_bodies(self, query, bodies):
-        notif_title = f'{NAME} {query.id}'
         more_count = len(bodies[query.max_notif:])
         for i, body in enumerate(reversed(bodies[:query.max_notif])):
             body_str = query.title_processor(body.title) or body.title
             if i == 0 and more_count:
                 body_str += f' (+{more_count} more)'
-            Notifier().send(title=notif_title, body=body_str,
-                on_click=body.url)
+            Notifier().send(title=query.id, body=body_str,
+                app_name=NAME, on_click=body.url)
 
     def _iterate_parsers(self, query):
         for parser_cls in self.parsers:
@@ -152,8 +151,8 @@ class Collector:
                 self._process_query(query)
             except Exception as exc:
                 logger.exception(f'failed to process {query.id}')
-                Notifier().send(title=f'{NAME} {query.id}',
-                    body=f'error: {exc}')
+                Notifier().send(title=query.id,
+                    body=f'error: {exc}', app_name=NAME)
         if self.report:
             logger.info(f'report:\n{to_json(self.report)}')
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')
