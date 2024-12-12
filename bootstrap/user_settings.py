@@ -1,5 +1,4 @@
 xpath_1337x = '//table/tbody/tr/td[1]/a[2]'
-
 URLS = [
     {
         'url': 'https://1337x.to/cat/Games/1/',
@@ -14,10 +13,19 @@ URLS = [
         'active': False,
     },
     {
-        'url': 'https://www.nvidia.com/en-us/geforce/news/',
-        'id': 'geforce-news',
-        'xpath': '//div[contains(@class, "article-title-text")]/a',
-        'update_delta': 12 * 3600,
+        'url': 'https://actualitte.com/thematique/35/chroniques',
+        'id': 'livres',
+        'xpath': '//a[contains(@class, "list-article_link") or contains(@class, "article-card_link")]/h2',
+        'block_external': True,
+        'update_delta': 8 * 3600,
+        'active': False,
+    },
+    {
+        'url': 'https://www.techspot.com/drivers/manufacturer/nvidia_geforce/',
+        'id': 'geforce-drivers',
+        'xpath': '//div[contains(@class, "title")]/a',
+        'block_external': True,
+        'update_delta': 16 * 3600,
         'active': False,
     },
     {
