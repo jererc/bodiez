@@ -30,7 +30,7 @@ def to_json(x):
 
 
 @dataclass
-class URLItem:
+class Query:
     url: str
     id: str = None
     active: bool = True
@@ -75,63 +75,63 @@ class Collector:
         self.store = get_store(self.config)
         self.report = []
 
-    def _notify_new_bodies(self, url_item, bodies):
-        notif_title = f'{NAME} {url_item.id}'
-        more_count = len(bodies[url_item.max_notif:])
-        for i, body in enumerate(reversed(bodies[:url_item.max_notif])):
-            body_str = url_item.title_processor(body.title) or body.title
+    def _notify_new_bodies(self, query, bodies):
+        notif_title = f'{NAME} {query.id}'
+        more_count = len(bodies[query.max_notif:])
+        for i, body in enumerate(reversed(bodies[:query.max_notif])):
+            body_str = query.title_processor(body.title) or body.title
             if i == 0 and more_count:
                 body_str += f' (+{more_count} more)'
             Notifier().send(title=notif_title, body=body_str,
                 on_click=body.url)
 
-    def _iterate_parsers(self, url_item):
+    def _iterate_parsers(self, query):
         for parser_cls in self.parsers:
-            parser = parser_cls(self.config, url_item)
+            parser = parser_cls(self.config, query)
             if parser.can_parse():
                 yield parser
 
-    def _collect_bodies(self, url_item):
-        parsers = list(self._iterate_parsers(url_item))
+    def _collect_bodies(self, query):
+        parsers = list(self._iterate_parsers(query))
         if not parsers:
             raise Exception('no available parser')
         res = []
         for parser in sorted(parsers, key=lambda x: x.id):
             bodies = [r for r in parser.parse() if r]
-            logger.debug(f'collected {len(bodies)} bodies for {url_item.id} '
+            logger.debug(f'collected {len(bodies)} bodies for {query.id} '
                 f'with parser {parser.id}:\n'
                 f'{to_json([asdict(r) for r in bodies])}')
             if not bodies:
-                logger.info(f'no results for {url_item.id} '
+                logger.info(f'no results for {query.id} '
                     f'with parser {parser.id}')
                 continue
             res.extend(bodies)
         return res
 
-    def _process_url_item(self, url_item):
+    def _process_query(self, query):
         start_ts = time.time()
-        doc = self.store.get(url_item.url)
+        doc = self.store.get(query.url)
         if not (self.force or self.test or doc.updated_ts <
-                time.time() - url_item.update_delta):
-            logger.debug(f'skipped recently updated {url_item.id}')
+                time.time() - query.update_delta):
+            logger.debug(f'skipped recently updated {query.id}')
             return
         parse_start_ts = time.time()
-        bodies = self._collect_bodies(url_item)
+        bodies = self._collect_bodies(query)
         parsing_duration = time.time() - parse_start_ts
-        if not (bodies or url_item.allow_no_results):
+        if not (bodies or query.allow_no_results):
             raise Exception('no results')
         if self.test:
-            self._notify_new_bodies(url_item, bodies)
+            self._notify_new_bodies(query, bodies)
             return
         new_bodies = [r for r in bodies if r.title not in doc.titles]
         if new_bodies:
-            self._notify_new_bodies(url_item, new_bodies)
+            self._notify_new_bodies(query, new_bodies)
         titles = [r.title for r in bodies]
         history = [r for r in doc.titles if r not in titles]
-        self.store.set(url_item.url, titles + history[
+        self.store.set(query.url, titles + history[
             :max(self.config.MIN_BODIES_HISTORY, len(titles))])
         self.report.append({
-            'id': url_item.id,
+            'id': query.id,
             'collected': len(bodies),
             'new_bodies': [asdict(r) for r in new_bodies],
             'parsing_duration': to_float(parsing_duration),
@@ -140,19 +140,19 @@ class Collector:
 
     def run(self, url_id=None):
         start_ts = time.time()
-        for item in self.config.URLS:
-            url_item = URLItem(**item)
-            if not (url_item.active or self.test):
+        for query_args in self.config.QUERIES:
+            query = Query(**query_args)
+            if not (query.active or self.test):
                 continue
-            if url_id and url_item.id != url_id:
+            if url_id and query.id != url_id:
                 continue
-            logger.debug(f'processing {url_item.id}:\n'
-                f'{pformat(asdict(url_item), width=160)}')
+            logger.debug(f'processing {query.id}:\n'
+                f'{pformat(asdict(query), width=160)}')
             try:
-                self._process_url_item(url_item)
+                self._process_query(query)
             except Exception as exc:
-                logger.exception(f'failed to process {url_item.id}')
-                Notifier().send(title=f'{NAME} {url_item.id}',
+                logger.exception(f'failed to process {query.id}')
+                Notifier().send(title=f'{NAME} {query.id}',
                     body=f'error: {exc}')
         if self.report:
             logger.info(f'report:\n{to_json(self.report)}')

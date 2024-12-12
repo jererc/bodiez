@@ -43,14 +43,14 @@ class CleanTitleTestCase(unittest.TestCase):
             'Anton Bruckner - Symphonie Nr. 7 / Symphony No. 7 / Антон Брукнер - Симфония № 7 - 1993, FLAC lossless')
 
 
-class URLItemTestCase(unittest.TestCase):
+class QueryTestCase(unittest.TestCase):
     def test_1(self):
         urls = [
             'https://1337x.to/user/FitGirl/',
             'https://1337x.to/sort-search/monster%20hunter%20repack/time/desc/1/',
             'https://rutracker.org/forum/tracker.php?f=557',
         ]
-        res = [collector.URLItem(url=r) for r in urls]
+        res = [collector.Query(url=r) for r in urls]
         for r in res:
             print(r)
         self.assertTrue(all(bool(r.id) for r in res))

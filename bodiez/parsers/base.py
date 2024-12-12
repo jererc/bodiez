@@ -29,26 +29,26 @@ class Body:
 class BaseParser:
     id = None
 
-    def __init__(self, config, url_item):
+    def __init__(self, config, query):
         self.config = config
-        self.url_item = url_item
+        self.query = query
         self.state_dir = os.path.join(WORK_DIR, BASE_STATE_DIRNAME,
             self._get_state_dirname())
-        self.timeout = (self.url_item.headless_timeout
-            if self.config.HEADLESS else self.url_item.headful_timeout)
+        self.timeout = (self.query.headless_timeout
+            if self.config.HEADLESS else self.query.headful_timeout)
 
     def _get_state_dirname(self):
-        return urlparse(self.url_item.url).netloc
+        return urlparse(self.query.url).netloc
 
     def _is_external_domain(self, request):
-        return (get_url_domain_name(self.url_item.url)
+        return (get_url_domain_name(self.query.url)
             not in urlparse(request.url).netloc.split('.'))
 
     def _request_handler(self, route, request):
-        if self.url_item.block_external and self._is_external_domain(request):
+        if self.query.block_external and self._is_external_domain(request):
             route.abort()
             return
-        if self.url_item.block_images and request.resource_type == 'image':
+        if self.query.block_images and request.resource_type == 'image':
             route.abort()
             return
         route.continue_()
@@ -82,22 +82,22 @@ class BaseParser:
         try:
             page.wait_for_selector(selector, timeout=self.timeout * 1000)
         except TimeoutError:
-            if not self.url_item.allow_no_results:
+            if not self.query.allow_no_results:
                 raise Exception('timeout')
             logger.debug(f'timed out for {selector}')
 
     def _get_link(self, element):
-        if not self.url_item.link_xpath:
-            return self.url_item.url
-        links = element.locator(f'xpath={self.url_item.link_xpath}').all()
+        if not self.query.link_xpath:
+            return self.query.url
+        links = element.locator(f'xpath={self.query.link_xpath}').all()
         if not links:
-            return self.url_item.url
+            return self.query.url
         val = links[0].get_attribute('href')
         if not val:
-            return self.url_item.url
+            return self.query.url
         if val.startswith('http'):
             return val
-        parsed = urlparse(self.url_item.url)
+        parsed = urlparse(self.query.url)
         return urljoin(f'{parsed.scheme}://{parsed.netloc}/{parsed.path}', val)
 
     def _print_element(self, element):

@@ -1,5 +1,5 @@
 xpath_1337x = '//table/tbody/tr/td[1]/a[2]'
-URLS = [
+QUERIES = [
     {
         'url': 'https://1337x.to/user/FitGirl/',
         'id': 'FitGirl',
@@ -67,7 +67,7 @@ URLS = [
         'id': 'fb-iqon',
         'scroll_xpath': '//*[local-name()="image"]',
         'rel_xpath': '../../../../../../../../../../../../div[3]/div[1]',
-        'link_xpath': '../div[2]/*/a',
+        'link_xpath': '../../../../../../../../../../../../div[3]/div[2]/*/a',
         'update_delta': 4 * 3600,
         'active': False,
     },
@@ -85,7 +85,7 @@ URLS = [
         'scroll_xpath': '//img',
         'rel_xpath': '../../../../../../../div[2]/div',
         'scroll_group_attrs': ['width', 'height'],
-        'link_xpath': '../../..',
+        'link_xpath': '../../../../../../../..',
         'update_delta': 8 * 3600,
         'active': False,
     },
