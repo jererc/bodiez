@@ -13,8 +13,8 @@ from bodiez.parsers.base import get_url_domain_name, iterate_parsers
 from bodiez.store import get_store
 
 
-def clean_body(body):
-    res = re.sub(r'\([^)]*\)', '', body)
+def clean_title(title):
+    res = re.sub(r'\([^)]*\)', '', title)
     res = re.sub(r'\[[^]]*\]', '', res)
     res = re.sub(r'\([^(]*$|\[[^[]*$', '', res)
     res = re.sub(r'\s{2,}', ' ', res)
@@ -45,15 +45,15 @@ class URLItem:
     max_scrolls: int = 2
     text_delimiter: str = ', '
     max_notif: int = 3
-    cleaner: any = clean_body
+    title_processor: any = clean_title
 
     def __post_init__(self):
         if not self.id:
             self.id = self._generate_id()
         if not self.scroll_group_attrs:
             self.scroll_group_attrs = ['x']
-        if not self.cleaner:
-            self.cleaner = lambda x: x
+        if not self.title_processor:
+            self.title_processor = lambda x: x
 
     def _generate_id(self):
         parsed = urlparse(unquote_plus(self.url))
@@ -75,7 +75,7 @@ class Collector:
         notif_title = f'{NAME} {url_item.id}'
         more_count = len(bodies[url_item.max_notif:])
         for i, body in enumerate(reversed(bodies[:url_item.max_notif])):
-            body_str = url_item.cleaner(body.title) or body.title
+            body_str = url_item.title_processor(body.title) or body.title
             if i == 0 and more_count:
                 body_str += f' (+{more_count} more)'
             Notifier().send(title=notif_title, body=body_str,
