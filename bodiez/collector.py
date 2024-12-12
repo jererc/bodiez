@@ -13,11 +13,6 @@ from bodiez.parsers.base import get_url_domain_name, iterate_parsers
 from bodiez.store import get_store
 
 
-def generate_batches(data, batch_size):
-    for i in range(0, len(data), batch_size):
-        yield data[i:i + batch_size]
-
-
 def clean_body(body):
     res = re.sub(r'\([^)]*\)', '', body)
     res = re.sub(r'\[[^]]*\]', '', res)
@@ -46,10 +41,10 @@ class URLItem:
     scroll_xpath: str = None
     scroll_group_attrs: List[str] = field(default_factory=list)
     rel_xpath: str = None
+    link_xpath: str = '.'
     max_scrolls: int = 2
     text_delimiter: str = ', '
     max_notif: int = 3
-    max_bodies_per_notif: int = 1
     cleaner: any = clean_body
 
     def __post_init__(self):
@@ -78,14 +73,13 @@ class Collector:
 
     def _notify_new_bodies(self, url_item, bodies):
         notif_title = f'{NAME} {url_item.id}'
-        batches = list(generate_batches(
-            [(url_item.cleaner(r) or r) for r in bodies],
-            batch_size=url_item.max_bodies_per_notif))
-        for i, batch in enumerate(reversed(batches[:url_item.max_notif])):
-            if i == 0 and len(batches) > url_item.max_notif:
-                more = sum(len(r) for r in batches[url_item.max_notif:])
-                batch[-1] += f' (+{more} more)'
-            Notifier().send(title=notif_title, body='\r'.join(batch))
+        more_count = len(bodies[url_item.max_notif:])
+        for i, body in enumerate(reversed(bodies[:url_item.max_notif])):
+            body_str = url_item.cleaner(body.title) or body.title
+            if i == 0 and more_count:
+                body_str += f' (+{more_count} more)'
+            Notifier().send(title=notif_title, body=body_str,
+                on_click=body.url)
 
     def _iterate_parsers(self, url_item):
         for parser_cls in self.parsers:
@@ -101,7 +95,9 @@ class Collector:
         for parser in sorted(parsers, key=lambda x: x.id):
             bodies = [r for r in parser.parse() if r]
             logger.debug(f'collected {len(bodies)} bodies for {url_item.id} '
-                f'with parser {parser.id}:\n{pformat(bodies, width=160)}')
+                f'with parser {parser.id}:\n'
+                f'{json.dumps([asdict(r) for r in bodies],
+                    sort_keys=True, indent=4)}')
             if not bodies:
                 logger.info(f'no results for {url_item.id} '
                     f'with parser {parser.id}')
@@ -124,16 +120,17 @@ class Collector:
         if self.test:
             self._notify_new_bodies(url_item, bodies)
             return
-        new_bodies = [r for r in bodies if r not in doc.bodies]
+        new_bodies = [r for r in bodies if r.title not in doc.titles]
         if new_bodies:
             self._notify_new_bodies(url_item, new_bodies)
-        bodies_history = [r for r in doc.bodies if r not in bodies]
-        self.store.set(url_item.url, bodies + bodies_history[
-            :max(self.config.MIN_BODIES_HISTORY, len(bodies))])
+        titles = [r.title for r in bodies]
+        history = [r for r in doc.titles if r not in titles]
+        self.store.set(url_item.url, titles + history[
+            :max(self.config.MIN_BODIES_HISTORY, len(titles))])
         self.report.append({
             'id': url_item.id,
             'collected': len(bodies),
-            'new_bodies': new_bodies,
+            'new_bodies': [asdict(r) for r in new_bodies],
             'parsing_duration': to_float(parsing_duration),
             'duration': to_float(time.time() - start_ts),
         })

@@ -14,6 +14,7 @@ module.WORK_DIR = WORK_DIR
 module.logger.setLevel(logging.DEBUG)
 module.logger.handlers.clear()
 from bodiez import collector as module
+from bodiez.parsers.base import Body
 from bodiez.store import Firestore
 
 
@@ -65,8 +66,8 @@ class BaseTestCase(unittest.TestCase):
     def _test_collect(self, *args, **kwargs):
         res = self._collect(*args, **kwargs)
         self.assertTrue(res)
-        self.assertTrue(all(isinstance(r, str) for r in res))
-        self.assertTrue(len(set(res)) > len(res) * .9)
+        self.assertTrue(all(isinstance(r, Body) for r in res))
+        self.assertTrue(len({r.title for r in res}) > len(res) * .9)
 
 
 class NotifyTestCase(BaseTestCase):
@@ -80,7 +81,8 @@ class NotifyTestCase(BaseTestCase):
             MIN_BODIES_HISTORY=10,
         )
         collector = module.Collector(config)
-        collector._notify_new_bodies(url_item, bodies=bodies)
+        collector._notify_new_bodies(url_item,
+            bodies=[Body(title=r) for r in bodies])
 
     def test_1(self):
         bodies = [
@@ -280,6 +282,7 @@ class SimpleTestCase(BaseTestCase):
                     './/address',
                     './/div[contains(@class, "card-foot-price")]/strong/a',
                 ],
+                'link_xpath': './/a',
                 'text_delimiter': '\r',
             },
             headless=False,
@@ -305,6 +308,7 @@ class ScrollingTestCase(BaseTestCase):
                 'scroll_xpath': '//img',
                 'scroll_group_attrs': ['width', 'height'],
                 'rel_xpath': '../../../../../../../div[2]/div',
+                'link_xpath': '../../..',
                 # 'max_scrolls': 1,
             },
             headless=False,
@@ -334,6 +338,7 @@ class ScrollingTestCase(BaseTestCase):
                 'id': 'iqon',
                 'scroll_xpath': '//*[local-name()="image"]',
                 'rel_xpath': '../../../../../../../../../../../../div[3]/div[1]',
+                'link_xpath': '../div[2]/*/a',
                 # 'max_scrolls': 1,
             },
             headless=False,
@@ -402,7 +407,7 @@ class WorkflowTestCase(BaseTestCase):
 
         doc = collector.store.get(config.URLS[0]['url'])
         pprint(doc)
-        self.assertFalse(doc.bodies)
+        self.assertFalse(doc.titles)
 
         with patch.object(module.Notifier, 'send') as mock_send:
             run()
@@ -411,22 +416,22 @@ class WorkflowTestCase(BaseTestCase):
 
         doc = collector.store.get(config.URLS[0]['url'])
         pprint(doc)
-        self.assertTrue(doc.bodies)
+        self.assertTrue(doc.titles)
 
         with patch.object(module.Notifier, 'send') as mock_send:
             run()
         pprint(mock_send.call_args_list)
         self.assertFalse(mock_send.call_args_list)
 
-        new_bodies = [f'body {i}' for i in range(2)]
+        new_titles = [f'body {i}' for i in range(2)]
         with patch.object(module.Notifier, 'send') as mock_send, \
                 patch.object(collector,
                     '_collect_bodies') as mock__collect_bodies:
-            mock__collect_bodies.return_value = (new_bodies
-                + doc.bodies[:-len(new_bodies)])
+            mock__collect_bodies.return_value = [Body(title=r)
+                for r in (new_titles + doc.titles[:-len(new_titles)])]
             run()
         pprint(mock_send.call_args_list)
-        prev_doc_bodies = doc.bodies
+        prev_doc_titles = doc.titles
         doc = collector.store.get(config.URLS[0]['url'])
         pprint(doc)
-        self.assertEqual(doc.bodies, new_bodies + prev_doc_bodies)
+        self.assertEqual(doc.titles, new_titles + prev_doc_titles)

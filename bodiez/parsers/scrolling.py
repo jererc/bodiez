@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from bodiez.parsers.base import BaseParser
+from bodiez.parsers.base import BaseParser, Body
 
 
 class ScrollingParser(BaseParser):
@@ -50,8 +50,10 @@ class ScrollingParser(BaseParser):
                     texts = [r.text_content().strip() for r in text_elements]
                     title = self.url_item.text_delimiter.join(
                         [r for r in texts if r])
-                    if title not in seen_titles:
-                        yield title
-                        seen_titles.add(title)
+                    if title in seen_titles:
+                        continue
+                    yield Body(title=title,
+                        url=self._get_link(rel_elements[0]))
+                    seen_titles.add(title)
                 if i < self.url_item.max_scrolls - 1:
                     self._scroll(page)

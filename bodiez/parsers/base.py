@@ -1,9 +1,10 @@
+from dataclasses import dataclass
 from contextlib import contextmanager
 import importlib
 import inspect
 import os
 import pkgutil
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
 from playwright.sync_api import TimeoutError, sync_playwright
 
@@ -17,6 +18,12 @@ def get_url_domain_name(url):
     parts = urlparse(url).netloc.split('.')
     out_parts = parts[1:] if parts[0] == 'www' else parts
     return '.'.join(out_parts[:-1])
+
+
+@dataclass
+class Body:
+    title: str
+    url: str = None
 
 
 class BaseParser:
@@ -78,6 +85,20 @@ class BaseParser:
             if not self.url_item.allow_no_results:
                 raise Exception('timeout')
             logger.debug(f'timed out for {selector}')
+
+    def _get_link(self, element):
+        if not self.url_item.link_xpath:
+            return self.url_item.url
+        links = element.locator(f'xpath={self.url_item.link_xpath}').all()
+        if not links:
+            return self.url_item.url
+        val = links[0].get_attribute('href')
+        if not val:
+            return self.url_item.url
+        if val.startswith('http'):
+            return val
+        parsed = urlparse(self.url_item.url)
+        return urljoin(f'{parsed.scheme}://{parsed.netloc}/{parsed.path}', val)
 
     def _print_element(self, element):
         content = element.evaluate('element => element.outerHTML')

@@ -1,4 +1,4 @@
-from bodiez.parsers.base import BaseParser
+from bodiez.parsers.base import BaseParser, Body
 
 
 class SimpleElementParser(BaseParser):
@@ -25,5 +25,6 @@ class SimpleElementParser(BaseParser):
                 else:
                     text_elements = [element]
                 texts = [r.text_content().strip() for r in text_elements]
-                yield self.url_item.text_delimiter.join(
+                title = self.url_item.text_delimiter.join(
                     [r for r in texts if r])
+                yield Body(title=title, url=self._get_link(element))

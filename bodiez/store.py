@@ -16,7 +16,7 @@ from bodiez import logger
 @dataclass
 class Document:
     url: str
-    bodies: List[str] = field(default_factory=list)
+    titles: List[str] = field(default_factory=list)
     updated_ts: int = 0
 
 
@@ -34,10 +34,10 @@ class Firestore:
         doc = self.col.document(self._get_doc_id(url)).get()
         return Document(**doc.to_dict()) if doc.exists else Document(url=url)
 
-    def set(self, url, bodies):
+    def set(self, url, titles):
         self.col.document(self._get_doc_id(url)).set({
             'url': url,
-            'bodies': bodies,
+            'titles': titles,
             'updated_ts': int(time.time()),
         })
 
@@ -74,11 +74,11 @@ class SharedStore:
         with open(files[-1], 'r', encoding='utf-8') as fd:
             return Document(**json.load(fd))
 
-    def set(self, url, bodies):
+    def set(self, url, titles):
         file = self._get_file(url)
         data = {
             'url': url,
-            'bodies': bodies,
+            'titles': titles,
             'updated_ts': int(time.time()),
         }
         with open(file, 'w', encoding='utf-8') as fd:
