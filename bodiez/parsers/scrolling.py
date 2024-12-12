@@ -14,22 +14,22 @@ class ScrollingParser(BaseParser):
         selector = f'xpath={self.url_item.scroll_xpath}'
         self._wait_for_selector(page, selector)
         groups = defaultdict(list)
-        attrs = self.url_item.scroll_group_attrs or ['x']
+        attrs = self.url_item.scroll_group_attrs
         for element in page.locator(selector).all():
             box = element.bounding_box()
             if box:
                 groups[tuple(box[r] for r in attrs)].append(element)
         return sorted(list(groups.values()), key=lambda x: len(x))[-1]
 
-    def _scroll(self, page):
-        page.evaluate('window.scrollBy(0, window.innerHeight)')
-        page.wait_for_timeout(2000)
-
     def _iterate_children(self, element):
         for xpath in self.url_item.child_xpaths:
             children = element.locator(f'xpath={xpath}').all()
             if children:
                 yield children[0]
+
+    def _scroll(self, page):
+        page.evaluate('window.scrollBy(0, window.innerHeight)')
+        page.wait_for_timeout(2000)
 
     def parse(self):
         with self.playwright_context() as context:

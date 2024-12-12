@@ -23,7 +23,7 @@ def clean_body(body):
     res = re.sub(r'\[[^]]*\]', '', res)
     res = re.sub(r'\([^(]*$|\[[^[]*$', '', res)
     res = re.sub(r'\s{2,}', ' ', res)
-    return res.strip() or body
+    return res.strip()
 
 
 def to_float(x):
@@ -55,6 +55,8 @@ class URLItem:
     def __post_init__(self):
         if not self.id:
             self.id = self._generate_id()
+        if not self.scroll_group_attrs:
+            self.scroll_group_attrs = ['x']
         if not self.cleaner:
             self.cleaner = lambda x: x
 
@@ -76,7 +78,8 @@ class Collector:
 
     def _notify_new_bodies(self, url_item, bodies):
         notif_title = f'{NAME} {url_item.id}'
-        batches = list(generate_batches([url_item.cleaner(r) for r in bodies],
+        batches = list(generate_batches(
+            [(url_item.cleaner(r) or r) for r in bodies],
             batch_size=url_item.max_bodies_per_notif))
         for i, batch in enumerate(reversed(batches[:url_item.max_notif])):
             if i == 0 and len(batches) > url_item.max_notif:
