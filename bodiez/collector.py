@@ -25,6 +25,10 @@ def to_float(x):
     return float(f'{x:.02f}')
 
 
+def to_json(x):
+    return json.dumps(x, sort_keys=True, indent=4)
+
+
 @dataclass
 class URLItem:
     url: str
@@ -96,8 +100,7 @@ class Collector:
             bodies = [r for r in parser.parse() if r]
             logger.debug(f'collected {len(bodies)} bodies for {url_item.id} '
                 f'with parser {parser.id}:\n'
-                f'{json.dumps([asdict(r) for r in bodies],
-                    sort_keys=True, indent=4)}')
+                f'{to_json([asdict(r) for r in bodies])}')
             if not bodies:
                 logger.info(f'no results for {url_item.id} '
                     f'with parser {parser.id}')
@@ -152,8 +155,7 @@ class Collector:
                 Notifier().send(title=f'{NAME} {url_item.id}',
                     body=f'error: {exc}')
         if self.report:
-            logger.info('report:\n'
-                f'{json.dumps(self.report, sort_keys=True, indent=4)}')
+            logger.info(f'report:\n{to_json(self.report)}')
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')
 
 
