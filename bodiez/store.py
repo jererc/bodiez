@@ -56,16 +56,16 @@ class SharedStore:
         return sorted(glob(os.path.join(self.base_dir,
             f'{self._get_doc_id(url)}-*.json')))
 
+    def _get_file(self, url):
+        return os.path.join(self.base_dir, f'{self._get_doc_id(url)}-'
+            f'{int(time.time() * 1000)}-{str(uuid.uuid4())[:8]}.json')
+
     def _get_file_ts(self, file):
         try:
             return int(os.path.basename(file).split('-')[1]) / 1000
         except Exception:
             logger.exception(f'failed to get ts from {file}')
             return 0
-
-    def _get_file(self, url):
-        return os.path.join(self.base_dir, f'{self._get_doc_id(url)}-'
-            f'{int(time.time() * 1000)}-{str(uuid.uuid4())[:8]}.json')
 
     def get(self, url):
         files = self._list_files(url)
