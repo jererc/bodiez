@@ -67,14 +67,9 @@ class SharedStore:
     def get(self, url):
         files = self._list_files(url)
         if not files:
-            logger.debug(f'no stored document for {url}')
             return Document(url=url)
-        file = files[-1]
-        with open(file, 'r', encoding='utf-8') as fd:
-            data = json.load(fd)
-        if not data.get('titles'):
-            logger.warning(f'loaded file without titles {file}')
-        return Document(**data)
+        with open(files[-1], 'r', encoding='utf-8') as fd:
+            return Document(**json.load(fd))
 
     def set(self, url, titles):
         old_files = self._list_files(url)[:-1]
@@ -84,8 +79,10 @@ class SharedStore:
             'titles': titles,
             'updated_ts': int(time.time()),
         }
-        with open(file, 'w', encoding='utf-8') as fd:
+        temp_file = f'~{file}'
+        with open(temp_file, 'w', encoding='utf-8') as fd:
             json.dump(data, fd, sort_keys=True, indent=4)
+        os.rename(temp_file, file)
         for f in old_files:
             os.remove(f)
 
