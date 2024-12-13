@@ -63,6 +63,7 @@ class SharedStore:
     def get(self, url):
         files = self._list_files(url)
         if not files:
+            logger.debug(f'no stored document for {url}')
             return Document(url=url)
         with open(files[-1], 'r', encoding='utf-8') as fd:
             return Document(**json.load(fd))
