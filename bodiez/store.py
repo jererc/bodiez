@@ -60,13 +60,6 @@ class SharedStore:
         return os.path.join(self.base_dir, f'{self._get_doc_id(url)}-'
             f'{int(time.time() * 1000)}-{str(uuid.uuid4())[:8]}.json')
 
-    def _get_file_ts(self, file):
-        try:
-            return int(os.path.basename(file).split('-')[1]) / 1000
-        except Exception:
-            logger.exception(f'failed to get ts from {file}')
-            return 0
-
     def get(self, url):
         files = self._list_files(url)
         if not files:
@@ -75,6 +68,7 @@ class SharedStore:
             return Document(**json.load(fd))
 
     def set(self, url, titles):
+        old_files = self._list_files(url)[:-1]
         file = self._get_file(url)
         data = {
             'url': url,
@@ -83,9 +77,8 @@ class SharedStore:
         }
         with open(file, 'w', encoding='utf-8') as fd:
             json.dump(data, fd, sort_keys=True, indent=4)
-        for sf in self._list_files(url):
-            if sf != file and self._get_file_ts(sf) < time.time() - 60:
-                os.remove(sf)
+        for f in old_files:
+            os.remove(f)
 
 
 def get_store(config):

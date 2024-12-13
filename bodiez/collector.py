@@ -114,9 +114,7 @@ class Collector:
                 time.time() - query.update_delta):
             logger.debug(f'skipped recently updated {query.id}')
             return
-        parse_start_ts = time.time()
         bodies = self._collect_bodies(query)
-        parsing_duration = time.time() - parse_start_ts
         if not (bodies or query.allow_no_results):
             raise Exception('no results')
         if self.test:
@@ -133,7 +131,6 @@ class Collector:
             'id': query.id,
             'collected': len(bodies),
             'new_bodies': [asdict(r) for r in new_bodies],
-            'parsing_duration': to_float(parsing_duration),
             'duration': to_float(time.time() - start_ts),
         })
 

@@ -43,37 +43,37 @@ class FirestoreTestCase(unittest.TestCase):
             HEADLESS=True,
         ))
         self.url = 'https://1337x.to/user/FitGirl/'
-        self.bodies = [f'body {i}' for i in range(1, 51)]
+        self.titles = [f'body {i}' for i in range(1, 51)]
         self.fs.col.document(self.fs._get_doc_id(self.url)).delete()
 
     def test_workflow(self):
         doc = self.fs.get(self.url)
         pprint(doc)
         self.assertEqual(doc.url, self.url)
-        self.assertEqual(doc.bodies, [])
+        self.assertEqual(doc.titles, [])
         self.assertEqual(doc.updated_ts, 0)
 
-        self.fs.set(self.url, bodies=[])
+        self.fs.set(self.url, titles=[])
         doc = self.fs.get(self.url)
         pprint(doc)
         self.assertEqual(doc.url, self.url)
-        self.assertEqual(doc.bodies, [])
+        self.assertEqual(doc.titles, [])
         self.assertTrue(doc.updated_ts > 0)
 
-        bodies = self.bodies[5:15]
-        self.fs.set(self.url, bodies=bodies)
+        titles = self.titles[5:15]
+        self.fs.set(self.url, titles=titles)
         doc = self.fs.get(self.url)
         pprint(doc)
         self.assertEqual(doc.url, self.url)
-        self.assertEqual(doc.bodies, bodies)
+        self.assertEqual(doc.titles, titles)
         self.assertTrue(doc.updated_ts > 0)
 
-        bodies = self.bodies[3:13]
-        self.fs.set(self.url, bodies=bodies)
+        titles = self.titles[3:13]
+        self.fs.set(self.url, titles=titles)
         doc = self.fs.get(self.url)
         pprint(doc)
         self.assertEqual(doc.url, self.url)
-        self.assertEqual(doc.bodies, bodies)
+        self.assertEqual(doc.titles, titles)
         self.assertTrue(doc.updated_ts > 0)
 
 
@@ -88,41 +88,41 @@ class SharedStoreTestCase(unittest.TestCase):
         ))
         self.url = 'https://1337x.to/user/FitGirl/'
         self.url2 = 'https://1337x.to/user/DODI/'
-        self.bodies = [f'body {i}' for i in range(1, 51)]
+        self.titles = [f'body {i}' for i in range(1, 51)]
 
     def test_workflow(self):
         doc = self.sl.get(self.url2)
         pprint(doc)
-        self.sl.set(self.url2, bodies=['1', '2'])
+        self.sl.set(self.url2, titles=['1', '2'])
 
         doc = self.sl.get(self.url)
         pprint(doc)
         self.assertEqual(doc.url, self.url)
-        self.assertEqual(doc.bodies, [])
+        self.assertEqual(doc.titles, [])
         self.assertEqual(doc.updated_ts, 0)
 
         time.sleep(.01)
-        self.sl.set(self.url, bodies=[])
+        self.sl.set(self.url, titles=[])
         doc = self.sl.get(self.url)
         pprint(doc)
-        self.assertEqual(doc.bodies, [])
+        self.assertEqual(doc.titles, [])
 
-        set_bodies = self.bodies[6:16]
+        set_titles = self.titles[6:16]
         time.sleep(.01)
-        self.sl.set(self.url, bodies=set_bodies)
+        self.sl.set(self.url, titles=set_titles)
         doc = self.sl.get(self.url)
         pprint(doc)
-        self.assertEqual(doc.bodies, set_bodies)
+        self.assertEqual(doc.titles, set_titles)
 
-        set_bodies = self.bodies[3:13]
+        set_titles = self.titles[3:13]
         time.sleep(.01)
-        self.sl.set(self.url, bodies=set_bodies)
+        self.sl.set(self.url, titles=set_titles)
         doc = self.sl.get(self.url)
         pprint(doc)
-        self.assertEqual(doc.bodies, set_bodies)
+        self.assertEqual(doc.titles, set_titles)
 
         doc = self.sl.get(self.url2)
         pprint(doc)
         self.assertEqual(doc.url, self.url2)
-        self.assertEqual(doc.bodies, ['1', '2'])
+        self.assertEqual(doc.titles, ['1', '2'])
         self.assertTrue(doc.updated_ts > 0)
