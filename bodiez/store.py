@@ -79,7 +79,8 @@ class SharedStore:
             'titles': titles,
             'updated_ts': int(time.time()),
         }
-        temp_file = f'~{file}'
+        temp_file = os.path.join(os.path.dirname(file),
+            f'~{os.path.basename(file)}')
         with open(temp_file, 'w', encoding='utf-8') as fd:
             json.dump(data, fd, sort_keys=True, indent=4)
         os.rename(temp_file, file)
