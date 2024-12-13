@@ -22,6 +22,7 @@ class Document:
     url: str
     titles: List[str] = field(default_factory=list)
     updated_ts: int = 0
+    ref: str = None
 
 
 class Firestore:
@@ -84,6 +85,53 @@ class SharedStore:
         with open(temp_file, 'w', encoding='utf-8') as fd:
             json.dump(data, fd, sort_keys=True, indent=4)
         os.rename(temp_file, file)
+        for f in old_files:
+            os.remove(f)
+
+
+class SharedStore:
+    def __init__(self, config):
+        self.config = config
+        self.base_dir = self.config.SHARED_STORE_DIR
+
+    def _get_doc_id(self, url):
+        return hashlib.md5(url.encode('utf-8')).hexdigest()
+
+    def _get_url_dir(self, url):
+        res = os.path.join(self.base_dir, self._get_doc_id(url))
+        if not os.path.exists(res):
+            os.makedirs(res)
+        return res
+
+    def _list_files(self, url):
+        return sorted(glob(os.path.join(self._get_url_dir(url),
+            '*.json')))
+
+    def _get_file(self, url):
+        return os.path.join(self._get_url_dir(url),
+            f'{int(time.time() * 1000)}-{HOSTNAME}.json')
+
+    def get(self, url):
+        files = self._list_files(url)
+        if not files:
+            return Document(url=url)
+        file = files[-1]
+        with open(file, 'r', encoding='utf-8') as fd:
+            data = json.load(fd)
+        data['ref'] = file
+        return Document(**data)
+
+    def set(self, url, titles):
+        old_files = self._list_files(url)[:-1]
+        file = self._get_file(url)
+        data = {
+            'url': url,
+            'titles': titles,
+            'updated_ts': int(time.time()),
+            'ref': file,
+        }
+        with open(file, 'w', encoding='utf-8') as fd:
+            json.dump(data, fd, sort_keys=True, indent=4)
         for f in old_files:
             os.remove(f)
 
