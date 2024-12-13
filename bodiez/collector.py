@@ -107,7 +107,6 @@ class Collector:
     def _process_query(self, query):
         start_ts = time.time()
         doc = self.store.get(query.url)
-        logger.debug(f'loaded {query.id} doc:\n{to_json(asdict(doc))}')
         if not (self.force or self.test or doc.updated_ts <
                 time.time() - query.update_delta):
             logger.debug(f'skipped recently updated {query.id}')
@@ -145,7 +144,7 @@ class Collector:
             try:
                 self._process_query(query)
             except Exception as exc:
-                logger.exception(f'failed to process {query.id}')
+                logger.exception(f'failed to process {query.id}: {exc}')
                 Notifier().send(title=query.id,
                     body=f'error: {exc}', app_name=NAME)
         if self.report:

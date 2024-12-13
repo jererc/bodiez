@@ -1,8 +1,9 @@
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from glob import glob
 import hashlib
 import json
 import os
+from pprint import pformat
 import socket
 import time
 from typing import List
@@ -49,22 +50,19 @@ class Firestore:
 class SharedStore:
     def __init__(self, config):
         self.config = config
+        self.base_dir = self.config.SHARED_STORE_DIR
+        if not os.path.exists(self.base_dir):
+            os.makedirs(self.base_dir)
 
     def _get_doc_id(self, url):
         return hashlib.md5(url.encode('utf-8')).hexdigest()
 
-    def _get_url_dir(self, url):
-        path = os.path.join(self.config.SHARED_STORE_DIR,
-            self._get_doc_id(url))
-        if not os.path.exists(path):
-            os.makedirs(path)
-        return path
-
     def _list_files(self, url):
-        return sorted(glob(os.path.join(self._get_url_dir(url), '*.json')))
+        return sorted(glob(os.path.join(self.base_dir,
+            f'{self._get_doc_id(url)}-*.json')))
 
     def _get_file(self, url):
-        return os.path.join(self._get_url_dir(url),
+        return os.path.join(self.base_dir, f'{self._get_doc_id(url)}-'
             f'{int(time.time() * 1000)}-{HOSTNAME}.json')
 
     def get(self, url):
@@ -74,8 +72,12 @@ class SharedStore:
         file = files[-1]
         with open(file, 'r', encoding='utf-8') as fd:
             data = json.load(fd)
+        doc = Document(**data)
+        if doc.url != url:
+            logger.error(f'invalid doc for {url}:\n{pformat(asdict(doc))}')
+            raise Exception(f'doc url mismatch for {url}')
         data['ref'] = file
-        return Document(**data)
+        return doc
 
     def set(self, url, titles):
         old_files = self._list_files(url)[:-1]
