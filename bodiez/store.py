@@ -65,8 +65,12 @@ class SharedStore:
         if not files:
             logger.debug(f'no stored document for {url}')
             return Document(url=url)
-        with open(files[-1], 'r', encoding='utf-8') as fd:
-            return Document(**json.load(fd))
+        file = files[-1]
+        with open(file, 'r', encoding='utf-8') as fd:
+            data = json.load(fd)
+        if not data.get('titles'):
+            logger.warning(f'loaded file without titles {file}')
+        return Document(**data)
 
     def set(self, url, titles):
         old_files = self._list_files(url)[:-1]
