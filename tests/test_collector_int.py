@@ -142,17 +142,17 @@ class SimpleTestCase(BaseTestCase):
         )
 
 
-class ScrollingTestCase(BaseTestCase):
+class GenericTestCase(BaseTestCase):
     def test_fb_marketplace(self):
         self._test_collect(
             {
                 'url': 'https://www.facebook.com/marketplace/108433389181024/propertyforsale',
                 'id': 'property-for-sale',
-                'scroll_xpath': '//img',
-                'scroll_group_attrs': ['width', 'height'],
+                'xpath': '//img',
+                'group_attrs': ['width', 'height'],
                 'rel_xpath': '../../../../../../../div[2]/div',
                 'link_xpath': '../../../../../../../..',
-                # 'max_scrolls': 1,
+                'pages': 1,
             },
             headless=False,
         )
@@ -162,15 +162,15 @@ class ScrollingTestCase(BaseTestCase):
             {
                 'url': 'https://www.facebook.com/marketplace/108433389181024/propertyforsale',
                 'id': 'property-for-sale',
-                'scroll_xpath': '//img',
-                'scroll_group_attrs': ['width', 'height'],
+                'xpath': '//img',
+                'group_attrs': ['width', 'height'],
                 'rel_xpath': '../../../../../../../div[2]',
                 'child_xpaths': [
                     './/div[1]',
                     './/div[3]',
                 ],
                 'link_xpath': '../../../../../../../..',
-                # 'max_scrolls': 1,
+                'pages': 1,
             },
             headless=False,
         )
@@ -180,10 +180,11 @@ class ScrollingTestCase(BaseTestCase):
             {
                 'url': 'https://www.facebook.com/iqonmauritius',
                 'id': 'iqon',
-                'scroll_xpath': '//*[local-name()="image"]',
+                'xpath': '//*[local-name()="image"]',
+                'group_attrs': ['x'],
                 'rel_xpath': '../../../../../../../../../../../../div[3]/div[1]',
                 'link_xpath': '../../../../../../../../../../../../div[3]/div[2]/*/a',
-                # 'max_scrolls': 1,
+                'pages': 3,
             },
             headless=False,
         )
@@ -193,13 +194,14 @@ class ScrollingTestCase(BaseTestCase):
             {
                 'url': 'https://www.facebook.com/iqonmauritius',
                 'id': 'iqon',
-                'scroll_xpath': '//*[local-name()="image"]',
+                'xpath': '//*[local-name()="image"]',
+                'group_attrs': ['x'],
                 'rel_xpath': '../../../../../../../../../../../../div[3]',
                 'child_xpaths': [
                     './/div[1]',
                 ],
                 'link_xpath': '../../../../../../../../../../../../div[3]/div[2]/*/a',
-                # 'max_scrolls': 1,
+                'pages': 3,
             },
             headless=False,
         )

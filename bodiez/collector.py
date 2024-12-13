@@ -42,11 +42,10 @@ class Query:
     block_images: bool = True
     xpath: str = None
     child_xpaths: List[str] = field(default_factory=list)
-    scroll_xpath: str = None
-    scroll_group_attrs: List[str] = field(default_factory=list)
+    group_attrs: List[str] = field(default_factory=list)
     rel_xpath: str = None
     link_xpath: str = '.'
-    max_scrolls: int = 2
+    pages: int = 1
     text_delimiter: str = ', '
     max_notif: int = 3
     title_processor: any = clean_title
@@ -54,8 +53,6 @@ class Query:
     def __post_init__(self):
         if not self.id:
             self.id = self._generate_id()
-        if not self.scroll_group_attrs:
-            self.scroll_group_attrs = ['x']
         if not self.title_processor:
             self.title_processor = lambda x: x
 
