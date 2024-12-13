@@ -7,7 +7,6 @@ import socket
 import time
 from typing import List
 from urllib.parse import quote
-import uuid
 
 from google.cloud import firestore
 
@@ -50,62 +49,19 @@ class Firestore:
 class SharedStore:
     def __init__(self, config):
         self.config = config
-        self.base_dir = self.config.SHARED_STORE_DIR
-        if not os.path.exists(self.base_dir):
-            os.makedirs(self.base_dir)
-
-    def _get_doc_id(self, url):
-        return hashlib.md5(url.encode('utf-8')).hexdigest()
-
-    def _list_files(self, url):
-        return sorted(glob(os.path.join(self.base_dir,
-            f'{self._get_doc_id(url)}-*.json')))
-
-    def _get_file(self, url):
-        return os.path.join(self.base_dir, f'{self._get_doc_id(url)}-'
-            f'{int(time.time() * 1000)}-{HOSTNAME}.json')
-
-    def get(self, url):
-        files = self._list_files(url)
-        if not files:
-            return Document(url=url)
-        with open(files[-1], 'r', encoding='utf-8') as fd:
-            return Document(**json.load(fd))
-
-    def set(self, url, titles):
-        old_files = self._list_files(url)[:-1]
-        file = self._get_file(url)
-        data = {
-            'url': url,
-            'titles': titles,
-            'updated_ts': int(time.time()),
-        }
-        temp_file = os.path.join(os.path.dirname(file),
-            f'~{os.path.basename(file)}')
-        with open(temp_file, 'w', encoding='utf-8') as fd:
-            json.dump(data, fd, sort_keys=True, indent=4)
-        os.rename(temp_file, file)
-        for f in old_files:
-            os.remove(f)
-
-
-class SharedStore:
-    def __init__(self, config):
-        self.config = config
-        self.base_dir = self.config.SHARED_STORE_DIR
 
     def _get_doc_id(self, url):
         return hashlib.md5(url.encode('utf-8')).hexdigest()
 
     def _get_url_dir(self, url):
-        res = os.path.join(self.base_dir, self._get_doc_id(url))
-        if not os.path.exists(res):
-            os.makedirs(res)
-        return res
+        path = os.path.join(self.config.SHARED_STORE_DIR,
+            self._get_doc_id(url))
+        if not os.path.exists(path):
+            os.makedirs(path)
+        return path
 
     def _list_files(self, url):
-        return sorted(glob(os.path.join(self._get_url_dir(url),
-            '*.json')))
+        return sorted(glob(os.path.join(self._get_url_dir(url), '*.json')))
 
     def _get_file(self, url):
         return os.path.join(self._get_url_dir(url),

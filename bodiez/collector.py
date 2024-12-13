@@ -107,6 +107,7 @@ class Collector:
     def _process_query(self, query):
         start_ts = time.time()
         doc = self.store.get(query.url)
+        logger.debug(f'loaded {query.id} doc:\n{to_json(asdict(doc))}')
         if not (self.force or self.test or doc.updated_ts <
                 time.time() - query.update_delta):
             logger.debug(f'skipped recently updated {query.id}')
@@ -119,9 +120,6 @@ class Collector:
             return
         new_bodies = [r for r in bodies if r.title not in doc.titles]
         if new_bodies:
-            if len(new_bodies) == len(bodies) and doc.ref:
-                logger.warning(f'doc {doc.ref} titles:\n'
-                    f'{pformat(doc.titles)}')
             self._notify_new_bodies(query, new_bodies)
         titles = [r.title for r in bodies]
         history = [r for r in doc.titles if r not in titles]
