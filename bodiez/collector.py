@@ -119,6 +119,9 @@ class Collector:
             return
         new_bodies = [r for r in bodies if r.title not in doc.titles]
         if new_bodies:
+            if len(new_bodies) == len(bodies):
+                logger.warning(f'doc titles:\n{pformat(doc.titles)}')
+                logger.warning(f'collected titles:\n{pformat([r.title for r in bodies])}')
             self._notify_new_bodies(query, new_bodies)
         titles = [r.title for r in bodies]
         history = [r for r in doc.titles if r not in titles]
