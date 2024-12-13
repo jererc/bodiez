@@ -74,10 +74,9 @@ class SharedStore:
             data = json.load(fd)
         doc = Document(**data)
         if doc.url != url:   # MEGA sync bug
-            logger.error(f'invalid doc for {url} ({file}):\n'
+            logger.error(f'mismatching doc for {url} ({file}):\n'
                 f'{pformat(asdict(doc), width=160)}')
-            raise Exception(f'doc mismatch for {url}')
-        data['ref'] = file
+            raise Exception(f'mismatching doc for {url}')
         return doc
 
     def set(self, url, titles):
