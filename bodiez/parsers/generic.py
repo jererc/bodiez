@@ -1,5 +1,7 @@
 from collections import defaultdict
+import time
 
+from bodiez import logger
 from bodiez.parsers.base import BaseParser, Body
 
 
@@ -8,6 +10,15 @@ class GenericParser(BaseParser):
 
     def can_parse(self):
         return bool(self.query.xpath)
+
+    def _load_page(self, context):
+        page = context.new_page()
+        page.goto(self.query.url)
+        if self.config.LOGIN_TIMEOUT and not self.config.HEADLESS:
+            logger.debug(f'waiting {self.config.LOGIN_TIMEOUT} '
+                'seconds for login...')
+            time.sleep(self.config.LOGIN_TIMEOUT)
+        return page
 
     def _find_elements(self, page):
         selector = f'xpath={self.query.xpath}'
@@ -34,8 +45,7 @@ class GenericParser(BaseParser):
 
     def parse(self):
         with self.playwright_context() as context:
-            page = context.new_page()
-            page.goto(self.query.url)
+            page = self._load_page(context)
             rel_selector = (f'xpath={self.query.rel_xpath}'
                 if self.query.rel_xpath else None)
             seen_titles = set()

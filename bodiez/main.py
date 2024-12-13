@@ -18,6 +18,7 @@ def parse_args():
     test_parser = subparsers.add_parser('test')
     test_parser.add_argument('--headful', action='store_true')
     test_parser.add_argument('--id')
+    test_parser.add_argument('--login-timeout', type=int, default=0)
     args = parser.parse_args()
     if not args.cmd:
         parser.print_help()
@@ -28,12 +29,14 @@ def parse_args():
 def main():
     args = parse_args()
     path = os.path.realpath(os.path.expanduser(args.path))
+    login_timeout = getattr(args, 'login_timeout', 0)
     config = Config(
         os.path.join(path, 'user_settings.py'),
         SHARED_STORE_DIR=os.path.join(path, 'store'),
         GOOGLE_CREDS=os.path.join(WORK_DIR, 'google_creds.json'),
         FIRESTORE_COLLECTION=NAME,
-        HEADLESS=not args.headful,
+        HEADLESS=not (args.headful or login_timeout),
+        LOGIN_TIMEOUT=login_timeout,
         MIN_BODIES_HISTORY=50,
         RUN_DELTA=3600,
     )
