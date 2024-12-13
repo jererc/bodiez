@@ -56,9 +56,14 @@ class SharedStore:
         return sorted(glob(os.path.join(self.base_dir,
             f'{self._get_doc_id(url)}-*.json')))
 
+    # def _get_file(self, url):
+    #     return os.path.join(self.base_dir, f'{self._get_doc_id(url)}-'
+    #         f'{int(time.time() * 1000)}-{str(uuid.uuid4())[:8]}.json')
+
     def _get_file(self, url):
+        import socket
         return os.path.join(self.base_dir, f'{self._get_doc_id(url)}-'
-            f'{int(time.time() * 1000)}-{str(uuid.uuid4())[:8]}.json')
+            f'{int(time.time() * 1000)}-{socket.gethostname()}.json')
 
     def get(self, url):
         files = self._list_files(url)
