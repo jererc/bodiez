@@ -3,6 +3,7 @@ from glob import glob
 import hashlib
 import json
 import os
+import socket
 import time
 from typing import List
 from urllib.parse import quote
@@ -11,6 +12,9 @@ import uuid
 from google.cloud import firestore
 
 from bodiez import logger
+
+
+HOSTNAME = socket.gethostname()
 
 
 @dataclass
@@ -56,14 +60,9 @@ class SharedStore:
         return sorted(glob(os.path.join(self.base_dir,
             f'{self._get_doc_id(url)}-*.json')))
 
-    # def _get_file(self, url):
-    #     return os.path.join(self.base_dir, f'{self._get_doc_id(url)}-'
-    #         f'{int(time.time() * 1000)}-{str(uuid.uuid4())[:8]}.json')
-
     def _get_file(self, url):
-        import socket
         return os.path.join(self.base_dir, f'{self._get_doc_id(url)}-'
-            f'{int(time.time() * 1000)}-{socket.gethostname()}.json')
+            f'{int(time.time() * 1000)}-{HOSTNAME}.json')
 
     def get(self, url):
         files = self._list_files(url)
