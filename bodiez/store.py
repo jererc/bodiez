@@ -47,10 +47,10 @@ class Firestore:
         })
 
 
-class SharedStore:
+class CloudSyncStore:
     def __init__(self, config):
         self.config = config
-        self.base_dir = self.config.SHARED_STORE_DIR
+        self.base_dir = self.config.STORE_DIR
         if not os.path.exists(self.base_dir):
             os.makedirs(self.base_dir)
 
@@ -66,13 +66,12 @@ class SharedStore:
             f'{int(time.time() * 1000)}-{HOSTNAME}.json')
 
     def get(self, url):
-        files = self._list_files(url)
-        if not files:
+        try:
+            file = self._list_files(url)[-1]
+        except IndexError:
             return Document(url=url)
-        file = files[-1]
         with open(file, 'r', encoding='utf-8') as fd:
-            data = json.load(fd)
-        doc = Document(**data)
+            doc = Document(**json.load(fd))
         if doc.url != url:   # MEGA sync bug
             logger.error(f'mismatching doc for {url} ({file}):\n'
                 f'{pformat(asdict(doc), width=160)}')
@@ -96,7 +95,7 @@ class SharedStore:
 
 def get_store(config):
     if os.path.exists(config.GOOGLE_CREDS):
-        logger.debug('using google firestore')
+        logger.debug(f'using google firestore {config.FIRESTORE_COLLECTION}')
         return Firestore(config)
-    logger.debug(f'using shared store {config.SHARED_STORE_DIR}')
-    return SharedStore(config)
+    logger.debug(f'using cloud sync store {config.STORE_DIR}')
+    return CloudSyncStore(config)

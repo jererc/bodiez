@@ -18,7 +18,8 @@ from bodiez.parsers.base import Body
 from bodiez.store import Firestore
 
 
-GOOGLE_CREDS = os.path.join(os.path.expanduser('~'), 'gcs.json')
+GOOGLE_CREDS = os.path.join(WORK_DIR, 'google_creds.json')
+# GOOGLE_CREDS = os.path.join(os.path.expanduser('~'), 'gcs-bodiez.json')
 
 module.logger.setLevel(logging.DEBUG)
 
@@ -48,18 +49,17 @@ class BaseTestCase(unittest.TestCase):
             for doc in fs.col.list_documents():
                 doc.delete()
         else:
-            remove_path(config.SHARED_STORE_DIR)
+            remove_path(config.STORE_DIR)
 
     def _collect(self, url, headless=True):
         config = Config(
             __file__,
-            SHARED_STORE_DIR=os.path.join(WORK_DIR, 'store'),
-            GOOGLE_CREDS=None,
+            STORE_DIR=os.path.join(WORK_DIR, 'store'),
             FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,
             HEADLESS=headless,
         )
-        remove_path(config.SHARED_STORE_DIR)
+        remove_path(config.STORE_DIR)
         return module.Collector(config)._collect_bodies(module.Query(**url))
 
     def _test_collect(self, *args, **kwargs):
@@ -240,8 +240,7 @@ class WorkflowTestCase(BaseTestCase):
                     'update_delta': 0,
                 },
             ],
-            SHARED_STORE_DIR=os.path.join(WORK_DIR, 'store'),
-            GOOGLE_CREDS=GOOGLE_CREDS,
+            STORE_DIR=os.path.join(WORK_DIR, 'store'),
             FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,
         )

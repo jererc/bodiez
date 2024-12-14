@@ -15,7 +15,8 @@ module.logger.handlers.clear()
 from bodiez import store
 
 
-GOOGLE_CREDS = os.path.join(os.path.expanduser('~'), 'gcs-bodiez.json')
+GOOGLE_CREDS = os.path.join(WORK_DIR, 'google_creds.json')
+# GOOGLE_CREDS = os.path.join(os.path.expanduser('~'), 'gcs-bodiez.json')
 
 module.logger.setLevel(logging.DEBUG)
 
@@ -38,7 +39,6 @@ class FirestoreTestCase(unittest.TestCase):
         makedirs(WORK_DIR)
         self.fs = store.Firestore(Config(
             __file__,
-            GOOGLE_CREDS=GOOGLE_CREDS,
             FIRESTORE_COLLECTION='test',
             HEADLESS=True,
         ))
@@ -77,13 +77,13 @@ class FirestoreTestCase(unittest.TestCase):
         self.assertTrue(doc.updated_ts > 0)
 
 
-class SharedStoreTestCase(unittest.TestCase):
+class CloudSyncStoreTestCase(unittest.TestCase):
     def setUp(self):
         remove_path(WORK_DIR)
         makedirs(WORK_DIR)
-        self.sl = store.SharedStore(Config(
+        self.sl = store.CloudSyncStore(Config(
             __file__,
-            SHARED_STORE_DIR=os.path.join(WORK_DIR, 'store'),
+            STORE_DIR=os.path.join(WORK_DIR, 'store'),
             HEADLESS=True,
         ))
         self.url = 'https://1337x.to/user/FitGirl/'

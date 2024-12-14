@@ -32,7 +32,7 @@ def main():
     login_timeout = getattr(args, 'login_timeout', 0)
     config = Config(
         os.path.join(path, 'user_settings.py'),
-        SHARED_STORE_DIR=os.path.join(path, 'store'),
+        STORE_DIR=os.path.join(path, 'store'),
         GOOGLE_CREDS=os.path.join(WORK_DIR, 'google_creds.json'),
         FIRESTORE_COLLECTION=NAME,
         HEADLESS=not (args.headful or login_timeout),
