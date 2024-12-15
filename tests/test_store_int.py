@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from pprint import pprint
@@ -34,7 +35,7 @@ class CloudSyncStoreTestCase(unittest.TestCase):
     def setUp(self):
         remove_path(WORK_DIR)
         makedirs(WORK_DIR)
-        self.sl = store.CloudSyncStore(Config(
+        self.store = store.CloudSyncStore(Config(
             __file__,
             STORE_DIR=os.path.join(WORK_DIR, 'store'),
             HEADLESS=True,
@@ -43,39 +44,59 @@ class CloudSyncStoreTestCase(unittest.TestCase):
         self.url2 = 'https://1337x.to/user/DODI/'
         self.titles = [f'body {i}' for i in range(1, 51)]
 
-    def test_workflow(self):
-        doc = self.sl.get(self.url2)
-        pprint(doc)
-        self.sl.set(self.url2, titles=['1', '2'])
+    def _create_file(self, url, titles, hostname):
+        file = os.path.join(self.store.base_dir,
+            f'{self.store._get_doc_id(url)}-{hostname}.json')
+        data = {
+            'url': url,
+            'titles': titles,
+            'updated_ts': time.time(),
+            'ref': file,
+        }
+        with open(file, 'w', encoding='utf-8') as fd:
+            json.dump(data, fd, sort_keys=True, indent=4)
 
-        doc = self.sl.get(self.url)
+    def test_workflow(self):
+        doc = self.store.get(self.url2)
+        pprint(doc)
+        self.store.set(self.url2, titles=['1', '2'])
+
+        doc = self.store.get(self.url)
         pprint(doc)
         self.assertEqual(doc.url, self.url)
         self.assertEqual(doc.titles, [])
         self.assertEqual(doc.updated_ts, 0)
 
         time.sleep(.01)
-        self.sl.set(self.url, titles=[])
-        doc = self.sl.get(self.url)
+        self.store.set(self.url, titles=[])
+        doc = self.store.get(self.url)
         pprint(doc)
         self.assertEqual(doc.titles, [])
 
         set_titles = self.titles[6:16]
         time.sleep(.01)
-        self.sl.set(self.url, titles=set_titles)
-        doc = self.sl.get(self.url)
+        self.store.set(self.url, titles=set_titles)
+        doc = self.store.get(self.url)
         pprint(doc)
         self.assertEqual(doc.titles, set_titles)
 
         set_titles = self.titles[3:13]
         time.sleep(.01)
-        self.sl.set(self.url, titles=set_titles)
-        doc = self.sl.get(self.url)
+        self.store.set(self.url, titles=set_titles)
+        doc = self.store.get(self.url)
         pprint(doc)
         self.assertEqual(doc.titles, set_titles)
 
-        doc = self.sl.get(self.url2)
+        doc = self.store.get(self.url2)
         pprint(doc)
         self.assertEqual(doc.url, self.url2)
         self.assertEqual(doc.titles, ['1', '2'])
         self.assertTrue(doc.updated_ts > 0)
+
+        doc = self.store.get(self.url)
+        other_host_titles = ['new_title'] + doc.titles
+        self._create_file(self.url, titles=other_host_titles,
+            hostname='another_host')
+        doc = self.store.get(self.url)
+        pprint(doc)
+        self.assertEqual(doc.titles, other_host_titles)
