@@ -7,9 +7,6 @@ from pprint import pformat
 import socket
 import time
 from typing import List
-from urllib.parse import quote
-
-from google.cloud import firestore
 
 from bodiez import logger
 
@@ -23,28 +20,6 @@ class Document:
     titles: List[str] = field(default_factory=list)
     updated_ts: int = 0
     ref: str = None
-
-
-class Firestore:
-    def __init__(self, config):
-        self.config = config
-        self.db = firestore.Client.from_service_account_json(
-            self.config.GOOGLE_CREDS)
-        self.col = self.db.collection(self.config.FIRESTORE_COLLECTION)
-
-    def _get_doc_id(self, url):
-        return quote(url, safe='')
-
-    def get(self, url):
-        doc = self.col.document(self._get_doc_id(url)).get()
-        return Document(**doc.to_dict()) if doc.exists else Document(url=url)
-
-    def set(self, url, titles):
-        self.col.document(self._get_doc_id(url)).set({
-            'url': url,
-            'titles': titles,
-            'updated_ts': int(time.time()),
-        })
 
 
 class CloudSyncStore:
@@ -91,11 +66,3 @@ class CloudSyncStore:
             json.dump(data, fd, sort_keys=True, indent=4)
         for f in old_files:
             os.remove(f)
-
-
-def get_store(config):
-    if os.path.exists(config.GOOGLE_CREDS):
-        logger.debug(f'using google firestore {config.FIRESTORE_COLLECTION}')
-        return Firestore(config)
-    logger.debug(f'using cloud sync store {config.STORE_DIR}')
-    return CloudSyncStore(config)

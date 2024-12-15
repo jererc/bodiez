@@ -1,3 +1,0 @@
-google-cloud-firestore
-playwright
-git+https://github.com/jererc/svcutils.git@main#egg=svcutils

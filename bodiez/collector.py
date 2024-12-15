@@ -10,7 +10,7 @@ from svcutils.service import Notifier
 
 from bodiez import NAME, logger
 from bodiez.parsers.base import get_url_domain_name, iterate_parsers
-from bodiez.store import get_store
+from bodiez.store import CloudSyncStore
 
 
 def clean_title(title):
@@ -69,7 +69,7 @@ class Collector:
         self.force = force
         self.test = test
         self.parsers = list(iterate_parsers())
-        self.store = get_store(self.config)
+        self.store = CloudSyncStore(self.config)
         self.report = []
 
     def _notify_new_bodies(self, query, bodies):

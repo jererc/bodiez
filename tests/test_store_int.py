@@ -15,9 +15,6 @@ module.logger.handlers.clear()
 from bodiez import store
 
 
-GOOGLE_CREDS = os.path.join(WORK_DIR, 'google_creds.json')
-# GOOGLE_CREDS = os.path.join(os.path.expanduser('~'), 'gcs-bodiez.json')
-
 module.logger.setLevel(logging.DEBUG)
 
 
@@ -31,50 +28,6 @@ def remove_path(path):
 def makedirs(path):
     if not os.path.exists(path):
         os.makedirs(path)
-
-
-class FirestoreTestCase(unittest.TestCase):
-    def setUp(self):
-        remove_path(WORK_DIR)
-        makedirs(WORK_DIR)
-        self.fs = store.Firestore(Config(
-            __file__,
-            FIRESTORE_COLLECTION='test',
-            HEADLESS=True,
-        ))
-        self.url = 'https://1337x.to/user/FitGirl/'
-        self.titles = [f'body {i}' for i in range(1, 51)]
-        self.fs.col.document(self.fs._get_doc_id(self.url)).delete()
-
-    def test_workflow(self):
-        doc = self.fs.get(self.url)
-        pprint(doc)
-        self.assertEqual(doc.url, self.url)
-        self.assertEqual(doc.titles, [])
-        self.assertEqual(doc.updated_ts, 0)
-
-        self.fs.set(self.url, titles=[])
-        doc = self.fs.get(self.url)
-        pprint(doc)
-        self.assertEqual(doc.url, self.url)
-        self.assertEqual(doc.titles, [])
-        self.assertTrue(doc.updated_ts > 0)
-
-        titles = self.titles[5:15]
-        self.fs.set(self.url, titles=titles)
-        doc = self.fs.get(self.url)
-        pprint(doc)
-        self.assertEqual(doc.url, self.url)
-        self.assertEqual(doc.titles, titles)
-        self.assertTrue(doc.updated_ts > 0)
-
-        titles = self.titles[3:13]
-        self.fs.set(self.url, titles=titles)
-        doc = self.fs.get(self.url)
-        pprint(doc)
-        self.assertEqual(doc.url, self.url)
-        self.assertEqual(doc.titles, titles)
-        self.assertTrue(doc.updated_ts > 0)
 
 
 class CloudSyncStoreTestCase(unittest.TestCase):

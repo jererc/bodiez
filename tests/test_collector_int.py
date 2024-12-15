@@ -15,11 +15,7 @@ module.logger.setLevel(logging.DEBUG)
 module.logger.handlers.clear()
 from bodiez import collector as module
 from bodiez.parsers.base import Body
-from bodiez.store import Firestore
 
-
-GOOGLE_CREDS = os.path.join(WORK_DIR, 'google_creds.json')
-# GOOGLE_CREDS = os.path.join(os.path.expanduser('~'), 'gcs-bodiez.json')
 
 module.logger.setLevel(logging.DEBUG)
 
@@ -41,21 +37,10 @@ class BaseTestCase(unittest.TestCase):
         # remove_path(WORK_DIR)
         makedirs(WORK_DIR)
 
-    def _reset_storage(self, config):
-        if os.path.exists(config.GOOGLE_CREDS):
-            fs = Firestore(config)
-            print(f'deleting all documents in firestore collection '
-                f'{config.FIRESTORE_COLLECTION}...')
-            for doc in fs.col.list_documents():
-                doc.delete()
-        else:
-            remove_path(config.STORE_DIR)
-
     def _collect(self, url, headless=True):
         config = Config(
             __file__,
             STORE_DIR=os.path.join(WORK_DIR, 'store'),
-            FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,
             HEADLESS=headless,
         )
@@ -241,10 +226,9 @@ class WorkflowTestCase(BaseTestCase):
                 },
             ],
             STORE_DIR=os.path.join(WORK_DIR, 'store'),
-            FIRESTORE_COLLECTION='test',
             MIN_BODIES_HISTORY=10,
         )
-        self._reset_storage(config)
+        remove_path(config.STORE_DIR)
         collector = module.Collector(config)
 
         def run():
