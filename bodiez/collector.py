@@ -73,13 +73,21 @@ class Collector:
         self.report = []
 
     def _notify_new_bodies(self, query, bodies):
-        more_count = len(bodies[query.max_notif:])
-        for i, body in enumerate(reversed(bodies[:query.max_notif])):
-            body_str = query.title_processor(body.title) or body.title
-            if i == 0 and more_count:
-                body_str += f' (+{more_count} more)'
-            Notifier().send(title=query.id, body=body_str,
-                app_name=NAME, on_click=body.url)
+        over_limit = len(bodies[query.max_notif:])
+        if over_limit:
+            Notifier().send(
+                title=query.id,
+                body=f'+{over_limit} more results',
+                app_name=NAME,
+                on_click=query.url,
+            )
+        for body in reversed(bodies[:query.max_notif]):
+            Notifier().send(
+                title=query.id,
+                body=query.title_processor(body.title) or body.title,
+                app_name=NAME,
+                on_click=body.url,
+            )
 
     def _iterate_parsers(self, query):
         for parser_cls in self.parsers:
