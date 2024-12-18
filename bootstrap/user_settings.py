@@ -65,10 +65,10 @@ QUERIES = [
     {
         'url': 'https://www.facebook.com/iqonmauritius',
         'id': 'fb-iqon',
-        'xpath': '//*[local-name()="image"]',
+        'xpath': '//*[local-name()="svg"][@aria-label]',
         'group_attrs': ['x'],
-        'rel_xpath': '../../../../../../../../../../div[3]/div[1]',
-        'link_xpath': '../../../../../../../../../../div[3]/div[2]/*/a',
+        'rel_xpath': '../../../../../../../../div[3]/div[1]',
+        'link_xpath': '../../../../../../../../div[3]/div[2]/*/a',
         'pages': 2,
         'update_delta': 4 * 3600,
         'active': False,
