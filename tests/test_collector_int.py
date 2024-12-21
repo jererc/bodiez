@@ -40,6 +40,7 @@ class BaseTestCase(unittest.TestCase):
     def _collect(self, url, headless=True):
         config = Config(
             __file__,
+            STATE_DIR=os.path.join(WORK_DIR, 'state'),
             STORE_DIR=os.path.join(WORK_DIR, 'store'),
             MIN_BODIES_HISTORY=10,
             HEADLESS=headless,
@@ -225,6 +226,7 @@ class WorkflowTestCase(BaseTestCase):
                     'update_delta': 0,
                 },
             ],
+            STATE_DIR=os.path.join(WORK_DIR, 'state'),
             STORE_DIR=os.path.join(WORK_DIR, 'store'),
             MIN_BODIES_HISTORY=10,
         )
