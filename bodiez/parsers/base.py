@@ -30,19 +30,25 @@ class Body:
 
 
 class CloudSyncState:
-    def __init__(self, path, basename='state'):
-        self.path = path
-        self.basename = basename
-        if not os.path.exists(self.path):
-            os.makedirs(self.path)
+    def __init__(self, base_dir, url):
+        self.dir = os.path.join(base_dir, urlparse(url).netloc)
+        if not os.path.exists(self.dir):
+            os.makedirs(self.dir)
 
-    def get_read_path(self):
-        paths = glob(os.path.join(self.path, f'{self.basename}-*.json'))
-        if paths:
-            return sorted([(os.stat(r).st_mtime, r) for r in paths])[-1][1]
+    def _get_file_hostname(self, file):
+        return os.path.splitext(os.path.basename(file))[0]
 
-    def get_write_path(self):
-        return os.path.join(self.path, f'{self.basename}-{HOSTNAME}.json')
+    def get_input_file(self):
+        cutoff = time.time() - 10
+        files = glob(os.path.join(self.dir, '*.json'))
+        ts_files = [(os.stat(r).st_mtime, r) for r in files]
+        for ts, file in sorted(ts_files, reverse=True):
+            if self._get_file_hostname(file) != HOSTNAME and ts > cutoff:
+                continue
+            return file
+
+    def get_output_file(self):
+        return os.path.join(self.dir, f'{HOSTNAME}.json')
 
 
 class BaseParser:
@@ -51,13 +57,9 @@ class BaseParser:
     def __init__(self, config, query):
         self.config = config
         self.query = query
-        self.state = CloudSyncState(os.path.join(self.config.STATE_DIR,
-            self._get_state_dirname()))
+        self.state = CloudSyncState(self.config.STATE_DIR, self.query.url)
         self.timeout = (self.query.headless_timeout
             if self.config.HEADLESS else self.query.headful_timeout)
-
-    def _get_state_dirname(self):
-        return urlparse(self.query.url).netloc
 
     def _is_external_domain(self, request):
         return (get_url_domain_name(self.query.url)
@@ -84,12 +86,12 @@ class BaseParser:
                     ],
                 )
                 context = browser.new_context(
-                    storage_state=self.state.get_read_path())
+                    storage_state=self.state.get_input_file())
                 context.route('**/*', self._request_handler)
                 yield context
             finally:
                 if context:
-                    context.storage_state(path=self.state.get_write_path())
+                    context.storage_state(path=self.state.get_output_file())
                     context.close()
 
     def _load_page(self, context):
