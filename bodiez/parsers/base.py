@@ -9,7 +9,7 @@ from urllib.parse import urljoin, urlparse
 from playwright.sync_api import TimeoutError, sync_playwright
 
 from bodiez import logger
-from bodiez.store import CloudSyncState
+from bodiez.store import State
 
 
 def get_url_domain_name(url):
@@ -30,7 +30,7 @@ class BaseParser:
     def __init__(self, config, query):
         self.config = config
         self.query = query
-        self.state = CloudSyncState(self.config.STATE_DIR, self.query.url)
+        self.state = State(self.config.STATE_DIR, self.query.url)
         self.timeout = (self.query.headless_timeout
             if self.config.HEADLESS else self.query.headful_timeout)
 
@@ -58,13 +58,12 @@ class BaseParser:
                         '--disable-blink-features=AutomationControlled',
                     ],
                 )
-                context = browser.new_context(
-                    storage_state=self.state.get_input_file())
+                context = browser.new_context(storage_state=self.state.load())
                 context.route('**/*', self._request_handler)
                 yield context
             finally:
                 if context:
-                    context.storage_state(path=self.state.get_output_file())
+                    self.state.save(context.storage_state())
                     context.close()
 
     def _load_page(self, context):

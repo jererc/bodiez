@@ -15,26 +15,22 @@ from bodiez import logger
 HOSTNAME = socket.gethostname()
 
 
-class CloudSyncState:
+class State:
     def __init__(self, base_dir, url):
-        self.dir = os.path.join(base_dir, urlparse(url).netloc)
-        if not os.path.exists(self.dir):
-            os.makedirs(self.dir)
+        self.file = os.path.join(base_dir, f'{urlparse(url).netloc}.json')
+        if not os.path.exists(base_dir):
+            os.makedirs(base_dir)
 
-    def _get_file_hostname(self, file):
-        return os.path.splitext(os.path.basename(file))[0]
+    def load(self):
+        try:
+            with open(self.file, 'r', encoding='utf-8') as fd:
+                return json.load(fd)
+        except FileNotFoundError:
+            return None
 
-    def get_input_file(self):
-        cutoff = time.time() - 10
-        files = glob(os.path.join(self.dir, '*.json'))
-        ts_files = [(os.stat(r).st_mtime, r) for r in files]
-        for ts, file in sorted(ts_files, reverse=True):
-            if self._get_file_hostname(file) != HOSTNAME and ts > cutoff:
-                continue
-            return file
-
-    def get_output_file(self):
-        return os.path.join(self.dir, f'{HOSTNAME}.json')
+    def save(self, state):
+        with open(self.file, 'w', encoding='utf-8') as fd:
+            fd.write(json.dumps(state))
 
 
 @dataclass

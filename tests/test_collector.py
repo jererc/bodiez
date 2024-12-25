@@ -1,11 +1,8 @@
-import json
 import logging
 import os
 from pprint import pprint
 import shutil
-import time
 import unittest
-from unittest.mock import Mock, patch
 
 import bodiez as module
 WORK_DIR = os.path.join(os.path.expanduser('~'), '_tests', 'bodiez')
@@ -71,44 +68,6 @@ class QueryTestCase(unittest.TestCase):
             print(r)
         self.assertTrue(all(bool(r.id) for r in res))
         self.assertTrue(all(bool(r.url) for r in res))
-
-
-class CloudSyncStateTestCase(unittest.TestCase):
-    def setUp(self):
-        remove_path(WORK_DIR)
-        makedirs(WORK_DIR)
-        self.base_dir = os.path.join(WORK_DIR, 'state')
-
-    def test_1(self):
-        url = 'https://rutracker.org/forum/tracker.php?f=557'
-        state = base.CloudSyncState(base_dir=self.base_dir, url=url)
-        self.assertEqual(state.get_input_file(), None)
-        output_file = state.get_output_file()
-        self.assertTrue(output_file)
-
-        with open(output_file, 'w') as fd:
-            json.dump({'key': 'value'}, fd)
-        input_file = state.get_input_file()
-        self.assertEqual(input_file, output_file)
-
-        other_output_file = os.path.join(state.dir, 'other_host.json')
-        with open(other_output_file, 'w') as fd:
-            json.dump({'key2': 'value2'}, fd)
-        input_file = state.get_input_file()
-        self.assertEqual(input_file, output_file)
-
-        def side_mock_stat(file):
-            if file == output_file:
-                return Mock(st_mtime=time.time() - 61)
-            elif file == other_output_file:
-                return Mock(st_mtime=time.time() - 60)
-            else:
-                return Mock(st_mtime=time.time())
-
-        with patch.object(base.os, 'stat') as mock_stat:
-            mock_stat.side_effect = side_mock_stat
-            input_file = state.get_input_file()
-        self.assertEqual(input_file, other_output_file)
 
 
 class ParsersTestCase(unittest.TestCase):

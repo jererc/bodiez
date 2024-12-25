@@ -30,7 +30,7 @@ def main():
     path = os.path.realpath(os.path.expanduser(args.path))
     config = Config(
         os.path.join(path, 'user_settings.py'),
-        STATE_DIR=os.path.join(path, 'state'),
+        STATE_DIR=os.path.join(WORK_DIR, 'state'),
         STORE_DIR=os.path.join(path, 'store'),
         HEADLESS=not (args.headful or args.login_timeout),
         LOGIN_TIMEOUT=args.login_timeout,
