@@ -34,7 +34,6 @@ def main():
         STORE_DIR=os.path.join(path, 'store'),
         HEADLESS=not (args.headful or args.login_timeout),
         LOGIN_TIMEOUT=args.login_timeout,
-        MIN_BODIES_HISTORY=50,
         RUN_DELTA=3600,
     )
     if args.cmd == 'collect':

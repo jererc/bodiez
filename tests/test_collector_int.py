@@ -42,7 +42,6 @@ class BaseTestCase(unittest.TestCase):
             __file__,
             STATE_DIR=os.path.join(WORK_DIR, 'state'),
             STORE_DIR=os.path.join(WORK_DIR, 'store'),
-            MIN_BODIES_HISTORY=10,
             HEADLESS=headless,
         )
         remove_path(config.STORE_DIR)
@@ -50,6 +49,7 @@ class BaseTestCase(unittest.TestCase):
 
     def _test_collect(self, *args, **kwargs):
         res = self._collect(*args, **kwargs)
+        pprint(res)
         self.assertTrue(res)
         self.assertTrue(all(isinstance(r, Body) for r in res))
         self.assertTrue(len({r.title for r in res}) > len(res) * .9)
@@ -123,6 +123,19 @@ class SimpleTestCase(BaseTestCase):
                 'url': 'https://rutracker.org/forum/tracker.php?f=557',
                 'xpath': '//div[contains(@class, "t-title")]/a',
                 'block_external': True,
+            },
+            headless=False,
+        )
+
+    def test_btc(self):
+        res = self._test_collect(
+            {
+                'id': 'btc',
+                'url': 'https://coinmarketcap.com/currencies/bitcoin/',
+                'xpath': '//span[@data-test="text-cdp-price-display"]',
+                'block_external': True,
+                'title_preprocessor': lambda x: int(float(x.replace('$', '').replace(',', '')) // 1000 * 1000),
+                'min_history_size': 10,
             },
             headless=False,
         )
@@ -228,7 +241,6 @@ class WorkflowTestCase(BaseTestCase):
             ],
             STATE_DIR=os.path.join(WORK_DIR, 'state'),
             STORE_DIR=os.path.join(WORK_DIR, 'store'),
-            MIN_BODIES_HISTORY=10,
         )
         remove_path(config.STORE_DIR)
         collector = module.Collector(config)

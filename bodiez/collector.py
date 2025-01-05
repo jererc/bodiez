@@ -48,13 +48,15 @@ class Query:
     pages: int = 1
     text_delimiter: str = ', '
     max_notif: int = 3
-    title_processor: any = clean_title
+    min_history_size: int = 50
+    title_preprocessor: any = None
+    title_postprocessor: any = clean_title
 
     def __post_init__(self):
         if not self.id:
             self.id = self._generate_id()
-        if not self.title_processor:
-            self.title_processor = lambda x: x
+        if not self.title_postprocessor:
+            self.title_postprocessor = lambda x: x
 
     def _generate_id(self):
         parsed = urlparse(unquote_plus(self.url))
@@ -84,7 +86,7 @@ class Collector:
         for body in reversed(bodies[:query.max_notif]):
             Notifier().send(
                 title=query.id,
-                body=query.title_processor(body.title) or body.title,
+                body=query.title_postprocessor(body.title) or body.title,
                 app_name=NAME,
                 on_click=body.url,
             )
@@ -94,6 +96,11 @@ class Collector:
             parser = parser_cls(self.config, query)
             if parser.can_parse():
                 yield parser
+
+    def _preprocess_bodies(self, query, bodies):
+        for body in bodies:
+            body.title = query.title_preprocessor(body.title)
+            yield body
 
     def _collect_bodies(self, query):
         parsers = list(self._iterate_parsers(query))
@@ -108,6 +115,8 @@ class Collector:
                 logger.info(f'no results for {query.id} '
                     f'with parser {parser.id}')
                 continue
+            if query.title_preprocessor:
+                bodies = list(self._preprocess_bodies(query, bodies))
             res.extend(bodies)
         return res
 
@@ -130,7 +139,7 @@ class Collector:
         titles = [r.title for r in bodies]
         history = [r for r in doc.titles if r not in titles]
         self.store.set(query.url, titles + history[
-            :max(self.config.MIN_BODIES_HISTORY, len(titles))])
+            :max(query.min_history_size, len(titles))])
         self.report.append({
             'id': query.id,
             'collected': len(bodies),
