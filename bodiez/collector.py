@@ -48,7 +48,7 @@ class Query:
     pages: int = 1
     text_delimiter: str = ', '
     max_notif: int = 3
-    min_history_size: int = 50
+    history_size: int = 50
     title_preprocessor: any = None
     title_postprocessor: any = clean_title
 
@@ -138,8 +138,7 @@ class Collector:
             self._notify_new_bodies(query, new_bodies)
         titles = [r.title for r in bodies]
         history = [r for r in doc.titles if r not in titles]
-        self.store.set(query.url, titles + history[
-            :max(query.min_history_size, len(titles))])
+        self.store.set(query.url, titles + history[:query.history_size])
         self.report.append({
             'id': query.id,
             'collected': len(bodies),

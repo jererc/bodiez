@@ -32,6 +32,14 @@ def makedirs(path):
         os.makedirs(path)
 
 
+class PreprocessTestCase(unittest.TestCase):
+    def test_1(self):
+        preprocess = lambda x: str(float(x.replace('$', '').replace(',', '')) * 100 // 10 * 10 / 100)
+        res = {preprocess(r) for r in ('$1.07', '$1.08', '$1.11', '$1.19', '$1.29')}
+        pprint(res)
+        self.assertEqual(len(res), 3)
+
+
 class BaseTestCase(unittest.TestCase):
     def setUp(self):
         # remove_path(WORK_DIR)
@@ -127,7 +135,7 @@ class SimpleTestCase(BaseTestCase):
             headless=False,
         )
 
-    def test_btc(self):
+    def test_coinmarketcap_1(self):
         res = self._test_collect(
             {
                 'id': 'btc',
@@ -135,7 +143,18 @@ class SimpleTestCase(BaseTestCase):
                 'xpath': '//span[@data-test="text-cdp-price-display"]',
                 'block_external': True,
                 'title_preprocessor': lambda x: str(int(float(x.replace('$', '').replace(',', '')) // 1000 * 1000)),
-                'min_history_size': 10,
+            },
+            headless=False,
+        )
+
+    def test_coinmarketcap_2(self):
+        res = self._test_collect(
+            {
+                'id': 'btc',
+                'url': 'https://coinmarketcap.com/currencies/cardano/',
+                'xpath': '//span[@data-test="text-cdp-price-display"]',
+                'block_external': True,
+                'title_preprocessor': lambda x: str(float(x.replace('$', '').replace(',', '')) * 100 // 10 * 10 / 100),
             },
             headless=False,
         )
