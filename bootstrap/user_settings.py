@@ -68,7 +68,7 @@ QUERIES = [
         'xpath': '//span[@data-test="text-cdp-price-display"]',
         'block_external': True,
         'title_preprocessor': lambda x: str(int(float(x.replace('$', '').replace(',', '')) // 1000 * 1000)),
-        'min_history_size': 4,
+        'history_size': 4,
         'update_delta': 8 * 3600,
         'active': False,
     },
