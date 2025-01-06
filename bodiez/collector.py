@@ -102,14 +102,14 @@ class Collector:
         res = []
         for parser in sorted(parsers, key=lambda x: x.id):
             bodies = [r for r in parser.parse() if r]
+            for body in bodies:
+                body.key = query.key_processor(body.title)
             logger.debug(f'collected {len(bodies)} bodies for {query.id}:\n'
                 f'{to_json([asdict(r) for r in bodies])}')
             if not bodies:
                 logger.info(f'no results for {query.id} '
                     f'with parser {parser.id}')
                 continue
-            for body in bodies:
-                body.key = query.key_processor(body.title)
             res.extend(bodies)
         return res
 
