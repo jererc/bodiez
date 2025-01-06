@@ -22,6 +22,7 @@ def get_url_domain_name(url):
 class Body:
     title: str
     url: str = None
+    key: str = None
 
 
 class BaseParser:

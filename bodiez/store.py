@@ -36,7 +36,7 @@ class State:
 @dataclass
 class Document:
     url: str
-    titles: List[str] = field(default_factory=list)
+    keys: List[str] = field(default_factory=list)
     updated_ts: int = 0
     ref: str = None
 
@@ -68,12 +68,12 @@ class CloudSyncStore:
             raise Exception(f'mismatching doc for {url}')
         return doc
 
-    def set(self, url, titles):
+    def set(self, url, keys):
         file = os.path.join(self.base_dir,
             f'{self._get_doc_id(url)}-{HOSTNAME}.json')
         data = {
             'url': url,
-            'titles': titles,
+            'keys': keys,
             'updated_ts': time.time(),
             'ref': file,
         }

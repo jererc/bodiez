@@ -49,14 +49,12 @@ class Query:
     text_delimiter: str = ', '
     max_notif: int = 3
     history_size: int = 50
-    title_preprocessor: any = None
-    title_postprocessor: any = clean_title
+    key_processor: any = lambda x: x
+    title_processor: any = clean_title
 
     def __post_init__(self):
         if not self.id:
             self.id = self._generate_id()
-        if not self.title_postprocessor:
-            self.title_postprocessor = lambda x: x
 
     def _generate_id(self):
         parsed = urlparse(unquote_plus(self.url))
@@ -86,7 +84,7 @@ class Collector:
         for body in reversed(bodies[:query.max_notif]):
             Notifier().send(
                 title=query.id,
-                body=query.title_postprocessor(body.title) or body.title,
+                body=query.title_processor(body.title) or body.title,
                 app_name=NAME,
                 on_click=body.url,
             )
@@ -96,11 +94,6 @@ class Collector:
             parser = parser_cls(self.config, query)
             if parser.can_parse():
                 yield parser
-
-    def _preprocess_bodies(self, query, bodies):
-        for body in bodies:
-            body.title = query.title_preprocessor(body.title)
-            yield body
 
     def _collect_bodies(self, query):
         parsers = list(self._iterate_parsers(query))
@@ -115,8 +108,8 @@ class Collector:
                 logger.info(f'no results for {query.id} '
                     f'with parser {parser.id}')
                 continue
-            if query.title_preprocessor:
-                bodies = list(self._preprocess_bodies(query, bodies))
+            for body in bodies:
+                body.key = query.key_processor(body.title)
             res.extend(bodies)
         return res
 
@@ -133,12 +126,12 @@ class Collector:
         if self.test:
             self._notify_new_bodies(query, bodies)
             return
-        new_bodies = [r for r in bodies if r.title not in doc.titles]
+        new_bodies = [r for r in bodies if r.key not in doc.keys]
         if new_bodies:
             self._notify_new_bodies(query, new_bodies)
-        titles = [r.title for r in bodies]
-        history = [r for r in doc.titles if r not in titles]
-        self.store.set(query.url, titles + history[:query.history_size])
+        keys = [r.key for r in bodies]
+        history = [r for r in doc.keys if r not in keys]
+        self.store.set(query.url, keys + history[:query.history_size])
         self.report.append({
             'id': query.id,
             'collected': len(bodies),

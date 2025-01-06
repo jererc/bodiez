@@ -62,6 +62,7 @@ class BaseTestCase(unittest.TestCase):
         self.assertTrue(all(isinstance(r, Body) for r in res))
         self.assertTrue(len({r.title for r in res}) > len(res) * .9)
         self.assertEqual(len({r.url for r in res}), len(res))
+        self.assertTrue(all(r.key is not None for r in res))
 
 
 class SimpleTestCase(BaseTestCase):
@@ -138,11 +139,11 @@ class SimpleTestCase(BaseTestCase):
     def test_coinmarketcap_1(self):
         res = self._test_collect(
             {
-                'id': 'btc',
+                'id': 'btc-usd',
                 'url': 'https://coinmarketcap.com/currencies/bitcoin/',
                 'xpath': '//span[@data-test="text-cdp-price-display"]',
                 'block_external': True,
-                'title_preprocessor': lambda x: str(int(float(x.replace('$', '').replace(',', '')) // 1000 * 1000)),
+                'key_processor': lambda x: str(float(x.replace('$', '').replace(',', '')) // 1000 * 1000),
             },
             headless=False,
         )
@@ -150,11 +151,11 @@ class SimpleTestCase(BaseTestCase):
     def test_coinmarketcap_2(self):
         res = self._test_collect(
             {
-                'id': 'btc',
+                'id': 'ada-usd',
                 'url': 'https://coinmarketcap.com/currencies/cardano/',
                 'xpath': '//span[@data-test="text-cdp-price-display"]',
                 'block_external': True,
-                'title_preprocessor': lambda x: str(float(x.replace('$', '').replace(',', '')) * 100 // 10 * 10 / 100),
+                'key_processor': lambda x: str(float(x.replace('$', '').replace(',', '')) * 100 // 10 / 10),
             },
             headless=False,
         )
@@ -270,7 +271,7 @@ class WorkflowTestCase(BaseTestCase):
 
         doc = collector.store.get(config.QUERIES[0]['url'])
         pprint(doc)
-        self.assertFalse(doc.titles)
+        self.assertFalse(doc.keys)
 
         with patch.object(module.Notifier, 'send') as mock_send:
             run()
@@ -279,7 +280,7 @@ class WorkflowTestCase(BaseTestCase):
 
         doc = collector.store.get(config.QUERIES[0]['url'])
         pprint(doc)
-        self.assertTrue(doc.titles)
+        self.assertTrue(doc.keys)
 
         with patch.object(module.Notifier, 'send') as mock_send:
             run()
@@ -290,11 +291,11 @@ class WorkflowTestCase(BaseTestCase):
         with patch.object(module.Notifier, 'send') as mock_send, \
                 patch.object(collector,
                     '_collect_bodies') as mock__collect_bodies:
-            mock__collect_bodies.return_value = [Body(title=r)
-                for r in (new_titles + doc.titles[:-len(new_titles)])]
+            mock__collect_bodies.return_value = [Body(title=r, key=r)
+                for r in (new_titles + doc.keys[:-len(new_titles)])]
             run()
         pprint(mock_send.call_args_list)
-        prev_doc_titles = doc.titles
+        prev_doc_keys = doc.keys
         doc = collector.store.get(config.QUERIES[0]['url'])
         pprint(doc)
-        self.assertEqual(doc.titles, new_titles + prev_doc_titles)
+        self.assertEqual(doc.keys, new_titles + prev_doc_keys)
