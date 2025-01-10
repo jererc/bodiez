@@ -49,7 +49,8 @@ class Query:
     text_delimiter: str = ', '
     max_notif: int = 3
     history_size: int = 50
-    key_processor: any = lambda x: x
+    parser_id: str = 'generic'
+    key_generator: any = lambda x: x.title
     title_processor: any = clean_title
 
     def __post_init__(self):
@@ -68,7 +69,7 @@ class Collector:
         self.config = config
         self.force = force
         self.test = test
-        self.parsers = list(iterate_parsers())
+        self.parsers = {r.id: r for r in iterate_parsers()}
         self.store = CloudSyncStore(self.config)
         self.report = []
 
@@ -89,29 +90,17 @@ class Collector:
                 on_click=body.url,
             )
 
-    def _iterate_parsers(self, query):
-        for parser_cls in self.parsers:
-            parser = parser_cls(self.config, query)
-            if parser.can_parse():
-                yield parser
-
     def _collect_bodies(self, query):
-        parsers = list(self._iterate_parsers(query))
-        if not parsers:
+        try:
+            parser = self.parsers[query.parser_id](self.config, query)
+        except KeyError:
             raise Exception('no available parser')
-        res = []
-        for parser in sorted(parsers, key=lambda x: x.id):
-            bodies = [r for r in parser.parse() if r]
-            for body in bodies:
-                body.key = query.key_processor(body.title)
-            logger.debug(f'collected {len(bodies)} bodies for {query.id}:\n'
-                f'{to_json([asdict(r) for r in bodies])}')
-            if not bodies:
-                logger.info(f'no results for {query.id} '
-                    f'with parser {parser.id}')
-                continue
-            res.extend(bodies)
-        return res
+        bodies = [r for r in parser.parse() if r]
+        for body in bodies:
+            body.key = query.key_generator(body)
+        logger.debug(f'collected {len(bodies)} bodies for {query.id}:\n'
+            f'{to_json([asdict(r) for r in bodies])}')
+        return bodies
 
     def _process_query(self, query):
         start_ts = time.time()
@@ -135,7 +124,7 @@ class Collector:
         self.report.append({
             'id': query.id,
             'collected': len(bodies),
-            'new_bodies': [asdict(r) for r in new_bodies],
+            'new': [asdict(r) for r in new_bodies],
             'duration': to_float(time.time() - start_ts),
         })
 

@@ -6,9 +6,6 @@ from bodiez.parsers.base import BaseParser, Body
 class GenericParser(BaseParser):
     id = 'generic'
 
-    def can_parse(self):
-        return bool(self.query.xpath)
-
     def _find_elements(self, page):
         selector = f'xpath={self.query.xpath}'
         self._wait_for_selector(page, selector)

@@ -107,9 +107,6 @@ class BaseParser:
         except ImportError:
             print(content)
 
-    def can_parse(self):
-        raise NotImplementedError()
-
     def parse(self):
         raise NotImplementedError()
 

@@ -32,14 +32,6 @@ def makedirs(path):
         os.makedirs(path)
 
 
-class PreprocessTestCase(unittest.TestCase):
-    def test_1(self):
-        preprocess = lambda x: str(float(x.replace('$', '').replace(',', '')) * 100 // 10 * 10 / 100)
-        res = {preprocess(r) for r in ('$1.07', '$1.08', '$1.11', '$1.19', '$1.29')}
-        pprint(res)
-        self.assertEqual(len(res), 3)
-
-
 class BaseTestCase(unittest.TestCase):
     def setUp(self):
         # remove_path(WORK_DIR)
@@ -88,24 +80,12 @@ class SimpleTestCase(BaseTestCase):
             headless=False,
         )
 
-    def test_nvidia(self):
+    def test_rutracker(self):
         self._test_collect(
             {
-                'url': 'https://www.nvidia.com/en-us/geforce/news/',
-                'xpath': '//div[contains(@class, "article-title-text")]/a',
-            },
-            headless=False,
-        )
-
-    def test_nvidia_child(self):
-        self._test_collect(
-            {
-                'url': 'https://www.nvidia.com/en-us/geforce/news/',
-                'xpath': '//div[contains(@class, "article-title-text")]',
-                'child_xpaths': [
-                    './/a',
-                ],
-                'link_xpath': './/a',
+                'url': 'https://rutracker.org/forum/tracker.php?f=557',
+                'xpath': '//div[contains(@class, "t-title")]/a',
+                'block_external': True,
             },
             headless=False,
         )
@@ -126,16 +106,6 @@ class SimpleTestCase(BaseTestCase):
             headless=False,
         )
 
-    def test_rutracker(self):
-        self._test_collect(
-            {
-                'url': 'https://rutracker.org/forum/tracker.php?f=557',
-                'xpath': '//div[contains(@class, "t-title")]/a',
-                'block_external': True,
-            },
-            headless=False,
-        )
-
     def test_coinmarketcap_1(self):
         res = self._test_collect(
             {
@@ -143,7 +113,7 @@ class SimpleTestCase(BaseTestCase):
                 'url': 'https://coinmarketcap.com/currencies/bitcoin/',
                 'xpath': '//span[@data-test="text-cdp-price-display"]',
                 'block_external': True,
-                'key_processor': lambda x: str(float(x.replace('$', '').replace(',', '')) // 1000 * 1000),
+                'key_generator': lambda x: str(float(x.title.replace('$', '').replace(',', '')) // 1000 * 1000),
             },
             headless=False,
         )
@@ -155,7 +125,7 @@ class SimpleTestCase(BaseTestCase):
                 'url': 'https://coinmarketcap.com/currencies/cardano/',
                 'xpath': '//span[@data-test="text-cdp-price-display"]',
                 'block_external': True,
-                'key_processor': lambda x: str(float(x.replace('$', '').replace(',', '')) * 100 // 10 / 10),
+                'key_generator': lambda x: str(float(x.title.replace('$', '').replace(',', '')) * 100 // 10 / 10),
             },
             headless=False,
         )

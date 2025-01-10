@@ -53,7 +53,7 @@ QUERIES = [
         'id': 'btc-usd',
         'xpath': '//span[@data-test="text-cdp-price-display"]',
         'block_external': True,
-        'key_processor': lambda x: str(float(x.replace('$', '').replace(',', '')) // 1000 * 1000),
+        'key_generator': lambda x: str(float(x.title.replace('$', '').replace(',', '')) // 1000 * 1000),
         'history_size': 4,
         'update_delta': 8 * 3600,
         'active': False,
