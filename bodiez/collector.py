@@ -95,7 +95,7 @@ class Collector:
             parser = self.parsers[query.parser_id](self.config, query)
         except KeyError:
             raise Exception('no available parser')
-        bodies = [r for r in parser.parse() if r]
+        bodies = list(parser.parse())
         for body in bodies:
             body.key = query.key_generator(body)
         logger.debug(f'collected {len(bodies)} bodies for {query.id}:\n'
