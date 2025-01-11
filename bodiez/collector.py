@@ -3,7 +3,7 @@ from pprint import pformat
 import json
 import re
 import time
-from typing import List
+from typing import Callable, List
 from urllib.parse import urlparse, unquote_plus
 
 from svcutils.service import Notifier
@@ -50,8 +50,8 @@ class Query:
     max_notif: int = 3
     history_size: int = 50
     parser_id: str = 'generic'
-    key_generator: any = lambda x: x.title
-    title_processor: any = clean_title
+    key_generator: Callable = lambda x: x.title
+    title_postprocessor: Callable = clean_title
 
     def __post_init__(self):
         if not self.id:
@@ -74,6 +74,11 @@ class Collector:
         self.report = []
 
     def _notify_new_bodies(self, query, bodies):
+        def postprocess(title):
+            if not query.title_postprocessor:
+                return title
+            return query.title_postprocessor(title) or title
+
         over_limit = len(bodies[query.max_notif:])
         if over_limit:
             Notifier().send(
@@ -85,7 +90,7 @@ class Collector:
         for body in reversed(bodies[:query.max_notif]):
             Notifier().send(
                 title=query.id,
-                body=query.title_processor(body.title) or body.title,
+                body=postprocess(body.title),
                 app_name=NAME,
                 on_click=body.url,
             )
@@ -94,7 +99,7 @@ class Collector:
         try:
             parser = self.parsers[query.parser_id](self.config, query)
         except KeyError:
-            raise Exception('no available parser')
+            raise Exception(f'parser {query.parser_id} not found')
         bodies = list(parser.parse())
         for body in bodies:
             body.key = query.key_generator(body)
