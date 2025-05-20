@@ -4,8 +4,6 @@ import sys
 
 from svcutils.service import Config, Service
 
-from bodiez import WORK_DIR, collector
-
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -25,7 +23,14 @@ def parse_args():
     return args
 
 
+def wrap_collect(*args, **kwargs):
+    from bodiez import collector
+    return collector.collect(*args, **kwargs)
+
+
 def main():
+    from bodiez import WORK_DIR
+
     args = parse_args()
     path = os.path.realpath(os.path.expanduser(args.path))
     config = Config(
@@ -38,7 +43,7 @@ def main():
     )
     if args.cmd == 'collect':
         service = Service(
-            target=collector.collect,
+            target=wrap_collect,
             args=(config,),
             work_dir=WORK_DIR,
             run_delta=config.RUN_DELTA,
@@ -50,8 +55,9 @@ def main():
         elif args.task:
             service.run_once()
         else:
-            collector.collect(config, force=True)
+            wrap_collect(config, force=True)
     elif args.cmd == 'test':
+        from bodiez import collector
         collector.test(config, url_id=args.id)
 
 
