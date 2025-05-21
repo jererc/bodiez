@@ -30,7 +30,6 @@ def wrap_collect(*args, **kwargs):
 
 def main():
     from bodiez import WORK_DIR
-
     args = parse_args()
     path = os.path.realpath(os.path.expanduser(args.path))
     config = Config(
