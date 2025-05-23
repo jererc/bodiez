@@ -18,8 +18,7 @@ HOSTNAME = socket.gethostname()
 class State:
     def __init__(self, base_dir, url):
         self.file = os.path.join(base_dir, f'{urlparse(url).netloc}.json')
-        if not os.path.exists(base_dir):
-            os.makedirs(base_dir)
+        os.makedirs(base_dir, exist_ok=True)
 
     def load(self):
         try:
@@ -45,8 +44,7 @@ class CloudSyncStore:
     def __init__(self, config):
         self.config = config
         self.base_dir = self.config.STORE_DIR
-        if not os.path.exists(self.base_dir):
-            os.makedirs(self.base_dir)
+        os.makedirs(self.base_dir, exist_ok=True)
 
     def _get_doc_id(self, url):
         return hashlib.md5(url.encode('utf-8')).hexdigest()

@@ -20,11 +20,6 @@ def remove_path(path):
         os.remove(path)
 
 
-def makedirs(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-
 class CleanTitleTestCase(unittest.TestCase):
     def test_1(self):
         x = 'L.A. Noire: The Complete Edition (v2675.1 + All DLCs, MULTi6) [FitGirl Repack]'

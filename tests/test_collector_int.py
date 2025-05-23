@@ -27,15 +27,10 @@ def remove_path(path):
         os.remove(path)
 
 
-def makedirs(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-
 class BaseTestCase(unittest.TestCase):
     def setUp(self):
         # remove_path(WORK_DIR)
-        makedirs(WORK_DIR)
+        os.makedirs(WORK_DIR, exist_ok=True)
 
     def _collect(self, url, headless=True):
         config = Config(
