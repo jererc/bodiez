@@ -48,7 +48,7 @@ class CleanTitleTestCase(unittest.TestCase):
     def test_7(self):
         x = "Anton Bruckner - Symphonie Nr. 7 / Symphony No. 7 (Gewandhausorchester Leipzig - Franz Konwitschny) / \u0410\u043d\u0442\u043e\u043d \u0411\u0440\u0443\u043a\u043d\u0435\u0440 - \u0421\u0438\u043c\u0444\u043e\u043d\u0438\u044f \u2116 7 (\u0424\u0440\u0430\u043d\u0446 \u041a\u043e\u043d\u0432\u0438\u0447\u043d\u044b\u0439) - 1993, FLAC (tracks+.cue) lossless"
         self.assertEqual(collector.clean_title(x),
-            'Anton Bruckner - Symphonie Nr. 7 / Symphony No. 7 / Антон Брукнер - Симфония № 7 - 1993, FLAC lossless')
+                         'Anton Bruckner - Symphonie Nr. 7 / Symphony No. 7 / Антон Брукнер - Симфония № 7 - 1993, FLAC lossless')
 
 
 class QueryTestCase(unittest.TestCase):

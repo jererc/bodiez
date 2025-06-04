@@ -41,7 +41,7 @@ class CloudSyncStoreTestCase(unittest.TestCase):
 
     def _create_file(self, url, titles, hostname):
         file = os.path.join(self.store.base_dir,
-            f'{self.store._get_doc_id(url)}-{hostname}.json')
+                            f'{self.store._get_doc_id(url)}-{hostname}.json')
         data = {
             'url': url,
             'titles': titles,
@@ -90,8 +90,7 @@ class CloudSyncStoreTestCase(unittest.TestCase):
 
         doc = self.store.get(self.url)
         other_host_titles = ['new_title'] + doc.titles
-        self._create_file(self.url, titles=other_host_titles,
-            hostname='another_host')
+        self._create_file(self.url, titles=other_host_titles, hostname='another_host')
         doc = self.store.get(self.url)
         pprint(doc)
         self.assertEqual(doc.titles, other_host_titles)

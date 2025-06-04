@@ -102,7 +102,7 @@ class SimpleTestCase(BaseTestCase):
         )
 
     def test_coinmarketcap_1(self):
-        res = self._test_collect(
+        self._test_collect(
             {
                 'id': 'btc-usd',
                 'url': 'https://coinmarketcap.com/currencies/bitcoin/',
@@ -114,7 +114,7 @@ class SimpleTestCase(BaseTestCase):
         )
 
     def test_coinmarketcap_2(self):
-        res = self._test_collect(
+        self._test_collect(
             {
                 'id': 'ada-usd',
                 'url': 'https://coinmarketcap.com/currencies/cardano/',
@@ -193,7 +193,9 @@ class GenericTestCase(BaseTestCase):
 
 class TimeoutTestCase(BaseTestCase):
     def test_timeout(self):
-        self.assertRaises(Exception, self._collect,
+        self.assertRaises(
+            Exception,
+            self._collect,
             {
                 'url': 'https://1337x.to/user/FitGirl/',
                 'xpath': '//table/tbody/tr/td[999]/a[999]',
@@ -254,10 +256,9 @@ class WorkflowTestCase(BaseTestCase):
 
         new_titles = [f'body {i}' for i in range(2)]
         with patch.object(module.Notifier, 'send') as mock_send, \
-                patch.object(collector,
-                    '_collect_bodies') as mock__collect_bodies:
+                patch.object(collector, '_collect_bodies') as mock__collect_bodies:
             mock__collect_bodies.return_value = [Body(title=r, key=r)
-                for r in (new_titles + doc.keys[:-len(new_titles)])]
+                                                 for r in (new_titles + doc.keys[:-len(new_titles)])]
             run()
         pprint(mock_send.call_args_list)
         prev_doc_keys = doc.keys
