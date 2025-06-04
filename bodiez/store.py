@@ -55,20 +55,20 @@ class CloudSyncStore:
 
     def get(self, url):
         files = glob(os.path.join(self.base_dir,
-            f'{self._get_doc_id(url)}-*.json'))
+                                  f'{self._get_doc_id(url)}-*.json'))
         if not files:
             return Document(url=url)
         doc = sorted([self._load_doc(r) for r in files],
-            key=lambda x: x.updated_ts)[-1]
+                     key=lambda x: x.updated_ts)[-1]
         if doc.url != url:
             logger.error(f'mismatching doc for {url}:\n'
-                f'{pformat(asdict(doc), width=160)}')
+                         f'{pformat(asdict(doc), width=160)}')
             raise Exception(f'mismatching doc for {url}')
         return doc
 
     def set(self, url, keys):
         file = os.path.join(self.base_dir,
-            f'{self._get_doc_id(url)}-{HOSTNAME}.json')
+                            f'{self._get_doc_id(url)}-{HOSTNAME}.json')
         data = {
             'url': url,
             'keys': keys,

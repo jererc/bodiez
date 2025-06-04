@@ -33,7 +33,7 @@ class GenericParser(BaseParser):
         with self.playwright_context() as context:
             page = self._load_page(context)
             rel_selector = (f'xpath={self.query.rel_xpath}'
-                if self.query.rel_xpath else None)
+                            if self.query.rel_xpath else None)
             seen_titles = set()
             for i in range(self.query.pages):
                 for element in self._find_elements(page):

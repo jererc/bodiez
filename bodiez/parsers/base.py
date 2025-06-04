@@ -33,11 +33,11 @@ class BaseParser:
         self.query = query
         self.state = State(self.config.STATE_DIR, self.query.url)
         self.timeout = (self.query.headless_timeout
-            if self.config.HEADLESS else self.query.headful_timeout)
+                        if self.config.HEADLESS else self.query.headful_timeout)
 
     def _is_external_domain(self, request):
         return (get_url_domain_name(self.query.url)
-            not in urlparse(request.url).netloc.split('.'))
+                not in urlparse(request.url).netloc.split('.'))
 
     def _request_handler(self, route, request):
         if self.query.block_external and self._is_external_domain(request):
@@ -71,8 +71,7 @@ class BaseParser:
         page = context.new_page()
         page.goto(self.query.url)
         if self.config.LOGIN_TIMEOUT and not self.config.HEADLESS:
-            logger.debug(f'waiting {self.config.LOGIN_TIMEOUT} '
-                'seconds for login...')
+            logger.debug(f'waiting {self.config.LOGIN_TIMEOUT} seconds for login...')
             time.sleep(self.config.LOGIN_TIMEOUT)
         return page
 

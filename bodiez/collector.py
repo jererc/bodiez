@@ -104,7 +104,7 @@ class Collector:
         for body in bodies:
             body.key = query.key_generator(body)
         logger.debug(f'collected {len(bodies)} bodies for {query.id}:\n'
-            f'{to_json([asdict(r) for r in bodies])}')
+                     f'{to_json([asdict(r) for r in bodies])}')
         return bodies
 
     def _process_query(self, query):
@@ -142,13 +142,14 @@ class Collector:
             if url_id and query.id != url_id:
                 continue
             logger.debug(f'processing {query.id}:\n'
-                f'{pformat(asdict(query), width=160)}')
+                         f'{pformat(asdict(query), width=160)}')
             try:
                 self._process_query(query)
             except Exception as exc:
                 logger.exception(f'failed to process {query.id}: {exc}')
                 Notifier().send(title=query.id,
-                    body=f'error: {exc}', app_name=NAME)
+                                body=f'error: {exc}',
+                                app_name=NAME)
         if self.report:
             logger.info(f'report:\n{to_json(self.report)}')
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')
