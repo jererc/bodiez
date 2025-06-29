@@ -240,27 +240,27 @@ class WorkflowTestCase(BaseTestCase):
         pprint(doc)
         self.assertFalse(doc.keys)
 
-        with patch.object(module.Notifier, 'send') as mock_send:
+        with patch.object(module, 'notify') as mock_notify:
             run()
-        pprint(mock_send.call_args_list)
-        self.assertEqual(len(mock_send.call_args_list), 4)
+        pprint(mock_notify.call_args_list)
+        self.assertEqual(len(mock_notify.call_args_list), 4)
 
         doc = collector.store.get(config.QUERIES[0]['url'])
         pprint(doc)
         self.assertTrue(doc.keys)
 
-        with patch.object(module.Notifier, 'send') as mock_send:
+        with patch.object(module, 'notify') as mock_notify:
             run()
-        pprint(mock_send.call_args_list)
-        self.assertFalse(mock_send.call_args_list)
+        pprint(mock_notify.call_args_list)
+        self.assertFalse(mock_notify.call_args_list)
 
         new_titles = [f'body {i}' for i in range(2)]
-        with patch.object(module.Notifier, 'send') as mock_send, \
+        with patch.object(module, 'notify') as mock_notify, \
                 patch.object(collector, '_collect_bodies') as mock__collect_bodies:
             mock__collect_bodies.return_value = [Body(title=r, key=r)
                                                  for r in (new_titles + doc.keys[:-len(new_titles)])]
             run()
-        pprint(mock_send.call_args_list)
+        pprint(mock_notify.call_args_list)
         prev_doc_keys = doc.keys
         doc = collector.store.get(config.QUERIES[0]['url'])
         pprint(doc)

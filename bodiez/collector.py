@@ -6,7 +6,7 @@ import time
 from typing import Callable, List
 from urllib.parse import urlparse, unquote_plus
 
-from svcutils.service import Notifier
+from svcutils.notifier import notify
 
 from bodiez import NAME, logger
 from bodiez.parsers.base import get_url_domain_name, iterate_parsers
@@ -81,19 +81,15 @@ class Collector:
 
         over_limit = len(bodies[query.max_notif:])
         if over_limit:
-            Notifier().send(
-                title=query.id,
-                body=f'+{over_limit} more results',
-                app_name=NAME,
-                on_click=query.url,
-            )
+            notify(title=query.id,
+                   body=f'+{over_limit} more results',
+                   app_name=NAME,
+                   on_click=query.url)
         for body in reversed(bodies[:query.max_notif]):
-            Notifier().send(
-                title=query.id,
-                body=postprocess(body.title),
-                app_name=NAME,
-                on_click=body.url,
-            )
+            notify(title=query.id,
+                   body=postprocess(body.title),
+                   app_name=NAME,
+                   on_click=body.url)
 
     def _collect_bodies(self, query):
         try:
@@ -147,9 +143,9 @@ class Collector:
                 self._process_query(query)
             except Exception as exc:
                 logger.exception(f'failed to process {query.id}: {exc}')
-                Notifier().send(title=query.id,
-                                body=f'error: {exc}',
-                                app_name=NAME)
+                notify(title=query.id,
+                       body=f'error: {exc}',
+                       app_name=NAME)
         if self.report:
             logger.info(f'report:\n{to_json(self.report)}')
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')
