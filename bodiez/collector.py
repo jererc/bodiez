@@ -8,7 +8,7 @@ from urllib.parse import urlparse, unquote_plus
 
 from svcutils.notifier import notify
 
-from bodiez import NAME, logger
+from bodiez import NAME, WORK_DIR, logger
 from bodiez.parsers.base import get_url_domain_name, iterate_parsers
 from bodiez.store import CloudSyncStore
 
@@ -145,7 +145,9 @@ class Collector:
                 logger.exception(f'failed to process {query.id}: {exc}')
                 notify(title=query.id,
                        body=f'error: {exc}',
-                       app_name=NAME)
+                       app_name=NAME,
+                       replace_key=f'error-{query.id}',
+                       work_dir=WORK_DIR)
         if self.report:
             logger.info(f'report:\n{to_json(self.report)}')
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')
