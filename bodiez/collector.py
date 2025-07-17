@@ -144,10 +144,10 @@ class Collector:
                 self._process_query(query)
             except Exception:
                 logger.exception(f'failed to process {query.id}')
-                failed_queries.append(query.id)
+                failed_queries.append(query)
         if failed_queries:
             notify(title='failed queries',
-                   body=', '.join(sorted(failed_queries)),
+                   body=', '.join(sorted(r.id for r in failed_queries)),
                    app_name=NAME,
                    replace_key='failed-queries',
                    work_dir=WORK_DIR)
