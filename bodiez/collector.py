@@ -147,7 +147,7 @@ class Collector:
                 failed_queries.append(query.id)
         if failed_queries:
             notify(title='failed queries',
-                   body=f'{", ".join(sorted(failed_queries))}',
+                   body=', '.join(sorted(failed_queries)),
                    app_name=NAME,
                    replace_key='failed-queries',
                    work_dir=WORK_DIR)
