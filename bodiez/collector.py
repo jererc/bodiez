@@ -142,8 +142,8 @@ class Collector:
                          f'{pformat(asdict(query), width=160)}')
             try:
                 self._process_query(query)
-            except Exception as exc:
-                logger.exception(f'failed to process {query.id}: {exc}')
+            except Exception:
+                logger.exception(f'failed to process {query.id}')
                 failed_queries.append(query.id)
         if failed_queries:
             notify(title='failed queries',
