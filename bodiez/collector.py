@@ -131,6 +131,7 @@ class Collector:
 
     def run(self, url_id=None):
         start_ts = time.time()
+        failed_queries = []
         for query_args in self.config.QUERIES:
             query = Query(**query_args)
             if not (query.active or self.test):
@@ -143,11 +144,13 @@ class Collector:
                 self._process_query(query)
             except Exception as exc:
                 logger.exception(f'failed to process {query.id}: {exc}')
-                notify(title=query.id,
-                       body=f'error: {exc}',
-                       app_name=NAME,
-                       replace_key=f'error-{query.id}',
-                       work_dir=WORK_DIR)
+                failed_queries.append(query.id)
+        if failed_queries:
+            notify(title='failed queries',
+                   body=f'{", ".join(sorted(failed_queries))}',
+                   app_name=NAME,
+                   replace_key='failed-queries',
+                   work_dir=WORK_DIR)
         if self.report:
             logger.info(f'report:\n{to_json(self.report)}')
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')
