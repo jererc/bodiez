@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 from pprint import pprint
 import shutil
@@ -8,10 +7,7 @@ import unittest
 
 from svcutils.service import Config
 
-import bodiez as module
-WORK_DIR = os.path.join(os.path.expanduser('~'), '_tests', 'bodiez')
-module.WORK_DIR = WORK_DIR
-logging.getLogger('').handlers.clear()
+from tests import WORK_DIR
 from bodiez import store
 
 
