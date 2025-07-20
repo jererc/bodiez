@@ -2,6 +2,7 @@ from dataclasses import asdict, dataclass, field
 from glob import glob
 import hashlib
 import json
+import logging
 import os
 from pprint import pformat
 import socket
@@ -9,10 +10,10 @@ import time
 from typing import List
 from urllib.parse import urlparse
 
-from bodiez import logger
-
 
 HOSTNAME = socket.gethostname()
+
+logger = logging.getLogger(__name__)
 
 
 class State:

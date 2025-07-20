@@ -7,8 +7,7 @@ import unittest
 import bodiez as module
 WORK_DIR = os.path.join(os.path.expanduser('~'), '_tests', 'bodiez')
 module.WORK_DIR = WORK_DIR
-module.logger.setLevel(logging.DEBUG)
-module.logger.handlers.clear()
+logging.getLogger('').handlers.clear()
 from bodiez import collector
 from bodiez.parsers import base
 

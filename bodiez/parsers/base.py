@@ -2,14 +2,17 @@ from dataclasses import dataclass
 from contextlib import contextmanager
 import importlib
 import inspect
+import logging
 import pkgutil
 import time
 from urllib.parse import urljoin, urlparse
 
 from playwright.sync_api import TimeoutError, sync_playwright
 
-from bodiez import logger
 from bodiez.store import State
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_url_domain_name(url):

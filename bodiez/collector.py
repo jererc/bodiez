@@ -1,6 +1,7 @@
 from dataclasses import asdict, dataclass, field
 from pprint import pformat
 import json
+import logging
 import re
 import time
 from typing import Callable, List
@@ -8,9 +9,12 @@ from urllib.parse import urlparse, unquote_plus
 
 from svcutils.notifier import notify
 
-from bodiez import NAME, WORK_DIR, logger
+from bodiez import NAME, WORK_DIR
 from bodiez.parsers.base import get_url_domain_name, iterate_parsers
 from bodiez.store import CloudSyncStore
+
+
+logger = logging.getLogger(__name__)
 
 
 def clean_title(title):
