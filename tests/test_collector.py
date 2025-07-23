@@ -1,18 +1,9 @@
-import os
 from pprint import pprint
-import shutil
 import unittest
 
 from tests import WORK_DIR
 from bodiez import collector
 from bodiez.parsers import base
-
-
-def remove_path(path):
-    if os.path.isdir(path):
-        shutil.rmtree(path)
-    elif os.path.isfile(path):
-        os.remove(path)
 
 
 class CleanTitleTestCase(unittest.TestCase):

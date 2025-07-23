@@ -21,7 +21,7 @@ def remove_path(path):
 class CloudSyncStoreTestCase(unittest.TestCase):
     def setUp(self):
         remove_path(WORK_DIR)
-        os.makedirs(WORK_DIR, exist_ok=True)
+        os.makedirs(WORK_DIR)
         self.store = store.CloudSyncStore(Config(
             __file__,
             STORE_DIR=os.path.join(WORK_DIR, 'store'),
