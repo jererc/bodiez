@@ -9,7 +9,7 @@ from urllib.parse import urlparse, unquote_plus
 
 from svcutils.notifier import notify
 
-from bodiez import NAME, WORK_DIR
+from bodiez import NAME
 from bodiez.parsers.base import get_url_domain_name, iterate_parsers
 from bodiez.store import CloudSyncStore
 
@@ -153,8 +153,7 @@ class Collector:
             notify(title='failed queries',
                    body=', '.join(sorted(r.id for r in failed_queries)),
                    app_name=NAME,
-                   replace_key='failed-queries',
-                   work_dir=WORK_DIR)
+                   replace_key='failed-queries')
         if self.report:
             logger.info(f'report:\n{to_json(self.report)}')
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')
