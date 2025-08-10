@@ -65,8 +65,17 @@ class BaseParser:
                         '--disable-blink-features=AutomationControlled',
                     ],
                 )
-                context = browser.new_context(storage_state=self.state.load())
+                context = browser.new_context(storage_state=self.state.load(),
+                                              viewport={'width': 1920, 'height': 1080},
+                                              user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                                                         "(KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
+                                              locale="en-US",
+                                              timezone_id="America/New_York")
                 context.route('**/*', self._request_handler)
+                context.add_init_script("""Object.defineProperty(navigator, 'webdriver', {get: () => undefined});""")
+                context.add_init_script("""window.chrome = { runtime: {} };""")
+                context.add_init_script("""Object.defineProperty(navigator, 'languages', {get: () => ['en-US', 'en']});""")
+                context.add_init_script("""Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3, 4, 5]});""")
                 yield context
             finally:
                 if context:
