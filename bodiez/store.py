@@ -8,29 +8,11 @@ from pprint import pformat
 import socket
 import time
 from typing import List
-from urllib.parse import urlparse
 
 
 HOSTNAME = socket.gethostname()
 
 logger = logging.getLogger(__name__)
-
-
-class State:
-    def __init__(self, base_dir, url):
-        self.file = os.path.join(base_dir, f'{urlparse(url).netloc}.json')
-        os.makedirs(base_dir, exist_ok=True)
-
-    def load(self):
-        try:
-            with open(self.file, 'r', encoding='utf-8') as fd:
-                return json.load(fd)
-        except FileNotFoundError:
-            return None
-
-    def save(self, state):
-        with open(self.file, 'w', encoding='utf-8') as fd:
-            fd.write(json.dumps(state))
 
 
 @dataclass

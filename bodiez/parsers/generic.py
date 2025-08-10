@@ -32,8 +32,7 @@ class GenericParser(BaseParser):
     def parse(self):
         with self.playwright_context() as context:
             page = self._load_page(context)
-            rel_selector = (f'xpath={self.query.rel_xpath}'
-                            if self.query.rel_xpath else None)
+            rel_selector = f'xpath={self.query.rel_xpath}' if self.query.rel_xpath else None
             seen_titles = set()
             for i in range(self.query.pages):
                 for element in self._find_elements(page):
@@ -44,13 +43,11 @@ class GenericParser(BaseParser):
                     else:
                         rel_elements = [element]
                     if self.query.child_xpaths:
-                        text_elements = list(self._iterate_children(
-                            rel_elements[0]))
+                        text_elements = list(self._iterate_children(rel_elements[0]))
                     else:
                         text_elements = rel_elements
                     texts = [r.text_content().strip() for r in text_elements]
-                    title = self.query.text_delimiter.join(
-                        [r for r in texts if r])
+                    title = self.query.text_delimiter.join(r for r in texts if r)
                     if title in seen_titles:
                         continue
                     yield Body(title=title, url=self._get_link(element))

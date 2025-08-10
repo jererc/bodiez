@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from contextlib import contextmanager
-from glob import glob
 import importlib
 import inspect
 import logging
@@ -9,10 +8,10 @@ import pkgutil
 import time
 from urllib.parse import urljoin, urlparse
 
-from playwright.sync_api import TimeoutError, sync_playwright
+from playwright.sync_api import TimeoutError
+from webutils.browser import State, playwright_context, save_page
 
 from bodiez import WORK_DIR
-from bodiez.store import State
 
 
 logger = logging.getLogger(__name__)
@@ -37,13 +36,11 @@ class BaseParser:
     def __init__(self, config, query):
         self.config = config
         self.query = query
-        self.state = State(self.config.STATE_DIR, self.query.url)
-        self.timeout = (self.query.headless_timeout
-                        if self.config.HEADLESS else self.query.headful_timeout)
+        self.state = State(os.path.join(self.config.STATE_DIR, f'{urlparse(self.query.url).netloc}.json'))
+        self.timeout = self.query.headless_timeout if self.config.HEADLESS else self.query.headful_timeout
 
     def _is_external_domain(self, request):
-        return (get_url_domain_name(self.query.url)
-                not in urlparse(request.url).netloc.split('.'))
+        return get_url_domain_name(self.query.url) not in urlparse(request.url).netloc.split('.')
 
     def _request_handler(self, route, request):
         if self.query.block_external and self._is_external_domain(request):
@@ -56,46 +53,12 @@ class BaseParser:
 
     @contextmanager
     def playwright_context(self):
-        with sync_playwright() as p:
-            context = None
-            try:
-                browser = p.chromium.launch(
-                    headless=self.config.HEADLESS,
-                    args=[
-                        '--disable-blink-features=AutomationControlled',
-                    ],
-                )
-                context = browser.new_context(storage_state=self.state.load(),
-                                              viewport={'width': 1920, 'height': 1080},
-                                              user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                                                         "(KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
-                                              locale="en-US",
-                                              timezone_id="America/New_York")
-                context.route('**/*', self._request_handler)
-                context.add_init_script("""Object.defineProperty(navigator, 'webdriver', {get: () => undefined});""")
-                context.add_init_script("""window.chrome = { runtime: {} };""")
-                context.add_init_script("""Object.defineProperty(navigator, 'languages', {get: () => ['en-US', 'en']});""")
-                context.add_init_script("""Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3, 4, 5]});""")
-                yield context
-            finally:
-                if context:
-                    self.state.save(context.storage_state())
-                    context.close()
+        with playwright_context(self.state, self.config.HEADLESS) as context:
+            context.route('**/*', self._request_handler)
+            yield context
 
-    def _save_debug_data(self, page, name, ttl=3600 * 24 * 30):
-        debug_dir = os.path.join(WORK_DIR, 'debug')
-        os.makedirs(debug_dir, exist_ok=True)
-        list(map(os.remove, [f for f in glob(os.path.join(debug_dir, '*'))
-                             if os.stat(f).st_mtime < time.time() - ttl]))
-        basename = f'{int(time.time())}-{name}'
-        source_file = os.path.join(debug_dir, f'{basename}.html')
-        with open(source_file, 'w', encoding='utf-8') as f:
-            f.write(page.content())
-        logger.warning(f'saved page content to {source_file}')
-        if self.config.HEADLESS:
-            screenshot_file = os.path.join(debug_dir, f'{basename}.png')
-            page.screenshot(path=screenshot_file)
-            logger.warning(f'saved page screenshot to {screenshot_file}')
+    def _save_page(self, page, name):
+        save_page(page, os.path.join(WORK_DIR, 'debug'), name)
 
     def _load_page(self, context):
         page = context.new_page()
@@ -110,7 +73,7 @@ class BaseParser:
         try:
             page.wait_for_selector(selector, timeout=self.timeout * 1000)
         except TimeoutError:
-            self._save_debug_data(page, 'selector_not_found')
+            self._save_page(page, 'selector_not_found')
             if not self.query.allow_no_results:
                 raise Exception('timeout')
             logger.debug(f'timed out for {selector}')

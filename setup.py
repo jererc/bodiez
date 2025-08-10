@@ -2,16 +2,17 @@ from setuptools import setup, find_packages
 
 setup(
     name='bodiez',
-    version='2025.08.10.090155',
+    version='2025.08.10.123458',
     author='jererc',
     author_email='jererc@gmail.com',
     url='https://github.com/jererc/bodiez',
     packages=find_packages(exclude=['tests*']),
     python_requires='>=3.10',
     install_requires=[
-        'playwright',
         # 'svcutils @ git+https://github.com/jererc/svcutils.git@main#egg=svcutils',
         'svcutils @ https://github.com/jererc/svcutils/archive/refs/heads/main.zip',
+        # 'webutils @ git+https://github.com/jererc/webutils.git@main#egg=webutils',
+        'webutils @ https://github.com/jererc/webutils/archive/refs/heads/main.zip',
     ],
     extras_require={
         'dev': ['flake8', 'pytest'],
