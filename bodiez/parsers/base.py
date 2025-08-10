@@ -1,14 +1,17 @@
 from dataclasses import dataclass
 from contextlib import contextmanager
+from glob import glob
 import importlib
 import inspect
 import logging
+import os
 import pkgutil
 import time
 from urllib.parse import urljoin, urlparse
 
 from playwright.sync_api import TimeoutError, sync_playwright
 
+from bodiez import WORK_DIR
 from bodiez.store import State
 
 
@@ -70,6 +73,21 @@ class BaseParser:
                     self.state.save(context.storage_state())
                     context.close()
 
+    def _save_debug_data(self, page, name, ttl=3600 * 24 * 30):
+        debug_dir = os.path.join(WORK_DIR, 'debug')
+        os.makedirs(debug_dir, exist_ok=True)
+        list(map(os.remove, [f for f in glob(os.path.join(debug_dir, '*'))
+                             if os.stat(f).st_mtime < time.time() - ttl]))
+        basename = f'{int(time.time())}-{name}'
+        source_file = os.path.join(debug_dir, f'{basename}.html')
+        with open(source_file, 'w', encoding='utf-8') as f:
+            f.write(page.content())
+        logger.warning(f'saved page content to {source_file}')
+        if self.config.HEADLESS:
+            screenshot_file = os.path.join(debug_dir, f'{basename}.png')
+            page.screenshot(path=screenshot_file)
+            logger.warning(f'saved page screenshot to {screenshot_file}')
+
     def _load_page(self, context):
         page = context.new_page()
         page.goto(self.query.url)
@@ -83,6 +101,7 @@ class BaseParser:
         try:
             page.wait_for_selector(selector, timeout=self.timeout * 1000)
         except TimeoutError:
+            self._save_debug_data(page, 'selector_not_found')
             if not self.query.allow_no_results:
                 raise Exception('timeout')
             logger.debug(f'timed out for {selector}')
