@@ -9,7 +9,7 @@ import time
 from urllib.parse import urljoin, urlparse
 
 from playwright.sync_api import TimeoutError
-from webutils.browser import State, playwright_context, save_page
+from webutils.browser import playwright_context, save_page
 
 from bodiez import WORK_DIR
 
@@ -36,7 +36,7 @@ class BaseParser:
     def __init__(self, config, query):
         self.config = config
         self.query = query
-        self.state = State(os.path.join(self.config.STATE_DIR, f'{urlparse(self.query.url).netloc}.json'))
+        self.state_file = os.path.join(self.config.STATE_DIR, f'{urlparse(self.query.url).netloc}.json')
         self.timeout = self.query.headless_timeout if self.config.HEADLESS else self.query.headful_timeout
 
     def _is_external_domain(self, request):
@@ -53,7 +53,7 @@ class BaseParser:
 
     @contextmanager
     def playwright_context(self):
-        with playwright_context(self.state, self.config.HEADLESS) as context:
+        with playwright_context(self.state_file, self.config.HEADLESS) as context:
             context.route('**/*', self._request_handler)
             yield context
 
