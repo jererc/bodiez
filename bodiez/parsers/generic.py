@@ -25,6 +25,14 @@ class GenericParser(BaseParser):
             if children:
                 yield children[0]
 
+    def _filter_elements(self, elements):
+        def get_value(element):
+            return element.locator(f'xpath={self.query.filter_xpath}').all()[0].text_content().strip()
+
+        if self.query.filter_xpath and self.query.filter_callable:
+            elements = [e for e in elements if self.query.filter_callable(get_value(e))]
+        return elements
+
     def _load_next_page(self, page):
         page.evaluate('window.scrollBy(0, window.innerHeight)')
         page.wait_for_timeout(2000)
@@ -46,6 +54,9 @@ class GenericParser(BaseParser):
                         text_elements = list(self._iterate_children(rel_elements[0]))
                     else:
                         text_elements = rel_elements
+                    text_elements = self._filter_elements(text_elements)
+                    if not text_elements:
+                        continue
                     texts = [r.text_content().strip() for r in text_elements]
                     title = self.query.text_delimiter.join(r for r in texts if r)
                     if title in seen_titles:

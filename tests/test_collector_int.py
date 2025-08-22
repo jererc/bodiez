@@ -183,6 +183,19 @@ class GenericTestCase(BaseTestCase):
         )
 
 
+class FilterTestCase(BaseTestCase):
+    def test_1337x(self):
+        self._test_collect(
+            {
+                'url': 'https://1337x.to/user/FitGirl/',
+                'xpath': '//table/tbody/tr/td[1]/a[2]',
+                'filter_xpath': '../../td[3]',
+                'filter_callable': lambda x: int(x) > 50,
+            },
+            headless=False,
+        )
+
+
 class TimeoutTestCase(BaseTestCase):
     def test_timeout(self):
         self.assertRaises(

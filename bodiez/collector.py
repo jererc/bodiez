@@ -49,6 +49,8 @@ class Query:
     group_attrs: List[str] = field(default_factory=list)
     rel_xpath: str = None
     link_xpath: str = '.'
+    filter_xpath: str = None
+    filter_callable: Callable = None
     pages: int = 1
     text_delimiter: str = ', '
     max_notif: int = 3
