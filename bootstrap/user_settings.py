@@ -1,23 +1,14 @@
-xpath_1337x = '//table/tbody/tr/td[1]/a[2]'
 QUERIES = [
     {
         'url': 'https://1337x.to/user/FitGirl/',
-        'id': 'FitGirl',
-        'xpath': xpath_1337x,
+        'id': '1337x',
+        'xpath': '//table/tbody/tr/td[1]/a[2]',
         'block_external': True,
         'max_notif': 10,
-    },
-    {
-        'url': 'https://1337x.to/user/DODI/',
-        'id': 'DODI',
-        'xpath': xpath_1337x,
-        'block_external': True,
-        'max_notif': 10,
-        'active': False,
     },
     {
         'url': 'https://actualitte.com/thematique/35/chroniques',
-        'id': 'livres',
+        'id': 'actualitte',
         'xpath': '//a[contains(@class, "list-article_link") or contains(@class, "article-card_link")]/h2',
         'link_xpath': '..',
         'block_external': True,
@@ -26,7 +17,7 @@ QUERIES = [
     },
     {
         'url': 'https://rutracker.org/forum/tracker.php?f=557',
-        'id': 'classical',
+        'id': 'rutracker',
         'xpath': '//div[contains(@class, "t-title")]/a',
         'block_external': True,
         'update_delta': 8 * 3600,
@@ -34,7 +25,7 @@ QUERIES = [
     },
     {
         'url': 'https://www.techspot.com/drivers/manufacturer/nvidia_geforce/',
-        'id': 'geforce-drivers',
+        'id': 'techspot-drivers',
         'xpath': '//div[contains(@class, "title")]/a',
         'block_external': True,
         'update_delta': 16 * 3600,
@@ -42,7 +33,7 @@ QUERIES = [
     },
     {
         'url': 'https://www.intel.com/content/www/us/en/support/articles/000005489/wireless.html',
-        'id': 'intel-wireless-drivers',
+        'id': 'intel-drivers',
         'xpath': '//table[contains(@class, "icstable")]/tbody/tr[not(contains(@class, "icstablehead"))]/td/*/a',
         'block_external': True,
         'update_delta': 16 * 3600,
@@ -50,7 +41,7 @@ QUERIES = [
     },
     {
         'url': 'https://coinmarketcap.com/currencies/bitcoin/',
-        'id': 'btc-usd',
+        'id': 'coinmarketcap',
         'xpath': '//span[@data-test="text-cdp-price-display"]',
         'block_external': True,
         'key_generator': lambda x: str(float(x.title.replace('$', '').replace(',', '')) // 1000 * 1000),
@@ -60,7 +51,7 @@ QUERIES = [
     },
     {
         'url': 'https://www.lexpressproperty.com/en/buy-mauritius/residential_land/riviere_noire-la_gaulette-la_preneuse-tamarin/?price_max=6%2C000%2C000&currency=MUR&filters%5Bland_unit%5D%5Beq%5D=m2',
-        'id': 'land-west',
+        'id': 'lexpressproperty',
         'xpath': '//div[contains(@class, "card-row")]',
         'text_xpaths': [
             './/div[contains(@class, "title-holder")]/h2',
@@ -74,22 +65,22 @@ QUERIES = [
     },
     {
         'url': 'https://www.facebook.com/marketplace/108433389181024/propertyforsale',
-        'id': 'fb-properties',
+        'id': 'facebook-marketplace',
         'xpath': '//img',
         'rel_xpath': '../../../../../../../div[2]/div',
         'group_attrs': ['width', 'height'],
-        'link_xpath': '../../../../../../../..',
+        'link_xpath': '../../..',
         'pages': 2,
         'update_delta': 8 * 3600,
         'active': False,
     },
     {
         'url': 'https://www.facebook.com/iqonmauritius',
-        'id': 'fb-iqon',
+        'id': 'facebook-posts',
         'xpath': '//*[local-name()="svg"][@aria-label]',
         'group_attrs': ['x'],
         'rel_xpath': '../../../../../../../../div[3]/div[1]',
-        'link_xpath': '../../../../../../../../div[3]/div[2]/*/a',
+        'link_xpath': '../div[2]/*/a',
         'pages': 2,
         'update_delta': 4 * 3600,
         'active': False,
