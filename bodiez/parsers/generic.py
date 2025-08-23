@@ -81,6 +81,7 @@ class GenericParser(BaseParser):
                     if self.query.rel_xpath:
                         rel_elements = element.locator(f'xpath={self.query.rel_xpath}').all()
                         if not rel_elements:
+                            logger.debug(f'no rel elements for {self.query.id=} {element=} {self.query.rel_xpath=}')
                             continue
                     else:
                         rel_elements = [element]

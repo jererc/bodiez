@@ -74,19 +74,6 @@ class DefaultTestCase(BaseTestCase):
 
 
 class GenericTestCase(BaseTestCase):
-    def test_1337x_child(self):
-        self._test_collect(
-            {
-                'url': 'https://1337x.to/user/FitGirl/',
-                'xpath': '//table/tbody/tr',
-                'text_xpaths': [
-                    './/td[1]/a[2]',
-                ],
-                'link_xpath': './/td[1]/a[2]',
-            },
-            headless=False,
-        )
-
     def test_fb_marketplace(self):
         self._test_collect(
             {
@@ -101,7 +88,7 @@ class GenericTestCase(BaseTestCase):
             headless=False,
         )
 
-    def test_fb_marketplace_child(self):
+    def test_fb_marketplace_text_xpaths(self):
         self._test_collect(
             {
                 'url': 'https://www.facebook.com/marketplace/108433389181024/propertyforsale',
@@ -127,24 +114,7 @@ class GenericTestCase(BaseTestCase):
                 'xpath': '//*[local-name()="svg"][@aria-label]',
                 'group_attrs': ['x'],
                 'rel_xpath': '../../../../../../../../../div[3]/div[1]',
-                'link_xpath': '../div[2]/*/a',
-                'pages': 3,
-            },
-            headless=False,
-        )
-
-    def test_fb_posts_child(self):
-        self._test_collect(
-            {
-                'url': 'https://www.facebook.com/iqonmauritius',
-                'id': 'iqon',
-                'xpath': '//*[local-name()="svg"][@aria-label]',
-                'group_attrs': ['x'],
-                'rel_xpath': '../../../../../../../../div[3]',
-                'text_xpaths': [
-                    './/div[1]',
-                ],
-                'link_xpath': '../div[3]/div[2]/*/a',
+                'link_xpath': '../div[2]//a',
                 'pages': 3,
             },
             headless=False,
