@@ -45,7 +45,7 @@ class Query:
     block_external: bool = False
     block_images: bool = True
     xpath: str = None
-    child_xpaths: List[str] = field(default_factory=list)
+    text_xpaths: List[str] = field(default_factory=list)
     group_attrs: List[str] = field(default_factory=list)
     rel_xpath: str = None
     link_xpath: str = '.'

@@ -62,7 +62,7 @@ QUERIES = [
         'url': 'https://www.lexpressproperty.com/en/buy-mauritius/residential_land/riviere_noire-la_gaulette-la_preneuse-tamarin/?price_max=6%2C000%2C000&currency=MUR&filters%5Bland_unit%5D%5Beq%5D=m2',
         'id': 'land-west',
         'xpath': '//div[contains(@class, "card-row")]',
-        'child_xpaths': [
+        'text_xpaths': [
             './/div[contains(@class, "title-holder")]/h2',
             './/address',
             './/div[contains(@class, "card-foot-price")]/strong/a',

@@ -44,7 +44,7 @@ class BaseTestCase(unittest.TestCase):
         self.assertTrue(all(r.key is not None for r in res))
 
 
-class SimpleTestCase(BaseTestCase):
+class GenericTestCase(BaseTestCase):
     def test_1337x(self):
         self._test_collect(
             {
@@ -59,7 +59,7 @@ class SimpleTestCase(BaseTestCase):
             {
                 'url': 'https://1337x.to/user/FitGirl/',
                 'xpath': '//table/tbody/tr',
-                'child_xpaths': [
+                'text_xpaths': [
                     './/td[1]/a[2]',
                 ],
                 'link_xpath': './/td[1]/a[2]',
@@ -82,7 +82,7 @@ class SimpleTestCase(BaseTestCase):
             {
                 'url': 'https://www.lexpressproperty.com/en/buy-mauritius/all/west/?price_max=5000000&currency=MUR&filters%5Binterior_unit%5D%5Beq%5D=m2&filters%5Bland_unit%5D%5Beq%5D=m2',
                 'xpath': '//div[contains(@class, "card-row")]',
-                'child_xpaths': [
+                'text_xpaths': [
                     './/div[contains(@class, "title-holder")]/h2',
                     './/address',
                     './/div[contains(@class, "card-foot-price")]/strong/a',
@@ -117,8 +117,6 @@ class SimpleTestCase(BaseTestCase):
             headless=False,
         )
 
-
-class GenericTestCase(BaseTestCase):
     def test_fb_marketplace(self):
         self._test_collect(
             {
@@ -141,7 +139,7 @@ class GenericTestCase(BaseTestCase):
                 'xpath': '//img',
                 'group_attrs': ['width', 'height'],
                 'rel_xpath': '../../../../../../../div[2]',
-                'child_xpaths': [
+                'text_xpaths': [
                     './/div[1]',
                     './/div[3]',
                 ],
@@ -173,7 +171,7 @@ class GenericTestCase(BaseTestCase):
                 'xpath': '//*[local-name()="svg"][@aria-label]',
                 'group_attrs': ['x'],
                 'rel_xpath': '../../../../../../../../div[3]',
-                'child_xpaths': [
+                'text_xpaths': [
                     './/div[1]',
                 ],
                 'link_xpath': '../../../../../../../../div[3]/div[2]/*/a',
@@ -190,6 +188,21 @@ class FilterTestCase(BaseTestCase):
                 'url': 'https://1337x.to/user/FitGirl/',
                 'xpath': '//table/tbody/tr/td[1]/a[2]',
                 'filter_xpath': '../../td[3]',
+                'filter_callable': lambda x: int(x) > 50,
+            },
+            headless=False,
+        )
+
+    def test_1337x_child(self):
+        self._test_collect(
+            {
+                'url': 'https://1337x.to/user/FitGirl/',
+                'xpath': '//table/tbody/tr',
+                'text_xpaths': [
+                    './/td[1]/a[2]',
+                ],
+                'link_xpath': './/td[1]/a[2]',
+                'filter_xpath': './/td[3]',
                 'filter_callable': lambda x: int(x) > 50,
             },
             headless=False,
