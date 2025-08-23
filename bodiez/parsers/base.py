@@ -69,7 +69,7 @@ class BaseParser:
         return page
 
     def _wait_for_selector(self, page, selector):
-        logger.debug(f'waiting {self.timeout} seconds for {selector}')
+        logger.debug(f'waiting for {selector=} {self.timeout=}')
         try:
             page.wait_for_selector(selector, timeout=self.timeout * 1000)
         except TimeoutError:

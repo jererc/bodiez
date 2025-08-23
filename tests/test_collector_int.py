@@ -125,7 +125,20 @@ class GenericTestCase(BaseTestCase):
                 'xpath': '//img',
                 'group_attrs': ['width', 'height'],
                 'rel_xpath': '../../../../../../../div[2]/div',
-                'link_xpath': '../../../../../../../..',
+                'link_xpath': '../../..',
+                'pages': 1,
+            },
+            headless=False,
+        )
+
+    def test_fb_marketplace2(self):
+        self._test_collect(
+            {
+                'url': 'https://www.facebook.com/marketplace/108433389181024/propertyforsale',
+                'id': 'property-for-sale',
+                'xpath': '//img[@src]',
+                'rel_xpath': '../../../../../../../div[2]/div',
+                'link_xpath': '../../..',
                 'pages': 1,
             },
             headless=False,
@@ -143,7 +156,7 @@ class GenericTestCase(BaseTestCase):
                     './/div[1]',
                     './/div[3]',
                 ],
-                'link_xpath': '../../../../../../../..',
+                'link_xpath': '../..',
                 'pages': 1,
             },
             headless=False,
@@ -157,7 +170,7 @@ class GenericTestCase(BaseTestCase):
                 'xpath': '//*[local-name()="svg"][@aria-label]',
                 'group_attrs': ['x'],
                 'rel_xpath': '../../../../../../../../div[3]/div[1]',
-                'link_xpath': '../../../../../../../../div[3]/div[2]/*/a',
+                'link_xpath': '../div[2]/*/a',
                 'pages': 3,
             },
             headless=False,
@@ -176,6 +189,27 @@ class GenericTestCase(BaseTestCase):
                 ],
                 'link_xpath': '../../../../../../../../div[3]/div[2]/*/a',
                 'pages': 3,
+            },
+            headless=False,
+        )
+
+
+class LoginTestCase(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        remove_path(os.path.join(WORK_DIR, 'state'))
+
+    def test_fb_login(self):
+        self._test_collect(
+            {
+                'url': 'https://www.facebook.com/marketplace/108433389181024/propertyforsale',
+                'id': 'property-for-sale',
+                'xpath': '//img',
+                'login_xpath': '//input[@name="email"]',
+                'group_attrs': ['width', 'height'],
+                'rel_xpath': '../../../../../../../div[2]/div',
+                'link_xpath': '../../..',
+                'pages': 1,
             },
             headless=False,
         )

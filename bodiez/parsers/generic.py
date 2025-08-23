@@ -1,5 +1,6 @@
 from collections import defaultdict
 import logging
+import time
 
 from bodiez.parsers.base import BaseParser, Body
 
@@ -9,6 +10,24 @@ logger = logging.getLogger(__name__)
 
 class GenericParser(BaseParser):
     id = 'generic'
+
+    def _check_login(self, page):
+        def check_login():
+            try:
+                return not page.locator(f'xpath={self.query.login_xpath}').all()
+            except Exception as e:
+                logger.debug(f'failed to check login {self.query.id=}: {e}')
+                return False
+
+        if not self.query.login_xpath:
+            return
+        if check_login():
+            return
+        if self.config.HEADLESS:
+            raise Exception('Interactive login required')
+        logger.debug('waiting for login...')
+        while not check_login():
+            time.sleep(5)
 
     def _find_elements(self, page):
         selector = f'xpath={self.query.xpath}'
@@ -55,6 +74,7 @@ class GenericParser(BaseParser):
     def parse(self):
         with self.playwright_context() as context:
             page = self._load_page(context)
+            self._check_login(page)
             seen_titles = set()
             for i in range(self.query.pages):
                 for element in self._find_elements(page):
