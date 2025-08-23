@@ -97,8 +97,9 @@ class GenericTestCase(BaseTestCase):
                 'group_attrs': ['width', 'height'],
                 'rel_xpath': '../../../../../../../div[2]',
                 'text_xpaths': [
-                    './/div[1]',
-                    './/div[3]',
+                    './div[1]',   # price
+                    # './div[2]',   # title
+                    './div[3]',   # location
                 ],
                 'link_xpath': '../..',
                 'pages': 1,
