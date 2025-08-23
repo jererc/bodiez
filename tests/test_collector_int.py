@@ -37,11 +37,11 @@ class BaseTestCase(unittest.TestCase):
     def _test_collect(self, *args, **kwargs):
         res = self._collect(*args, **kwargs)
         pprint(res)
-        self.assertTrue(res)
-        self.assertTrue(all(isinstance(r, Body) for r in res))
-        self.assertTrue(len({r.title for r in res}) > len(res) * .9)
-        self.assertTrue(len({r.url for r in res}) > len(res) * .9)
-        self.assertTrue(all(r.key is not None for r in res))
+        self.assertTrue(res, 'no results')
+        self.assertTrue(all(isinstance(r, Body) for r in res), 'invalid results')
+        self.assertTrue(len({r.title for r in res}) > len(res) * .9, 'invalid titles')
+        self.assertTrue(len({r.url for r in res}) > len(res) * .9, 'invalid urls')
+        self.assertTrue(all(r.key is not None for r in res), 'invalid keys')
 
 
 class DefaultTestCase(BaseTestCase):
@@ -126,7 +126,7 @@ class GenericTestCase(BaseTestCase):
                 'id': 'iqon',
                 'xpath': '//*[local-name()="svg"][@aria-label]',
                 'group_attrs': ['x'],
-                'rel_xpath': '../../../../../../../../div[3]/div[1]',
+                'rel_xpath': '../../../../../../../../../div[3]/div[1]',
                 'link_xpath': '../div[2]/*/a',
                 'pages': 3,
             },

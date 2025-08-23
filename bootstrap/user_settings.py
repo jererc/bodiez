@@ -79,7 +79,7 @@ QUERIES = [
         'id': 'facebook-posts',
         'xpath': '//*[local-name()="svg"][@aria-label]',
         'group_attrs': ['x'],
-        'rel_xpath': '../../../../../../../../div[3]/div[1]',
+        'rel_xpath': '../../../../../../../../../div[3]/div[1]',
         'link_xpath': '../div[2]/*/a',
         'pages': 2,
         'update_delta': 4 * 3600,
