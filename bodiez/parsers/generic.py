@@ -60,11 +60,7 @@ class GenericParser(BaseParser):
                 logger.error(f'Failed to find text element for {self.query.id=} {xpath=}')
 
     def _get_title(self, elements):
-        if self.query.text_xpaths:
-            text_elements = list(self._iterate_text_elements(elements[0]))
-        else:
-            text_elements = elements
-        texts = [r.text_content().strip() for r in text_elements]
+        texts = [r.text_content().strip() for r in elements]
         return self.query.text_delimiter.join(r for r in texts if r)
 
     def _load_next_page(self, page):
@@ -85,12 +81,17 @@ class GenericParser(BaseParser):
                             continue
                     else:
                         rel_elements = [element]
-                    if not self._validate_element(rel_elements[0]):
+                    base_element = rel_elements[0]
+                    if not self._validate_element(base_element):
                         continue
-                    title = self._get_title(rel_elements)
+                    if self.query.text_xpaths:
+                        text_elements = list(self._iterate_text_elements(base_element))
+                    else:
+                        text_elements = rel_elements
+                    title = self._get_title(text_elements)
                     if title in seen_titles:
                         continue
-                    yield Body(title=title, url=self._get_link(rel_elements[0]))
+                    yield Body(title=title, url=self._get_link(base_element))
                     seen_titles.add(title)
                 if i < self.query.pages - 1:
                     self._load_next_page(page)

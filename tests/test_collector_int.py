@@ -36,7 +36,7 @@ class BaseTestCase(unittest.TestCase):
 
     def _test_collect(self, *args, **kwargs):
         res = self._collect(*args, **kwargs)
-        pprint(res)
+        # pprint(res)
         self.assertTrue(res, 'no results')
         self.assertTrue(all(isinstance(r, Body) for r in res), 'invalid results')
         self.assertTrue(len({r.title for r in res}) > len(res) * .9, 'invalid titles')
