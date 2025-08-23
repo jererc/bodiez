@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class GenericParser(BaseParser):
     id = 'generic'
 
-    def _check_login(self, page):
+    def _check_login(self, page, check_delay=5, timeout=120):
         def check_login():
             try:
                 return not page.locator(f'xpath={self.query.login_xpath}').all()
@@ -26,8 +26,11 @@ class GenericParser(BaseParser):
         if self.config.HEADLESS:
             raise Exception('Interactive login required')
         logger.debug('waiting for login...')
+        start_ts = time.time()
         while not check_login():
-            time.sleep(5)
+            time.sleep(check_delay)
+            if time.time() - start_ts > timeout:
+                raise Exception('login timeout')
 
     def _find_elements(self, page):
         selector = f'xpath={self.query.xpath}'
@@ -60,12 +63,16 @@ class GenericParser(BaseParser):
                 logger.error(f'Failed to find text element for {self.query.id=} {xpath=}')
 
     def _get_title(self, elements):
-        texts = [r.text_content().strip() for r in elements]
+        if self.query.text_xpaths:
+            text_elements = list(self._iterate_text_elements(elements[0]))
+        else:
+            text_elements = elements
+        texts = [r.text_content().strip() for r in text_elements]
         return self.query.text_delimiter.join(r for r in texts if r)
 
-    def _load_next_page(self, page):
+    def _load_next_page(self, page, timeout=5000):
         page.evaluate('window.scrollBy(0, window.innerHeight)')
-        page.wait_for_timeout(2000)
+        page.wait_for_timeout(timeout)
 
     def parse(self):
         with self.playwright_context() as context:
@@ -75,23 +82,18 @@ class GenericParser(BaseParser):
             for i in range(self.query.pages):
                 for element in self._find_elements(page):
                     if self.query.rel_xpath:
-                        rel_elements = element.locator(f'xpath={self.query.rel_xpath}').all()
-                        if not rel_elements:
+                        elements = element.locator(f'xpath={self.query.rel_xpath}').all()
+                        if not elements:
                             logger.debug(f'no rel elements for {self.query.id=} {element=} {self.query.rel_xpath=}')
                             continue
                     else:
-                        rel_elements = [element]
-                    base_element = rel_elements[0]
-                    if not self._validate_element(base_element):
+                        elements = [element]
+                    if not self._validate_element(elements[0]):
                         continue
-                    if self.query.text_xpaths:
-                        text_elements = list(self._iterate_text_elements(base_element))
-                    else:
-                        text_elements = rel_elements
-                    title = self._get_title(text_elements)
+                    title = self._get_title(elements)
                     if title in seen_titles:
                         continue
-                    yield Body(title=title, url=self._get_link(base_element))
+                    yield Body(title=title, url=self._get_link(elements[0]))
                     seen_titles.add(title)
                 if i < self.query.pages - 1:
                     self._load_next_page(page)

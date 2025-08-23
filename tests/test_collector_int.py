@@ -83,7 +83,7 @@ class GenericTestCase(BaseTestCase):
                 'group_attrs': ['width', 'height'],
                 'rel_xpath': '../../../../../../../div[2]/div',
                 'link_xpath': '../../..',
-                'pages': 1,
+                'pages': 2,
             },
             headless=False,
         )
@@ -102,7 +102,7 @@ class GenericTestCase(BaseTestCase):
                     './div[3]',   # location
                 ],
                 'link_xpath': '../..',
-                'pages': 1,
+                'pages': 2,
             },
             headless=False,
         )
