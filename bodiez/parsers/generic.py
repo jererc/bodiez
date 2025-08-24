@@ -11,9 +11,12 @@ class GenericParser(BaseParser):
     id = 'generic'
 
     def _find_elements(self, page):
-        if self.query.group_attrs and self.query.group_xpath:
+        selector = f'xpath={self.query.xpath}'
+        self._wait_for_selector(page, selector)
+        if self.query.group_xpath and self.query.group_attrs:
+            # Group the base elements then find the target elements using a relative xpath
             groups = defaultdict(list)
-            for element in page.locator(f'xpath={self.query.xpath}').all():
+            for element in page.locator(selector).all():
                 box = element.bounding_box()
                 if box:
                     key = tuple(box[r] for r in self.query.group_attrs)
@@ -28,8 +31,6 @@ class GenericParser(BaseParser):
                 res.append(elements)
             return res
         else:
-            selector = f'xpath={self.query.xpath}'
-            self._wait_for_selector(page, selector)
             return [[r] for r in page.locator(selector).all()]
 
     def _validate_element(self, element):
@@ -39,7 +40,7 @@ class GenericParser(BaseParser):
                 return self.query.filter_callable(val)
             except Exception:
                 logger.exception(f'Failed to validate {self.query.id=} {element=}')
-                return True
+                self.query.errors.append('failed to validate element')
         return True
 
     def _iterate_text_elements(self, element):

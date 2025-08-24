@@ -76,14 +76,36 @@ class DefaultTestCase(BaseTestCase):
 
 
 class GenericTestCase(BaseTestCase):
+    def test_1337x_filter(self):
+        self._test_collect(
+            {
+                'url': 'https://1337x.to/user/FitGirl/',
+                'xpath': '//table/tbody/tr/td[1]/a[2]',
+                'filter_xpath': '../../td[3]',
+                'filter_callable': lambda x: int(x) > 50,
+            },
+            headless=False,
+        )
+
+    def test_1337x_pages(self):
+        self._test_collect(
+            {
+                'url': 'https://1337x.to/user/FitGirl/',
+                'xpath': '//table/tbody/tr/td[1]/a[2]',
+                'next_page_xpath': '//a[contains(text(), ">>")]',
+                'pages': 3,
+            },
+            headless=False,
+        )
+
     def test_fb_marketplace(self):
         self._test_collect(
             {
                 'url': 'https://www.facebook.com/marketplace/108433389181024/propertyforsale',
                 'id': 'property-for-sale',
                 'xpath': '//img',
-                'group_attrs': ['width', 'height'],
                 'group_xpath': '../../../../../../../div[2]/div',
+                'group_attrs': ['width', 'height'],
                 'link_xpath': '../../..',
             },
             headless=False,
@@ -95,8 +117,8 @@ class GenericTestCase(BaseTestCase):
                 'url': 'https://www.facebook.com/marketplace/108433389181024/propertyforsale',
                 'id': 'property-for-sale',
                 'xpath': '//img',
-                'group_attrs': ['width', 'height'],
                 'group_xpath': '../../../../../../../div[2]',
+                'group_attrs': ['width', 'height'],
                 'text_xpaths': [
                     './div[1]',   # price
                     # './div[2]',   # title
@@ -114,20 +136,9 @@ class GenericTestCase(BaseTestCase):
                 'url': 'https://www.facebook.com/iqonmauritius',
                 'id': 'iqon',
                 'xpath': '//*[local-name()="svg"][@aria-label]',
-                'group_attrs': ['x'],
                 'group_xpath': '../../../../../../../../../div[3]/div[1]',
+                'group_attrs': ['x'],
                 'link_xpath': '../div[2]//a',
-                'pages': 3,
-            },
-            headless=False,
-        )
-
-    def test_1337x_pages(self):
-        self._test_collect(
-            {
-                'url': 'https://1337x.to/user/FitGirl/',
-                'xpath': '//table/tbody/tr/td[1]/a[2]',
-                'next_page_xpath': '//a[contains(text(), ">>")]',
                 'pages': 3,
             },
             headless=False,
@@ -138,20 +149,6 @@ class LoginTestCase(BaseTestCase):
     def setUp(self):
         super().setUp()
         remove_path(os.path.join(WORK_DIR, 'state'))
-
-    def test_fb(self):
-        self._test_collect(
-            {
-                'url': 'https://www.facebook.com/marketplace/108433389181024/propertyforsale',
-                'id': 'property-for-sale',
-                'xpath': '//img',
-                'login_xpath': '//input[@name="email"]',
-                'group_attrs': ['width', 'height'],
-                'group_xpath': '../../../../../../../div[2]/div',
-                'link_xpath': '../../..',
-            },
-            headless=False,
-        )
 
     def test_rutracker(self):
         self._test_collect(
@@ -165,30 +162,16 @@ class LoginTestCase(BaseTestCase):
             headless=False,
         )
 
-
-class FilterTestCase(BaseTestCase):
-    def test_1337x(self):
+    def test_fb(self):
         self._test_collect(
             {
-                'url': 'https://1337x.to/user/FitGirl/',
-                'xpath': '//table/tbody/tr/td[1]/a[2]',
-                'filter_xpath': '../../td[3]',
-                'filter_callable': lambda x: int(x) > 50,
-            },
-            headless=False,
-        )
-
-    def test_1337x_child(self):
-        self._test_collect(
-            {
-                'url': 'https://1337x.to/user/FitGirl/',
-                'xpath': '//table/tbody/tr',
-                'text_xpaths': [
-                    './/td[1]/a[2]',
-                ],
-                'link_xpath': './/td[1]/a[2]',
-                'filter_xpath': './/td[3]',
-                'filter_callable': lambda x: int(x) > 50,
+                'url': 'https://www.facebook.com/marketplace/108433389181024/propertyforsale',
+                'id': 'property-for-sale',
+                'login_xpath': '//input[@name="email"]',
+                'xpath': '//img',
+                'group_xpath': '../../../../../../../div[2]/div',
+                'group_attrs': ['width', 'height'],
+                'link_xpath': '../../..',
             },
             headless=False,
         )
