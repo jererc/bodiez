@@ -83,9 +83,8 @@ class GenericTestCase(BaseTestCase):
                 'id': 'property-for-sale',
                 'xpath': '//img',
                 'group_attrs': ['width', 'height'],
-                'rel_xpath': '../../../../../../../div[2]/div',
+                'group_xpath': '../../../../../../../div[2]/div',
                 'link_xpath': '../../..',
-                'pages': 2,
             },
             headless=False,
         )
@@ -97,7 +96,7 @@ class GenericTestCase(BaseTestCase):
                 'id': 'property-for-sale',
                 'xpath': '//img',
                 'group_attrs': ['width', 'height'],
-                'rel_xpath': '../../../../../../../div[2]',
+                'group_xpath': '../../../../../../../div[2]',
                 'text_xpaths': [
                     './div[1]',   # price
                     # './div[2]',   # title
@@ -116,7 +115,7 @@ class GenericTestCase(BaseTestCase):
                 'id': 'iqon',
                 'xpath': '//*[local-name()="svg"][@aria-label]',
                 'group_attrs': ['x'],
-                'rel_xpath': '../../../../../../../../../div[3]/div[1]',
+                'group_xpath': '../../../../../../../../../div[3]/div[1]',
                 'link_xpath': '../div[2]//a',
                 'pages': 3,
             },
@@ -148,7 +147,7 @@ class LoginTestCase(BaseTestCase):
                 'xpath': '//img',
                 'login_xpath': '//input[@name="email"]',
                 'group_attrs': ['width', 'height'],
-                'rel_xpath': '../../../../../../../div[2]/div',
+                'group_xpath': '../../../../../../../div[2]/div',
                 'link_xpath': '../../..',
             },
             headless=False,

@@ -11,17 +11,26 @@ class GenericParser(BaseParser):
     id = 'generic'
 
     def _find_elements(self, page):
-        selector = f'xpath={self.query.xpath}'
-        self._wait_for_selector(page, selector)
-        if not self.query.group_attrs:
-            return page.locator(selector).all()
-        groups = defaultdict(list)
-        for element in page.locator(selector).all():
-            box = element.bounding_box()
-            if box:
-                key = tuple(box[r] for r in self.query.group_attrs)
-                groups[key].append(element)
-        return sorted(list(groups.values()), key=lambda x: len(x))[-1]
+        if self.query.group_attrs and self.query.group_xpath:
+            groups = defaultdict(list)
+            for element in page.locator(f'xpath={self.query.xpath}').all():
+                box = element.bounding_box()
+                if box:
+                    key = tuple(box[r] for r in self.query.group_attrs)
+                    groups[key].append(element)
+            base_elements = sorted(list(groups.values()), key=lambda x: len(x))[-1]
+            res = []
+            for element in base_elements:
+                elements = element.locator(f'xpath={self.query.group_xpath}').all()
+                if not elements:
+                    logger.debug(f'no rel elements for {self.query.id=} {element=} {self.query.group_xpath=}')
+                    continue
+                res.append(elements)
+            return res
+        else:
+            selector = f'xpath={self.query.xpath}'
+            self._wait_for_selector(page, selector)
+            return [[r] for r in page.locator(selector).all()]
 
     def _validate_element(self, element):
         if self.query.filter_xpath and self.query.filter_callable:
@@ -67,14 +76,7 @@ class GenericParser(BaseParser):
             page = self._load_page(context)
             seen_titles = set()
             for i in range(self.query.pages):
-                for element in self._find_elements(page):
-                    if self.query.rel_xpath:
-                        elements = element.locator(f'xpath={self.query.rel_xpath}').all()
-                        if not elements:
-                            logger.debug(f'no rel elements for {self.query.id=} {element=} {self.query.rel_xpath=}')
-                            continue
-                    else:
-                        elements = [element]
+                for elements in self._find_elements(page):
                     if not self._validate_element(elements[0]):
                         continue
                     title = self._get_title(elements)

@@ -45,15 +45,15 @@ class Query:
     block_images: bool = True
     login_xpath: str = None
     xpath: str = None
-    text_xpaths: List[str] = field(default_factory=list)
+    group_xpath: str = None
     group_attrs: List[str] = field(default_factory=list)
-    rel_xpath: str = None
-    link_xpath: str = '.'
     filter_xpath: str = None
     filter_callable: Callable = None
+    text_xpaths: List[str] = field(default_factory=list)
+    text_delimiter: str = ', '
+    link_xpath: str = '.'
     pages: int = 1
     next_page_xpath: str = None
-    text_delimiter: str = ', '
     max_notif: int = 3
     history_size: int = 50
     parser_id: str = 'generic'
