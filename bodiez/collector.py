@@ -38,14 +38,13 @@ class Query:
     url: str
     id: str = None
     active: bool = True
-    update_delta: int = 3600
-    headless_timeout: int = 10
-    headful_timeout: int = 60
+    update_delta: int = 2 * 3600
+    timeout: int = 5
     allow_no_results: bool = False
     block_external: bool = False
     block_images: bool = True
-    xpath: str = None
     login_xpath: str = None
+    xpath: str = None
     text_xpaths: List[str] = field(default_factory=list)
     group_attrs: List[str] = field(default_factory=list)
     rel_xpath: str = None
@@ -53,12 +52,14 @@ class Query:
     filter_xpath: str = None
     filter_callable: Callable = None
     pages: int = 1
+    next_page_xpath: str = None
     text_delimiter: str = ', '
     max_notif: int = 3
     history_size: int = 50
     parser_id: str = 'generic'
     key_generator: Callable = lambda x: x.title
     title_postprocessor: Callable = clean_title
+    errors: List[str] = field(default_factory=list)
 
     def __post_init__(self):
         if not self.id:
@@ -106,8 +107,11 @@ class Collector:
         bodies = list(parser.parse())
         for body in bodies:
             body.key = query.key_generator(body)
-        logger.debug(f'collected {len(bodies)} bodies for {query.id}:\n'
-                     f'{to_json([asdict(r) for r in bodies])}')
+        logger.debug(f'collected {len(bodies)} bodies for {query.id}:\n{to_json([asdict(r) for r in bodies])}')
+        if query.errors:
+            notify(title=f'{query.id} errors',
+                   body=', '.join(sorted(set(query.errors))),
+                   app_name=NAME)
         return bodies
 
     def _process_query(self, query):

@@ -1,6 +1,5 @@
 from collections import defaultdict
 import logging
-import time
 
 from bodiez.parsers.base import BaseParser, Body
 
@@ -10,27 +9,6 @@ logger = logging.getLogger(__name__)
 
 class GenericParser(BaseParser):
     id = 'generic'
-
-    def _check_login(self, page, check_delay=5, timeout=120):
-        def check_login():
-            try:
-                return not page.locator(f'xpath={self.query.login_xpath}').all()
-            except Exception as e:
-                logger.debug(f'failed to check login {self.query.id=}: {e}')
-                return False
-
-        if not self.query.login_xpath:
-            return
-        if check_login():
-            return
-        if self.config.HEADLESS:
-            raise Exception('Interactive login required')
-        logger.debug('waiting for login...')
-        start_ts = time.time()
-        while not check_login():
-            time.sleep(check_delay)
-            if time.time() - start_ts > timeout:
-                raise Exception('login timeout')
 
     def _find_elements(self, page):
         selector = f'xpath={self.query.xpath}'
@@ -70,14 +48,23 @@ class GenericParser(BaseParser):
         texts = [r.text_content().strip() for r in text_elements]
         return self.query.text_delimiter.join(r for r in texts if r)
 
-    def _load_next_page(self, page, timeout=5000):
-        page.evaluate('window.scrollBy(0, window.innerHeight)')
-        page.wait_for_timeout(timeout)
+    def _load_next_page(self, page):
+        if self.query.next_page_xpath:
+            try:
+                page.locator(f'xpath={self.query.next_page_xpath}').click()
+            except Exception as e:
+                logger.error(f'failed to click next page {self.query.id=} {self.query.next_page_xpath=}: {e}')
+                self._save_page(page, 'failed_to_click_next_page')
+                self.query.errors.append('failed to click next page')
+                return False
+        else:
+            page.evaluate('window.scrollBy(0, window.innerHeight)')
+            page.wait_for_timeout(self.query.timeout * 1000)
+        return True
 
     def parse(self):
         with self.playwright_context() as context:
             page = self._load_page(context)
-            self._check_login(page)
             seen_titles = set()
             for i in range(self.query.pages):
                 for element in self._find_elements(page):
@@ -95,5 +82,7 @@ class GenericParser(BaseParser):
                         continue
                     yield Body(title=title, url=self._get_link(elements[0]))
                     seen_titles.add(title)
+
                 if i < self.query.pages - 1:
-                    self._load_next_page(page)
+                    if not self._load_next_page(page):
+                        break

@@ -9,7 +9,6 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', '-p', default=os.getcwd())
     parser.add_argument('--headful', action='store_true')
-    parser.add_argument('--login-timeout', type=int, default=0)
     subparsers = parser.add_subparsers(dest='cmd')
     collect_parser = subparsers.add_parser('collect')
     collect_parser.add_argument('--daemon', action='store_true')
@@ -36,8 +35,7 @@ def main():
         os.path.join(path, 'user_settings.py'),
         STATE_DIR=os.path.join(WORK_DIR, 'state'),
         STORE_DIR=os.path.join(path, 'store'),
-        HEADLESS=not (args.headful or args.login_timeout),
-        LOGIN_TIMEOUT=args.login_timeout,
+        HEADLESS=not args.headful,
         RUN_DELTA=3600,
     )
     if args.cmd == 'collect':

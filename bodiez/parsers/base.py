@@ -37,7 +37,6 @@ class BaseParser:
         self.config = config
         self.query = query
         self.state_file = os.path.join(self.config.STATE_DIR, f'{urlparse(self.query.url).netloc}.json')
-        self.timeout = self.query.headless_timeout if self.config.HEADLESS else self.query.headful_timeout
 
     def _is_external_domain(self, request):
         return get_url_domain_name(self.query.url) not in urlparse(request.url).netloc.split('.')
@@ -57,21 +56,40 @@ class BaseParser:
             context.route('**/*', self._request_handler)
             yield context
 
-    def _save_page(self, page, name):
-        save_page(page, os.path.join(WORK_DIR, 'debug'), name)
+    def _check_login(self, page, check_delay=5, timeout=120):
+        def check():
+            try:
+                return not page.locator(f'xpath={self.query.login_xpath}').all()
+            except Exception as e:
+                logger.debug(f'failed to check login {self.query.id=}: {e}')
+                return False
+
+        if not self.query.login_xpath:
+            return
+        if check():
+            return
+        if self.config.HEADLESS:
+            raise Exception('Interactive login required')
+        logger.debug('waiting for login...')
+        start_ts = time.time()
+        while not check():
+            time.sleep(check_delay)
+            if time.time() - start_ts > timeout:
+                raise Exception('login timeout')
 
     def _load_page(self, context):
         page = context.new_page()
         page.goto(self.query.url)
-        if self.config.LOGIN_TIMEOUT and not self.config.HEADLESS:
-            logger.debug(f'waiting {self.config.LOGIN_TIMEOUT} seconds for login...')
-            time.sleep(self.config.LOGIN_TIMEOUT)
+        self._check_login(page)
         return page
 
+    def _save_page(self, page, name):
+        save_page(page, os.path.join(WORK_DIR, 'debug'), name)
+
     def _wait_for_selector(self, page, selector):
-        logger.debug(f'waiting for {selector=} {self.timeout=}')
+        logger.debug(f'waiting for {selector=} {self.query.timeout=}')
         try:
-            page.wait_for_selector(selector, timeout=self.timeout * 1000)
+            page.wait_for_selector(selector, timeout=self.query.timeout * 1000)
         except TimeoutError:
             self._save_page(page, 'selector_not_found')
             if not self.query.allow_no_results:

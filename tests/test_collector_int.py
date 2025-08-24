@@ -32,16 +32,18 @@ class BaseTestCase(unittest.TestCase):
             HEADLESS=headless,
         )
         remove_path(config.STORE_DIR)
-        return module.Collector(config)._collect_bodies(module.Query(**query_dict))
+        query = module.Query(**query_dict)
+        return module.Collector(config)._collect_bodies(query), query
 
     def _test_collect(self, *args, **kwargs):
-        res = self._collect(*args, **kwargs)
-        # pprint(res)
-        self.assertTrue(res, 'no results')
-        self.assertTrue(all(isinstance(r, Body) for r in res), 'invalid results')
-        self.assertTrue(len({r.title for r in res}) > len(res) * .9, 'invalid titles')
-        self.assertTrue(len({r.url for r in res}) > len(res) * .9, 'invalid urls')
-        self.assertTrue(all(r.key is not None for r in res), 'invalid keys')
+        bodies, query = self._collect(*args, **kwargs)
+        # pprint(bodies)
+        self.assertTrue(bodies, 'no results')
+        self.assertTrue(all(isinstance(r, Body) for r in bodies), 'invalid results')
+        self.assertTrue(len({r.title for r in bodies}) > len(bodies) * .9, 'invalid titles')
+        self.assertTrue(len({r.url for r in bodies}) > len(bodies) * .9, 'invalid urls')
+        self.assertTrue(all(r.key is not None for r in bodies), 'invalid keys')
+        self.assertEqual(query.errors, [])
 
 
 class DefaultTestCase(BaseTestCase):
@@ -121,13 +123,24 @@ class GenericTestCase(BaseTestCase):
             headless=False,
         )
 
+    def test_1337x_pages(self):
+        self._test_collect(
+            {
+                'url': 'https://1337x.to/user/FitGirl/',
+                'xpath': '//table/tbody/tr/td[1]/a[2]',
+                'next_page_xpath': '//a[contains(text(), ">>")]',
+                'pages': 3,
+            },
+            headless=False,
+        )
+
 
 class LoginTestCase(BaseTestCase):
     def setUp(self):
         super().setUp()
         remove_path(os.path.join(WORK_DIR, 'state'))
 
-    def test_fb_login(self):
+    def test_fb(self):
         self._test_collect(
             {
                 'url': 'https://www.facebook.com/marketplace/108433389181024/propertyforsale',
@@ -137,7 +150,18 @@ class LoginTestCase(BaseTestCase):
                 'group_attrs': ['width', 'height'],
                 'rel_xpath': '../../../../../../../div[2]/div',
                 'link_xpath': '../../..',
-                'pages': 1,
+            },
+            headless=False,
+        )
+
+    def test_rutracker(self):
+        self._test_collect(
+            {
+                'url': 'https://rutracker.org/forum/tracker.php?f=557',
+                'id': 'rutracker',
+                'login_xpath': '//input[@name="login_username"]',
+                'xpath': '//div[contains(@class, "t-title")]/a',
+                'block_external': True,
             },
             headless=False,
         )
@@ -184,7 +208,7 @@ class TimeoutTestCase(BaseTestCase):
         )
 
     def test_no_result(self):
-        res = self._collect(
+        bodies, query = self._collect(
             {
                 'url': 'https://1337x.to/search/asdasdasd/1/',
                 'xpath': '//table/tbody/tr/td[1]/a[2]',
@@ -192,7 +216,8 @@ class TimeoutTestCase(BaseTestCase):
             },
             headless=True,
         )
-        self.assertEqual(res, [])
+        self.assertEqual(bodies, [])
+        self.assertEqual(query.errors, [])
 
 
 class WorkflowTestCase(BaseTestCase):
