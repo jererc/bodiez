@@ -46,7 +46,7 @@ class BaseTestCase(unittest.TestCase):
         self.assertEqual(query.errors, [])
 
 
-class DefaultTestCase(BaseTestCase):
+class CollectTestCase(BaseTestCase):
     def setUp(self):
         os.makedirs(WORK_DIR, exist_ok=True)
         self.settings_file = os.path.join(os.path.dirname(os.path.dirname(module.__file__)), 'bootstrap', 'user_settings.py')
@@ -55,7 +55,7 @@ class DefaultTestCase(BaseTestCase):
         ids = [q['id'] for q in self.query_dicts]
         assert len(set(ids)) == len(ids)
 
-    def test_all(self):
+    def test_default_queries(self):
         results = {}
         for query_dict in self.query_dicts:
             try:
@@ -74,8 +74,6 @@ class DefaultTestCase(BaseTestCase):
         failures = {k: v['message'] for k, v in results.items() if not v['success']}
         self.assertFalse(failures, pformat(failures))
 
-
-class GenericTestCase(BaseTestCase):
     def test_1337x_filter(self):
         self._test_collect(
             {
@@ -93,7 +91,7 @@ class GenericTestCase(BaseTestCase):
                 'url': 'https://1337x.to/user/FitGirl/',
                 'xpath': '//table/tbody/tr/td[1]/a[2]',
                 'next_page_xpath': '//a[contains(text(), ">>")]',
-                'pages': 3,
+                'pages': 10,
             },
             headless=False,
         )
@@ -144,6 +142,29 @@ class GenericTestCase(BaseTestCase):
             headless=False,
         )
 
+    def test_timeout(self):
+        self.assertRaises(
+            Exception,
+            self._collect,
+            {
+                'url': 'https://1337x.to/user/FitGirl/',
+                'xpath': '//table/tbody/tr/td[999]/a[999]',
+            },
+            headless=True,
+        )
+
+    def test_no_result(self):
+        bodies, query = self._collect(
+            {
+                'url': 'https://1337x.to/search/asdasdasd/1/',
+                'xpath': '//table/tbody/tr/td[1]/a[2]',
+                'allow_no_results': True,
+            },
+            headless=True,
+        )
+        self.assertEqual(bodies, [])
+        self.assertEqual(query.errors, [])
+
 
 class LoginTestCase(BaseTestCase):
     def setUp(self):
@@ -175,31 +196,6 @@ class LoginTestCase(BaseTestCase):
             },
             headless=False,
         )
-
-
-class TimeoutTestCase(BaseTestCase):
-    def test_timeout(self):
-        self.assertRaises(
-            Exception,
-            self._collect,
-            {
-                'url': 'https://1337x.to/user/FitGirl/',
-                'xpath': '//table/tbody/tr/td[999]/a[999]',
-            },
-            headless=True,
-        )
-
-    def test_no_result(self):
-        bodies, query = self._collect(
-            {
-                'url': 'https://1337x.to/search/asdasdasd/1/',
-                'xpath': '//table/tbody/tr/td[1]/a[2]',
-                'allow_no_results': True,
-            },
-            headless=True,
-        )
-        self.assertEqual(bodies, [])
-        self.assertEqual(query.errors, [])
 
 
 class WorkflowTestCase(BaseTestCase):

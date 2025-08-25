@@ -54,6 +54,7 @@ class Query:
     link_xpath: str = '.'
     pages: int = 1
     next_page_xpath: str = None
+    navigation_delay: int = 2
     max_notif: int = 3
     history_size: int = 50
     parser_id: str = 'generic'

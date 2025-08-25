@@ -1,5 +1,6 @@
 from collections import defaultdict
 import logging
+import time
 
 from bodiez.parsers.base import BaseParser, Body
 
@@ -60,6 +61,7 @@ class GenericParser(BaseParser):
 
     def _load_next_page(self, page):
         if self.query.next_page_xpath:
+            time.sleep(self.query.navigation_delay)
             try:
                 page.locator(f'xpath={self.query.next_page_xpath}').click()
             except Exception as e:

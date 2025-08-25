@@ -11,7 +11,7 @@ QUERIES = [
         'filter_xpath': filter_xpath_1337x,
         'filter_callable': filter_callable_1337x,
         'next_page_xpath': next_page_xpath_1337x,
-        'pages': 2,
+        'pages': 3,
         'block_external': True,
         'max_notif': 10,
     },
