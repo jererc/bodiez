@@ -4,7 +4,6 @@ import time
 
 from bodiez.parsers.base import BaseParser, Body
 
-
 logger = logging.getLogger(__name__)
 
 

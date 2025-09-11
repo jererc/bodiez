@@ -9,7 +9,6 @@ import socket
 import time
 from typing import List
 
-
 HOSTNAME = socket.gethostname()
 
 logger = logging.getLogger(__name__)

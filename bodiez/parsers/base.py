@@ -13,7 +13,6 @@ from webutils.browser import playwright_context, save_page
 
 from bodiez import WORK_DIR
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -13,7 +13,6 @@ from bodiez import NAME
 from bodiez.parsers.base import get_url_domain_name, iterate_parsers
 from bodiez.store import CloudSyncStore
 
-
 logger = logging.getLogger(__name__)
 
 
