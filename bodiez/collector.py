@@ -57,7 +57,7 @@ class Query:
     max_notif: int = 3
     history_size: int = 50
     parser_id: str = 'generic'
-    key_generator: Callable = lambda x: x.title
+    key_generator: Callable = lambda body: body.title
     title_postprocessor: Callable = clean_title
     errors: List[str] = field(default_factory=list)
 
