@@ -3,6 +3,12 @@ filter_xpath_1337x = '../../td[3]'
 filter_callable_1337x = lambda x: int(x) > 50
 next_page_xpath_1337x = '//a[contains(text(), ">>")]'
 
+
+def rate_key_generator(body, step):
+    price = float(body.title.replace('$', '').replace(',', ''))
+    return str(price - (price % step))
+
+
 QUERIES = [
     {
         'url': 'https://1337x.to/user/FitGirl/',
@@ -38,9 +44,19 @@ QUERIES = [
         'id': 'btc-usd',
         'xpath': '//span[@data-test="text-cdp-price-display"]',
         'block_external': True,
-        'key_generator': lambda x: str(float(x.title.replace('$', '').replace(',', '')) // 4000 * 4000),
+        'key_generator': lambda x: rate_key_generator(x, 2000),
         'history_size': 3,
-        'update_delta': 8 * 3600,
+        'update_delta': 4 * 3600,
+        'active': False,
+    },
+    {
+        'url': 'https://coinmarketcap.com/currencies/xrp/',
+        'id': 'xrp-usd',
+        'xpath': '//span[@data-test="text-cdp-price-display"]',
+        'block_external': True,
+        'key_generator': lambda x: rate_key_generator(x, .02),
+        'history_size': 3,
+        'update_delta': 4 * 3600,
     },
     {
         'url': 'https://rutracker.org/forum/tracker.php?f=557',
