@@ -117,8 +117,7 @@ class Collector:
     def _process_query(self, query):
         start_ts = time.time()
         doc = self.store.get(query.url)
-        if not (self.force or self.test or doc.updated_ts <
-                time.time() - query.update_delta):
+        if not (self.force or self.test or doc.updated_ts < time.time() - query.update_delta):
             logger.debug(f'skipped recently updated {query.id}')
             return
         bodies = self._collect_bodies(query)
