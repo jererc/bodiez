@@ -3,6 +3,8 @@ filter_xpath_1337x = '../../td[3]'
 filter_callable_1337x = lambda x: int(x) > 50
 next_page_xpath_1337x = '//a[contains(text(), ">>")]'
 
+xpath_libgen = '//tr/td[1]/a[@title][1]'
+
 
 def rate_key_generator(body, step):
     price = float(body.title.replace('$', '').replace(',', ''))
@@ -45,9 +47,8 @@ QUERIES = [
         'xpath': '//span[@data-test="text-cdp-price-display"]',
         'block_external': True,
         'key_generator': lambda x: rate_key_generator(x, 2000),
-        'history_size': 3,
+        'history_size': 2,
         'update_delta': 4 * 3600,
-        'active': False,
     },
     {
         'url': 'https://coinmarketcap.com/currencies/xrp/',
@@ -55,8 +56,17 @@ QUERIES = [
         'xpath': '//span[@data-test="text-cdp-price-display"]',
         'block_external': True,
         'key_generator': lambda x: rate_key_generator(x, .02),
-        'history_size': 3,
+        'history_size': 2,
         'update_delta': 4 * 3600,
+        'active': False,
+    },
+    {
+        'url': 'https://libgen.gl/index.php?req=lenglet+maitre+lang%3Afre+ext%3Aepub&columns%5B%5D=t&columns%5B%5D=a&columns%5B%5D=s&columns%5B%5D=y&columns%5B%5D=p&columns%5B%5D=i&objects%5B%5D=f&objects%5B%5D=e&objects%5B%5D=s&objects%5B%5D=a&objects%5B%5D=p&objects%5B%5D=w&topics%5B%5D=l&topics%5B%5D=c&topics%5B%5D=f&topics%5B%5D=a&topics%5B%5D=m&topics%5B%5D=r&topics%5B%5D=s&res=100&gmode=on&filesuns=all',
+        'id': 'libgen-lenglet-maitre',
+        'xpath': xpath_libgen,
+        'block_external': True,
+        'allow_no_results': True,
+        'update_delta': 18 * 3600,
     },
     {
         'url': 'https://rutracker.org/forum/tracker.php?f=557',
