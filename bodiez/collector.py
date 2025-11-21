@@ -89,15 +89,9 @@ class Collector:
 
         over_limit = len(bodies[query.max_notif:])
         if over_limit:
-            notify(title=query.id,
-                   body=f'+{over_limit} more results',
-                   app_name=NAME,
-                   on_click=query.url)
+            notify(title=query.id, body=f'+{over_limit} more results', app_name=NAME, on_click=query.url)
         for body in reversed(bodies[:query.max_notif]):
-            notify(title=query.id,
-                   body=postprocess(body.title),
-                   app_name=NAME,
-                   on_click=body.url)
+            notify(title=query.id, body=postprocess(body.title), app_name=NAME, on_click=body.url)
 
     def _collect_bodies(self, query):
         try:
@@ -109,9 +103,7 @@ class Collector:
             body.key = query.key_generator(body)
         logger.debug(f'collected {len(bodies)} bodies for {query.id}:\n{to_json([asdict(r) for r in bodies])}')
         if query.errors:
-            notify(title=f'{query.id} errors',
-                   body=', '.join(sorted(set(query.errors))),
-                   app_name=NAME)
+            notify(title=f'{query.id} errors', body=', '.join(sorted(set(query.errors))), app_name=NAME)
         return bodies
 
     def _process_query(self, query):
@@ -148,8 +140,7 @@ class Collector:
                 continue
             if url_id and query.id != url_id:
                 continue
-            logger.debug(f'processing {query.id}:\n'
-                         f'{pformat(asdict(query), width=160)}')
+            logger.debug(f'processing {query.id}:\n{pformat(asdict(query), width=160)}')
             try:
                 self._process_query(query)
             except Exception:
