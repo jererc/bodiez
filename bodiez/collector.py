@@ -155,6 +155,15 @@ class Collector:
             logger.info(f'report:\n{to_json(self.report)}')
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')
 
+    def get_status(self, url_id=None):
+        for query_args in self.config.QUERIES:
+            query = Query(**query_args)
+            if not query.active:
+                continue
+            if url_id and query.id != url_id:
+                continue
+            print(f'{query.id=}\n{to_json(asdict(self.store.get(query.url)))}')
+
 
 def collect(config, force=False):
     Collector(config, force=force).run()
@@ -162,3 +171,7 @@ def collect(config, force=False):
 
 def test(config, url_id=None):
     Collector(config, test=test).run(url_id)
+
+
+def get_status(config, url_id=None):
+    Collector(config).get_status(url_id)

@@ -13,6 +13,8 @@ def parse_args():
     collect_parser = subparsers.add_parser('collect')
     collect_parser.add_argument('--daemon', action='store_true')
     collect_parser.add_argument('--task', action='store_true')
+    status_parser = subparsers.add_parser('status')
+    status_parser.add_argument('--id')
     test_parser = subparsers.add_parser('test')
     test_parser.add_argument('--id')
     args = parser.parse_args()
@@ -53,9 +55,9 @@ def main():
             service.run_once()
         else:
             wrap_collect(config, force=True)
-    elif args.cmd == 'test':
+    else:
         from bodiez import collector
-        collector.test(config, url_id=args.id)
+        {'test': collector.test, 'status': collector.get_status}[args.cmd](config, url_id=args.id)
 
 
 if __name__ == '__main__':
