@@ -74,24 +74,27 @@ class CollectTestCase(BaseTestCase):
         failures = {k: v['message'] for k, v in results.items() if not v['success']}
         self.assertFalse(failures, pformat(failures))
 
-    def test_1337x_filter(self):
+    def test_1337x(self):
         self._test_collect(
             {
                 'url': 'https://1337x.to/user/FitGirl/',
                 'xpath': '//table/tbody/tr/td[1]/a[2]',
                 'filter_xpath': '../../td[3]',
                 'filter_callable': lambda x: int(x) > 50,
+                'next_page_xpath': '//a[contains(text(), ">>")]',
+                'pages': 3,
             },
             headless=False,
         )
 
-    def test_1337x_pages(self):
+    def test_fitgirl(self):
         self._test_collect(
             {
-                'url': 'https://1337x.to/user/FitGirl/',
-                'xpath': '//table/tbody/tr/td[1]/a[2]',
-                'next_page_xpath': '//a[contains(text(), ">>")]',
-                'pages': 10,
+                'url': 'https://fitgirl-repacks.site/category/lossless-repack/',
+                'block_external': True,
+                'xpath': '//article/header/h1/a',
+                'next_page_xpath': '//a[contains(text(), "Next →")]',
+                'pages': 3,
             },
             headless=False,
         )
