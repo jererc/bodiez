@@ -58,15 +58,18 @@ class GenericParser(BaseParser):
         texts = [r.text_content().strip() for r in text_elements]
         return self.query.text_delimiter.join(r for r in texts if r)
 
-    def _load_next_page(self, page):
+    def _load_next_page(self, page, page_index=None):
         if self.query.next_page_xpath:
-            time.sleep(self.query.navigation_delay)
+            time.sleep(self.query.next_page_delay)
+            logger.debug(f'loading next page {self.query.id=} {page_index=} {self.query.next_page_xpath=}')
             try:
-                page.locator(f'xpath={self.query.next_page_xpath}').click()
+                page.locator(f'xpath={self.query.next_page_xpath}').click(timeout=self.query.next_page_timeout * 1000)
             except Exception as e:
-                logger.error(f'failed to click next page {self.query.id=} {self.query.next_page_xpath=}: {e}')
-                self._save_page(page, 'failed_to_click_next_page')
-                self.query.errors.append('failed to click next page')
+                if page_index == 0:
+                    self._save_page(page, 'failed_to_click_next_page')
+                    self.query.errors.append('failed to click next page')
+                else:
+                    logger.debug(f'failed to click next page {self.query.id=} {page_index=} {self.query.next_page_xpath=}: {e}')
                 return False
         else:
             page.evaluate('window.scrollBy(0, window.innerHeight)')
@@ -88,5 +91,5 @@ class GenericParser(BaseParser):
                     seen_titles.add(title)
 
                 if i < self.query.pages - 1:
-                    if not self._load_next_page(page):
+                    if not self._load_next_page(page, page_index=i):
                         break

@@ -145,6 +145,26 @@ class CollectTestCase(BaseTestCase):
             headless=False,
         )
 
+    def test_kitesurfmu(self):
+        self._test_collect(
+            {
+                'url': 'https://kitesurf.mu/index.php?id_category=902&controller=category&id_lang=1',
+                'id': 'surf-top',
+                'xpath': '//div[@class="product-miniature-information"]',
+                'text_xpaths': [
+                    './/a',
+                    './/span[@class="price"]',
+                ],
+                'link_xpath': './/a',
+                'next_page_xpath': '//a[@rel="next" and not(contains(@class, "disabled"))]',
+                'pages': 10,
+                'block_external': True,
+                'update_delta': 8 * 3600,
+                'max_notif': 10,
+            },
+            headless=False,
+        )
+
     def test_timeout(self):
         self.assertRaises(
             Exception,

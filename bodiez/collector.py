@@ -53,7 +53,8 @@ class Query:
     link_xpath: str = '.'
     pages: int = 1
     next_page_xpath: str = None
-    navigation_delay: int = 2
+    next_page_delay: int = 2   # do not hammer the server
+    next_page_timeout: int = 10
     max_notif: int = 3
     history_size: int = 50
     parser_id: str = 'generic'
