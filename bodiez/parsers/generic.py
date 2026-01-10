@@ -85,9 +85,11 @@ class GenericParser(BaseParser):
                     if not self._validate_element(elements[0]):
                         continue
                     title = self._get_title(elements)
+                    url = self._get_link(elements[0])
                     if title in seen_titles:
+                        logger.debug(f'skipping duplicate {self.query.id=} {title=} {url=}')
                         continue
-                    yield Body(title=title, url=self._get_link(elements[0]))
+                    yield Body(title=title, url=url)
                     seen_titles.add(title)
 
                 if i < self.query.pages - 1:

@@ -156,6 +156,7 @@ class CollectTestCase(BaseTestCase):
                     './/span[@class="price"]',
                 ],
                 'link_xpath': './/a',
+                # 'key_generator': lambda body: f'{body.title}|{body.url}',
                 'next_page_xpath': '//a[@rel="next" and not(contains(@class, "disabled"))]',
                 'pages': 10,
                 'block_external': True,
