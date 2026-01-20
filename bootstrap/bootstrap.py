@@ -19,7 +19,7 @@ Bootstrapper(
     tasks=[
         {'name': 'bodiez', 'args': ['bodiez.main', '-p', os.getcwd(), 'collect', '--task']},
     ],
-    download_assets=[
+    assets=[
         {'filename': 'user_settings.py', 'url': 'https://raw.githubusercontent.com/jererc/bodiez/refs/heads/main/bootstrap/user_settings.py'},
     ],
 )
