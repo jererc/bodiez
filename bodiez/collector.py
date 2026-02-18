@@ -82,6 +82,9 @@ class Collector:
         self.store = CloudSyncStore(self.config)
         self.report = []
 
+    def _notify(self, *args, **kwargs):
+        notify(*args, app_name=NAME, telegram_bot_token=self.config.TELEGRAM_BOT_TOKEN, telegram_chat_id=self.config.TELEGRAM_CHAT_ID, **kwargs)
+
     def _notify_new_bodies(self, query, bodies):
         def postprocess(title):
             if not query.title_postprocessor:
@@ -90,9 +93,9 @@ class Collector:
 
         over_limit = len(bodies[query.max_notif:])
         if over_limit:
-            notify(title=query.id, body=f'+{over_limit} more results', app_name=NAME, on_click=query.url)
+            self._notify(title=query.id, body=f'+{over_limit} more results', on_click=query.url)
         for body in reversed(bodies[:query.max_notif]):
-            notify(title=query.id, body=postprocess(body.title), app_name=NAME, on_click=body.url)
+            self._notify(title=query.id, body=postprocess(body.title), on_click=body.url)
 
     def _collect_bodies(self, query):
         try:
@@ -104,7 +107,7 @@ class Collector:
             body.key = query.key_generator(body)
         logger.debug(f'collected {len(bodies)} bodies for {query.id}:\n{to_json([asdict(r) for r in bodies])}')
         if query.errors:
-            notify(title=f'{query.id} errors', body=', '.join(sorted(set(query.errors))), app_name=NAME)
+            self._notify(title=f'{query.id} errors', body=', '.join(sorted(set(query.errors))))
         return bodies
 
     def _process_query(self, query):
@@ -148,10 +151,10 @@ class Collector:
                 logger.exception(f'failed to process {query.id}')
                 failed_queries.append(query)
         if failed_queries:
-            notify(title='failed queries',
-                   body=', '.join(sorted(r.id for r in failed_queries)),
-                   app_name=NAME,
-                   replace_key='failed-queries')
+            self._notify(
+                title='failed queries',
+                body=', '.join(sorted(r.id for r in failed_queries)),
+                replace_key='failed-queries')
         if self.report:
             logger.info(f'report:\n{to_json(self.report)}')
         logger.info(f'processed in {time.time() - start_ts:.02f} seconds')
