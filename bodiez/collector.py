@@ -7,7 +7,7 @@ import time
 from typing import Callable, List
 from urllib.parse import urlparse, unquote_plus
 
-from svcutils.notifier import notify
+from svcutils.notifier import get_notifier
 
 from bodiez import NAME
 from bodiez.parsers.base import get_url_domain_name, iterate_parsers
@@ -81,9 +81,7 @@ class Collector:
         self.parsers = {r.id: r for r in iterate_parsers()}
         self.store = CloudSyncStore(self.config)
         self.report = []
-
-    def _notify(self, *args, **kwargs):
-        notify(*args, app_name=NAME, telegram_bot_token=self.config.TELEGRAM_BOT_TOKEN, telegram_chat_id=self.config.TELEGRAM_CHAT_ID, **kwargs)
+        self.notifier = get_notifier(app_name=NAME, telegram_bot_token=self.config.TELEGRAM_BOT_TOKEN, telegram_chat_id=self.config.TELEGRAM_CHAT_ID)
 
     def _notify_new_bodies(self, query, bodies):
         def postprocess(title):
@@ -93,9 +91,9 @@ class Collector:
 
         over_limit = len(bodies[query.max_notif:])
         if over_limit:
-            self._notify(title=query.id, body=f'+{over_limit} more results', on_click=query.url)
+            self.notifier.send(title=query.id, body=f'+{over_limit} more results', on_click=query.url)
         for body in reversed(bodies[:query.max_notif]):
-            self._notify(title=query.id, body=postprocess(body.title), on_click=body.url)
+            self.notifier.send(title=query.id, body=postprocess(body.title), on_click=body.url)
 
     def _collect_bodies(self, query):
         try:
@@ -107,7 +105,7 @@ class Collector:
             body.key = query.key_generator(body)
         logger.debug(f'collected {len(bodies)} bodies for {query.id}:\n{to_json([asdict(r) for r in bodies])}')
         if query.errors:
-            self._notify(title=f'{query.id} errors', body=', '.join(sorted(set(query.errors))))
+            self.notifier.send(title=f'{query.id} errors', body=', '.join(sorted(set(query.errors))))
         return bodies
 
     def _process_query(self, query):
@@ -151,7 +149,7 @@ class Collector:
                 logger.exception(f'failed to process {query.id}')
                 failed_queries.append(query)
         if failed_queries:
-            self._notify(
+            self.notifier.send(
                 title='failed queries',
                 body=', '.join(sorted(r.id for r in failed_queries)),
                 replace_key='failed-queries')

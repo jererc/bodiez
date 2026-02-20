@@ -228,8 +228,8 @@ class WorkflowTestCase(BaseTestCase):
             __file__,
             QUERIES=[
                 {
-                    'url': 'https://1337x.to/user/FitGirl/',
-                    'xpath': '//table/tbody/tr/td[1]/a[2]',
+                    'url': 'https://fitgirl-repacks.site/category/lossless-repack/',
+                    'xpath': '//article/header/h1/a',
                     'update_delta': 0,
                 },
             ],
@@ -247,27 +247,27 @@ class WorkflowTestCase(BaseTestCase):
         pprint(doc)
         self.assertFalse(doc.keys)
 
-        with patch.object(module, 'notify') as mock_notify:
+        with patch.object(collector.notifier, 'send') as mock_notifier:
             run()
-        pprint(mock_notify.call_args_list)
-        self.assertEqual(len(mock_notify.call_args_list), 4)
+        pprint(mock_notifier.call_args_list)
+        self.assertEqual(len(mock_notifier.call_args_list), 4)
 
         doc = collector.store.get(config.QUERIES[0]['url'])
         pprint(doc)
         self.assertTrue(doc.keys)
 
-        with patch.object(module, 'notify') as mock_notify:
+        with patch.object(collector.notifier, 'send') as mock_notifier:
             run()
-        pprint(mock_notify.call_args_list)
-        self.assertFalse(mock_notify.call_args_list)
+        pprint(mock_notifier.call_args_list)
+        self.assertFalse(mock_notifier.call_args_list)
 
         new_titles = [f'body {i}' for i in range(2)]
-        with patch.object(module, 'notify') as mock_notify, \
+        with patch.object(collector.notifier, 'send') as mock_notifier, \
                 patch.object(collector, '_collect_bodies') as mock__collect_bodies:
             mock__collect_bodies.return_value = [Body(title=r, key=r)
                                                  for r in (new_titles + doc.keys[:-len(new_titles)])]
             run()
-        pprint(mock_notify.call_args_list)
+        pprint(mock_notifier.call_args_list)
         prev_doc_keys = doc.keys
         doc = collector.store.get(config.QUERIES[0]['url'])
         pprint(doc)
