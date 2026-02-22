@@ -101,9 +101,9 @@ class Collector:
 
         over_limit = len(bodies[query.max_notif:])
         if over_limit:
-            self._notify(query.id, f'+{over_limit} more results', query.url)
+            self._notify(title=query.id, body=f'+{over_limit} more results', on_click=query.url)
         for body in reversed(bodies[:query.max_notif]):
-            self._notify(query.id, postprocess(body.title), body.url)
+            self._notify(title=query.id, body=postprocess(body.title), on_click=body.url)
 
     def _collect_bodies(self, query):
         try:
@@ -115,7 +115,7 @@ class Collector:
             body.key = query.key_generator(body)
         logger.debug(f'collected {len(bodies)} bodies for {query.id}:\n{to_json([asdict(r) for r in bodies])}')
         if query.errors:
-            self._notify(f'{query.id} errors', ', '.join(sorted(set(query.errors))))
+            self._notify(title=f'{query.id} errors', body=', '.join(sorted(set(query.errors))))
         return bodies
 
     def _process_query(self, query):
@@ -160,8 +160,8 @@ class Collector:
                 failed_queries.append(query)
         if failed_queries:
             self._notify(
-                'failed queries',
-                ', '.join(sorted(r.id for r in failed_queries)),
+                title='failed queries',
+                body=', '.join(sorted(r.id for r in failed_queries)),
                 replace_key='failed-queries',
             )
         if self.report:
