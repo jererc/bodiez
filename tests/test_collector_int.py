@@ -247,27 +247,27 @@ class WorkflowTestCase(BaseTestCase):
         pprint(doc)
         self.assertFalse(doc.keys)
 
-        with patch.object(collector.notifier, 'send') as mock_notifier:
+        with patch.object(collector, '_notify') as mock__notify:
             run()
-        pprint(mock_notifier.call_args_list)
-        self.assertEqual(len(mock_notifier.call_args_list), 4)
+        pprint(mock__notify.call_args_list)
+        self.assertEqual(len(mock__notify.call_args_list), 4)
 
         doc = collector.store.get(config.QUERIES[0]['url'])
         pprint(doc)
         self.assertTrue(doc.keys)
 
-        with patch.object(collector.notifier, 'send') as mock_notifier:
+        with patch.object(collector, '_notify') as mock__notify:
             run()
-        pprint(mock_notifier.call_args_list)
-        self.assertFalse(mock_notifier.call_args_list)
+        pprint(mock__notify.call_args_list)
+        self.assertFalse(mock__notify.call_args_list)
 
         new_titles = [f'body {i}' for i in range(2)]
-        with patch.object(collector.notifier, 'send') as mock_notifier, \
+        with patch.object(collector, '_notify') as mock__notify, \
                 patch.object(collector, '_collect_bodies') as mock__collect_bodies:
             mock__collect_bodies.return_value = [Body(title=r, key=r)
                                                  for r in (new_titles + doc.keys[:-len(new_titles)])]
             run()
-        pprint(mock_notifier.call_args_list)
+        pprint(mock__notify.call_args_list)
         prev_doc_keys = doc.keys
         doc = collector.store.get(config.QUERIES[0]['url'])
         pprint(doc)
