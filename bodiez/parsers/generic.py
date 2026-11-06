@@ -65,7 +65,7 @@ class GenericParser(BaseParser):
             try:
                 page.locator(f'xpath={self.query.next_page_xpath}').click(timeout=self.query.next_page_timeout * 1000)
             except Exception as e:
-                if page_index == 0:
+                if page_index == 0 and not self.query.allow_missing_next_page:
                     self._save_page(page, 'failed_to_click_next_page')
                     self.query.errors.append('failed to click next page')
                 else:

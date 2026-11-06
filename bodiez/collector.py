@@ -55,6 +55,7 @@ class Query:
     next_page_xpath: str = None
     next_page_delay: int = 2   # do not hammer the server
     next_page_timeout: int = 10
+    allow_missing_next_page: bool = False
     max_notif: int = 3
     history_size: int = 50
     parser_id: str = 'generic'
